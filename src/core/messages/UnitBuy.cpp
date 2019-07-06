@@ -5,7 +5,7 @@
 #include "UnitBuy.h"
 
 z2::UnitBuy::UnitBuy(const string &identifier, const z2::Point &pos, int playerId) :
-        GameMessage(GeneralMessageType::UnitBuy),
+        GameMessage(GameMessageType::UnitBuy),
         identifier(identifier),
         pos(pos), playerId(playerId) {}
 

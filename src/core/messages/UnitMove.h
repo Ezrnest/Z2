@@ -5,8 +5,8 @@
 #ifndef Z2_UNITMOVE_H
 #define Z2_UNITMOVE_H
 
-#include "../Message.h"
 #include "../../world/Point.h"
+#include "GameMessage.h"
 
 namespace z2 {
 class UnitMove : public GameMessage {

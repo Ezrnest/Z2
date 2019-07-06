@@ -7,6 +7,7 @@
 
 #include "../Message.h"
 #include "../../world/Point.h"
+#include "GameMessage.h"
 #include <string>
 using namespace std;
 namespace z2 {

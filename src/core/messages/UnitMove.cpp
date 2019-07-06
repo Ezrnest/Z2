@@ -5,7 +5,7 @@
 #include "UnitMove.h"
 
 z2::UnitMove::UnitMove(const z2::Point &from, const z2::Point &dest)
-        : GameMessage(GeneralMessageType::UnitMove),
+        : GameMessage(GameMessageType::UnitMove),
           from(from), dest(dest) {}
 
 const z2::Point &z2::UnitMove::getFrom() const {

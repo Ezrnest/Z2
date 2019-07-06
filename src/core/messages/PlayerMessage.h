@@ -6,13 +6,14 @@
 #define Z2_PLAYERMESSAGE_H
 
 #include "../Message.h"
+#include "ControlMessage.h"
 
 namespace z2 {
 class PlayerMessage : public ControlMessage{
 private:
     int playerId;
 public:
-    PlayerMessage(GeneralMessageType type, int playerId);
+    PlayerMessage(ControlMessageType type, int playerId);
 
     int getPlayerId() const;
 };

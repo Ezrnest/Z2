@@ -4,6 +4,11 @@
 #ifndef Z2_TILE_H
 #define Z2_TILE_H
 
+namespace z2{
+class Point;
+}
+
+
 #include <memory>
 #include "Resource.h"
 #include "../entity/Entity.h"

@@ -5,7 +5,7 @@
 #include "PlayerMessage.h"
 
 
-z2::PlayerMessage::PlayerMessage(z2::GeneralMessageType type, int playerId)
+z2::PlayerMessage::PlayerMessage(z2::ControlMessageType type, int playerId)
         : ControlMessage(type), playerId(playerId) {}
 
 int z2::PlayerMessage::getPlayerId() const {

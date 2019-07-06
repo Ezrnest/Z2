@@ -7,6 +7,7 @@
 
 #include "../Message.h"
 #include "../../world/Point.h"
+#include "GameMessage.h"
 
 namespace z2 {
 
@@ -14,7 +15,7 @@ class EntityPerform : public GameMessage {
 private:
     Point pos;
 public:
-    EntityPerform(GeneralMessageType type, const Point &pos);
+    EntityPerform(GameMessageType type, const Point &pos);
 
     const Point &getPos() const;
 

@@ -4,9 +4,14 @@
 #ifndef Z2_ENTITY_H
 #define Z2_ENTITY_H
 
+
+namespace z2{
+class Point;
+class World;
+}
+
 #include <string>
 #include "../util/Properties.h"
-#include "../world/World.h"
 
 
 namespace z2 {

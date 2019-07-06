@@ -12,25 +12,16 @@ void Server::getMessage(const shared_ptr<Message> &command) {
         return;
     }
     switch (command->getGeneralType()) {
-        case GeneralMessageType::PlayerTurnFinish: {
-            onPlayerTurnFinish(command);
+        case GeneralMessageType::ControlMessage: {
+            //TODO
             break;
         }
-        case GeneralMessageType::PlayerDefeated:
-            break;
-        case GeneralMessageType::PlayerWin:
-            break;
-        case GeneralMessageType::UnitPerform:
-        case GeneralMessageType::UnitBuy:
-        case GeneralMessageType::UnitMove:
-        case GeneralMessageType::UnitAttack:
+        case GeneralMessageType::GameMessage: {
             world->dealWithMessage(dynamic_pointer_cast<GameMessage>(command));
             break;
-        case GeneralMessageType::StartGame:
-        case GeneralMessageType::EndGame:
-        case GeneralMessageType::PlayerTurnStart:
-            throw logic_error("");
-
+        }
+        case GeneralMessageType::ChatMessage:
+            break;
     }
 }
 
@@ -42,7 +33,7 @@ bool z2::Server::registerClient(const shared_ptr<z2::Client> &client) {
 void z2::Server::startGame() {
     gameState = RUNNING;
 
-    shared_ptr<Message> startGame(new ControlMessage(GeneralMessageType::StartGame));
+    shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
     broadcastMessage(startGame);
 
     int playerId = world->getCurrentPlayer();
@@ -58,13 +49,13 @@ void Server::sendMessage(const shared_ptr<Message> &message, int clientId) {
 }
 
 void Server::broadcastMessage(const shared_ptr<Message> &message) {
-    for(auto &c : clients){
+    for (auto &c : clients) {
         c->sendMessage(message);
     }
 }
 
 void Server::callPlayer(int playerId) {
-    shared_ptr<Message> msg(new PlayerMessage(GeneralMessageType::PlayerTurnStart, playerId));
+    shared_ptr<Message> msg(new PlayerMessage(ControlMessageType::PlayerTurnStart, playerId));
     world->onPlayerTurnStart();
     sendMessage(msg, playerId);
 }

@@ -107,7 +107,6 @@ void World::initPlainDataFrom(const World &world) {
 void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
     //TODO
     switch (message->getGameType()){
-
         case GameMessageType::UnitBuy:break;
         case GameMessageType::UnitMove:break;
         case GameMessageType::UnitPerform:break;
@@ -147,7 +146,7 @@ void World::onPlayerTurnFinish() {
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, const Properties &prop) {
     auto &tile = getTile(pos);
-    auto entity = EntityRepository::instance().createEntity<Entity>(entityId, getNextObjectId(), prop);
+    auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId(), prop);
     tile.setEntity(entity);
     return entity;
 }

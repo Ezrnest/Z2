@@ -3,20 +3,35 @@
  */
 
 #include "UnitBuy.h"
+using namespace z2;
+UnitBuy::UnitBuy(const string &identifier, const int playerId, const Point &pos,
+                     const Properties &prop) : GameMessage(GameMessageType::UnitBuy), identifier(identifier),
+                                               playerId(playerId), pos(pos),
+                                               prop(prop) {}
 
-z2::UnitBuy::UnitBuy(const string &identifier, const z2::Point &pos, int playerId) :
-        GameMessage(GameMessageType::UnitBuy),
-        identifier(identifier),
-        pos(pos), playerId(playerId) {}
 
-const string &z2::UnitBuy::getIdentifier() const {
+UnitBuy::UnitBuy(const string &identifier, const Point &pos, int playerId) :
+        GameMessage(GameMessageType::UnitBuy), identifier(identifier), playerId(playerId), pos(pos),
+        prop() {}
+
+const string &UnitBuy::getIdentifier() const {
     return identifier;
 }
 
-int z2::UnitBuy::getPlayerId() const {
+int UnitBuy::getPlayerId() const {
     return playerId;
 }
 
-const z2::Point &z2::UnitBuy::getPos() const {
+const Point &UnitBuy::getPos() const {
     return pos;
 }
+
+const Properties &UnitBuy::getProp() const {
+    return prop;
+}
+
+void UnitBuy::setProp(const Properties &prop) {
+    UnitBuy::prop = prop;
+}
+
+

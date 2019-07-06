@@ -8,6 +8,7 @@
 #include "../core/Message.h"
 #include "../core/EntityRepository.h"
 #include "../core/messages/GameMessage.h"
+#include "../core/messages/UnitMove.h"
 
 using namespace z2;
 
@@ -54,6 +55,12 @@ World::~World() {
 bool World::isInside(int x, int y) const {
     return 0 <= x < width && 0 <= y < height;
 }
+
+
+bool World::isInside(const Point &pos) const {
+    return isInside(pos.x, pos.y);
+}
+
 
 bool World::isOccupied(int x, int y) const {
     return getTile(x, y).isOccupied();
@@ -107,8 +114,15 @@ void World::initPlainDataFrom(const World &world) {
 void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
     //TODO
     switch (message->getGameType()){
-        case GameMessageType::UnitBuy:break;
-        case GameMessageType::UnitMove:break;
+        case GameMessageType::UnitBuy:{
+
+            break;
+        }
+        case GameMessageType::UnitMove:{
+            const shared_ptr<UnitMove> msg = static_pointer_cast<UnitMove>(message);
+            moveEntity(msg->getFrom(),msg->getDest());
+            break;
+        }
         case GameMessageType::UnitPerform:break;
         case GameMessageType::UnitAttack:break;
     }
@@ -130,6 +144,10 @@ bool World::moveEntity(const Point &from, const Point &dest) {
     onEntityMoved(from, dest, entity);
 
     return true;
+}
+
+void World::buyEntity(const z2::Point &from, const z2::Point &pos) {
+    //TODO
 }
 
 void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity) {
@@ -159,7 +177,19 @@ Player &World::getPlayer(int playerId) {
     return players[playerId];
 }
 
-
+Tile* World::getAdjacentEmptyTile(const Point &pos) const {
+    for(const Point& dir : Point::directions()){
+        auto p = pos + dir;
+        if(!isInside(p)){
+            continue;
+        }
+        Tile& tile = getTile(p);
+        if(!tile.isOccupied()){
+            return &tile;
+        }
+    }
+    return nullptr;
+}
 
 
 

@@ -69,7 +69,14 @@ public:
 
     bool isInside(int x, int y) const;
 
+    bool isInside(const Point& pos) const;
+
     bool isOccupied(int x, int y) const;
+
+    /**
+     * Gets an adjacent empty tile from the point.
+     */
+    Tile* getAdjacentEmptyTile(const Point& pos) const;
 
     /**
      * Gets the next object id of this world. Multiple calls of this method will
@@ -106,6 +113,8 @@ public:
      * Otherwise, returns `false`
      */
     bool moveEntity(const Point& from, const Point& dest);
+
+    void buyEntity(const Point& from, const Point& pos);
 
     void onEntityMoved(const Point& from, const Point& dest, const shared_ptr<GameUnit>& entity);
 

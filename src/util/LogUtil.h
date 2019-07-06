@@ -10,7 +10,7 @@
 #include <string>
 
 using namespace std;
-
+namespace ancono {
 
 
 enum class LogLevel {
@@ -54,5 +54,5 @@ void error(const string &message);
 void error(const function<string()> &messageSupplier);
 
 void error(const char *message);
-
+}
 #endif //HOMEWORK_LOGUTIL_H

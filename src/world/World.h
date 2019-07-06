@@ -12,18 +12,19 @@
 #include "../core/Message.h"
 #include "../core/messages/GameMessage.h"
 #include <vector>
-namespace z2{
+
+namespace z2 {
 /**
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
-class World{
+class World {
 private:
     int width = 1;
     int height = 1;
     /**
      * The map of the world.
      */
-    Tile** data;
+    Tile **data;
     /**
      * The players of this game.
      */
@@ -43,18 +44,17 @@ private:
     void initPlainDataFrom(const World &world);
 
 public:
-    World(int width_,int height_);
+    World(int width_, int height_);
 
-    World(const World& world);
+    World(const World &world);
 
-    World& operator=(const World& world);
+    World &operator=(const World &world);
 
-    World(World&& world) noexcept;
+    World(World &&world) noexcept;
 
-    World& operator=(World&& world) noexcept;
+    World &operator=(World &&world) noexcept;
 
     ~World();
-
 
 
     const vector<Player> &getPlayers() const;
@@ -63,20 +63,33 @@ public:
 
     int getPlayerCount() const;
 
-    Tile& getTile(int x,int y) const;
+    /**
+     * Gets the tile at the given position. This method won't check whether the position
+     * is valid.
+     */
+    Tile &getTile(int x, int y) const;
 
-    Tile& getTile(const Point& pos) const;
+    /**
+     * Gets the tile at the given position. This method won't check whether the position
+     * is valid.
+     */
+    Tile &getTile(const Point &pos) const;
 
+    /**
+     * Determines whether the given coordinate is inside the map.
+     */
     bool isInside(int x, int y) const;
-
-    bool isInside(const Point& pos) const;
+    /**
+     * Determines whether the given point is inside the map.
+     */
+    bool isInside(const Point &pos) const;
 
     bool isOccupied(int x, int y) const;
 
     /**
      * Gets an adjacent empty tile from the point.
      */
-    Tile* getAdjacentEmptyTile(const Point& pos) const;
+    Tile *getAdjacentEmptyTile(const Point &pos) const;
 
     /**
      * Gets the next object id of this world. Multiple calls of this method will
@@ -93,39 +106,40 @@ public:
      */
     int nextPlayer();
 
-    Player& getPlayer(int playerId);
+    Player &getPlayer(int playerId);
 
     /**
      * Called when the current player starts his turn.
      */
     void onPlayerTurnStart();
+
     /**
      * Called when the current player finishes his turn.
      */
     void onPlayerTurnFinish();
 
 
-
-    void dealWithMessage(const shared_ptr<GameMessage>& message);
+    void dealWithMessage(const shared_ptr<GameMessage> &message);
 
     /**
      * Moves the entity at the tile of the point `from` to `dest`, if `dest` is not occupied.
      * Otherwise, returns `false`
      */
-    bool moveEntity(const Point& from, const Point& dest);
+    bool moveEntity(const Point &from, const Point &dest);
 
-    void buyEntity(const Point& from, const Point& pos);
+    void buyEntity(const Point &from, const Point &pos);
 
-    void onEntityMoved(const Point& from, const Point& dest, const shared_ptr<GameUnit>& entity);
+    void onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity);
 
     /**
      * Creates an entity at the given position.
      */
-    shared_ptr<Entity> createEntity(const Point& pos, const string& entityId, const Properties& prop);
+    shared_ptr<Entity> createEntity(const Point &pos, const string &entityId, const Properties &prop);
+
     /**
      * Creates an entity at the given position with no properties.
      */
-    shared_ptr<Entity> createEntity(const Point& pos, const string& entityId);
+    shared_ptr<Entity> createEntity(const Point &pos, const string &entityId);
 };
 }
 

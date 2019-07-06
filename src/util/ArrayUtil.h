@@ -4,7 +4,7 @@
 
 #ifndef HOMEWORK_ARRAYUTIL_H
 #define HOMEWORK_ARRAYUTIL_H
-
+namespace ancono {
 
 template<typename T>
 T *copyArr(T *original, int length) {
@@ -164,5 +164,5 @@ int binarySearchCeiling(T *arr, int lo, int hi, const T &target) {
     return lo; // lo == hi
 }
 
-
+}
 #endif //HOMEWORK_ARRAYUTIL_H

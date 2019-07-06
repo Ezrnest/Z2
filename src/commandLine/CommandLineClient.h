@@ -8,6 +8,8 @@
 namespace z2 {
 class CommandLineClient {
 
+
+
 };
 }
 

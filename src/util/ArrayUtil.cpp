@@ -1,7 +1,7 @@
 //
 // Created by liyicheng on 2018/11/21.
 //
-
+namespace ancono {
 /**
  * Helper function for storing edges in a vertex.
  */
@@ -25,8 +25,8 @@ T *ensureCapacityAndAdd(T *arr, int &cap, int &n, const T &e) {
 int removeDuplicated(int *arr, int size) {
     int idx = 1;
     int prev = arr[0];
-    for(int i=1;i<size;i++){
-        if(arr[i] != prev){
+    for (int i = 1; i < size; i++) {
+        if (arr[i] != prev) {
             arr[idx] = arr[i];
             prev = arr[i];
             idx++;
@@ -35,8 +35,7 @@ int removeDuplicated(int *arr, int size) {
     return idx;
 }
 
-
-
+}
 //int sum(int i,int j){
 //    return i+j;
 //}

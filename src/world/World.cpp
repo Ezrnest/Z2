@@ -12,7 +12,7 @@
 
 using namespace z2;
 
-
+using namespace ancono;
 World::World(int width_, int height_) : width(width_), height(height_) {
     data = initMatrix<Tile>(width_, height_);
 }
@@ -129,6 +129,10 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
 }
 
 bool World::moveEntity(const Point &from, const Point &dest) {
+    if(!isInside(dest)){
+        warn("Attempting to move outside the map!");
+        return false;
+    }
     auto destTile = getTile(dest);
     if (destTile.isOccupied()) {
         //TODO add log info

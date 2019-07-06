@@ -11,6 +11,7 @@
 #include "../../util/Properties.h"
 #include <string>
 using namespace std;
+using namespace ancono;
 namespace z2 {
 
 class UnitBuy : public GameMessage {

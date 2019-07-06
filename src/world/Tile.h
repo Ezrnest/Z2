@@ -15,6 +15,8 @@ class Point;
 #include <vector>
 
 namespace z2 {
+    class Entity;
+
 /**
 * Describes the terrain of a single tile.
 */
@@ -28,6 +30,7 @@ enum class Terrain {
 bool isBlocking(Terrain t);
 
 using namespace std;
+using namespace ancono;
 
 enum class Visibility {
     DARK, GREY, CLEAR

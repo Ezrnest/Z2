@@ -13,9 +13,9 @@ class World;
 #include <string>
 #include "../util/Properties.h"
 
-
+using namespace ancono;
 namespace z2 {
-
+class World;
 /**
  * Represents an entity in the game.
  *

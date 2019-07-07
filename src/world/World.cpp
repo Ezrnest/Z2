@@ -9,6 +9,7 @@
 #include "../core/EntityRepository.h"
 #include "../core/messages/GameMessage.h"
 #include "../core/messages/UnitMove.h"
+#include "../core/messages/UnitBuy.h"
 
 using namespace z2;
 
@@ -66,6 +67,14 @@ bool World::isOccupied(int x, int y) const {
     return getTile(x, y).isOccupied();
 }
 
+int World::getWidth() const {
+    return width;
+}
+
+int World::getHeight() const {
+    return height;
+}
+
 Tile &World::getTile(int x, int y) const {
     return data[x][y];
 }
@@ -115,7 +124,8 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
     //TODO
     switch (message->getGameType()){
         case GameMessageType::UnitBuy:{
-
+            const shared_ptr<UnitBuy> msg = static_pointer_cast<UnitBuy>(message);
+            buyEntity(msg->getPlayerId(),msg->getPos(),msg->getIdentifier());
             break;
         }
         case GameMessageType::UnitMove:{
@@ -150,13 +160,26 @@ bool World::moveEntity(const Point &from, const Point &dest) {
     return true;
 }
 
-void World::buyEntity(const z2::Point &from, const z2::Point &pos) {
-    //TODO
+void World::buyEntity(int playerId, const Point &pos, const string &entityName) {
+    const Point& whereToPlace = getAdjacentEmptyPos(pos);
+    if(whereToPlace.x < 0){
+        warn("Nowhere to place the bought unit.");
+        return;
+    }
+    createEntity(whereToPlace,entityName,playerId);
+
 }
+
 
 void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity) {
     //TODO add log info
+    //TODO dispatch
 }
+
+void World::onEntityCreated(const Point &pos, const string &entityName, int playerId) {
+    //TODO dispatch
+}
+
 
 void World::onPlayerTurnStart() {
     info("Player turn started.");
@@ -164,17 +187,19 @@ void World::onPlayerTurnStart() {
 
 void World::onPlayerTurnFinish() {
     info("Player turn finished.");
+    //TODO: update visibility
 }
 
-shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, const Properties &prop) {
-    auto &tile = getTile(pos);
-    auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId(), prop);
+shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
+    Tile& tile = getTile(pos);
+    auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
     tile.setEntity(entity);
+    onEntityCreated(pos,entityId,playerId);
     return entity;
 }
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId) {
-    return createEntity(pos, entityId, Properties());
+    return createEntity(pos, entityId, Player::NO_PLAYER);
 }
 
 Player &World::getPlayer(int playerId) {
@@ -193,6 +218,20 @@ Tile* World::getAdjacentEmptyTile(const Point &pos) const {
         }
     }
     return nullptr;
+}
+
+Point World::getAdjacentEmptyPos(const Point &pos) const {
+    for(const Point& dir : Point::directions()){
+        auto p = pos + dir;
+        if(!isInside(p)){
+            continue;
+        }
+        Tile& tile = getTile(p);
+        if(!tile.isOccupied()){
+            return p;
+        }
+    }
+    return {-1,-1};
 }
 
 

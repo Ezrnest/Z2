@@ -14,10 +14,13 @@
 #include <vector>
 
 namespace z2 {
+class CommandLineGameGui;
 /**
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
 class World {
+public:
+    friend class CommandLineGameGui;
 private:
     int width = 1;
     int height = 1;
@@ -56,6 +59,10 @@ public:
 
     ~World();
 
+    int getWidth() const;
+
+    int getHeight() const;
+
 
     const vector<Player> &getPlayers() const;
 
@@ -90,6 +97,11 @@ public:
      * Gets an adjacent empty tile from the point.
      */
     Tile *getAdjacentEmptyTile(const Point &pos) const;
+    /**
+     * Gets the position of an adjacent empty tile from the point, if there is
+     * no such point, returns a point (-1,-1).
+     */
+    Point getAdjacentEmptyPos(const Point& pos) const;
 
     /**
      * Gets the next object id of this world. Multiple calls of this method will
@@ -127,19 +139,21 @@ public:
      */
     bool moveEntity(const Point &from, const Point &dest);
 
-    void buyEntity(const Point &from, const Point &pos);
+    void buyEntity(int playerId,const Point &pos, const string& entityName);
 
     void onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity);
 
-    /**
-     * Creates an entity at the given position.
-     */
-    shared_ptr<Entity> createEntity(const Point &pos, const string &entityId, const Properties &prop);
+    void onEntityCreated(const Point& pos, const string& entityName, int playerId);
 
     /**
-     * Creates an entity at the given position with no properties.
+     * Creates an entity at the given tile.
      */
-    shared_ptr<Entity> createEntity(const Point &pos, const string &entityId);
+    shared_ptr<Entity> createEntity(const Point &, const string &entityId, int playerId);
+
+    /**
+     * Creates an entity at the given tile with no properties.
+     */
+    shared_ptr<Entity> createEntity(const Point &, const string &entityId);
 };
 }
 

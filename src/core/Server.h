@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <memory>
-#include "Client.h"
+#include "ClientPort.h"
 #include "../world/World.h"
 
 using namespace std;
@@ -17,6 +17,25 @@ namespace z2 {
  * MODEL:
  * The model of the game: C/S model.
  *
+ * ---------------------------------------------------
+ *
+ * Local Game Structure:
+ *
+ * Server <-> LocalClientPort=LocalServerPort=Client
+ *
+ * ---------------------------------------------------
+ *
+ * Remote Game Structure:
+ * Local:                            |  Remote:
+ * Server <-> LocalClient (bots)     |
+ *        <-> LocalClient            |
+ *            (Player1, local)       |
+ *        <-> RemoteClientPort  >> (TCP) << RemoteServerPort <-> Client [At computer 2]
+ *            (Player2, remote)      |
+ *        <-> RemoteClientPort  >> (TCP) << RemoteServerPort <-> Client [At computer 3]
+ *            (Player3, remote)      |
+ *        ...                        |
+ * ---------------------------------------------------
  *
  * PROCESS:
  * To start a game, firstly, a server is created.
@@ -33,7 +52,7 @@ private:
     /**
      * The clients that are registered to this server.
      */
-    vector<shared_ptr<Client>> clients;
+    vector<shared_ptr<ClientPort>> clients;
     /**
      * The world of this server.
      */
@@ -48,7 +67,7 @@ private:
     void broadcastMessage(const shared_ptr<Message>& message);
 
     /**
-     * Send the given message to the
+     * Send the given message to one of the client.
      */
     void sendMessage(const shared_ptr<Message>& message, int clientId);
 
@@ -64,16 +83,17 @@ public:
 
     virtual ~Server();
     /**
-     * Send a message to the server.
+     * Accepts the given message.
      *
-     * This method should be invoked logically by the player.
+     * This method should be invoked logically by the player/(server port).
      */
-    void getMessage(const shared_ptr<Message>& command);
+    void acceptMessage(const shared_ptr<Message> &command);
 
     /**
-     * Register the client to this server. The client will be assigned a client id and the world will be synchronized.
+     * Register the client to this server.
+     * The client will be assigned a client id and the world will be synchronized.
      */
-    bool registerClient(const shared_ptr<Client>& client);
+    bool registerClient(const shared_ptr<ClientPort>& client);
 
     /**
      * Starts the game, or restart the game.
@@ -85,6 +105,11 @@ public:
      */
     void pauseGame();
 
+    const shared_ptr<World> &getWorld() const;
+
+    void setWorld(const shared_ptr<World> &world);
+
+    int getGameState() const;
 };
 
 }

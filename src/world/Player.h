@@ -34,6 +34,14 @@ public:
 
     void setGold(int gold);
 
+    /**
+     * The player id indicating null player.
+     */
+    static const int NO_PLAYER = -1;
+    /**
+     * The group id indicating no group, which requires a special process.
+     */
+    static const int NO_GROUP = -1;
 };
 }
 

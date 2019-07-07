@@ -1,53 +1,68 @@
 /*
- * Created by liyicheng on 2019/7/3.
+ * Created by liyicheng on 2019/7/6.
  */
 
 #ifndef Z2_CLIENT_H
 #define Z2_CLIENT_H
 
-#include "Message.h"
-#include "../world/World.h"
 #include <memory>
+#include "Message.h"
+#include "ClientPort.h"
+#include "ServerPort.h"
+#include "GameController.h"
 
-namespace z2 {
-
-/**
- * Client represents a logic part in the game.
- * It is a message receiver that can receive the message of updates in the game.
- * It represents a player who can get commands and do actions. The client id matches the corresponding player id.
+/*
+ * MODEL:
+ * The model of the game at the client side: MVC
  *
- * There can be different implementations for this interface.
+ * Model: Holds the data
+ * Controller: Respond to the events
+ * View: The interface
+ *
+ * In this game,
+ * World is the Model,
+ * Client is the Controller,
+ * GameGui is the view
+ *
  */
-class Client {
+using namespace std;
+namespace z2 {
+/**
+ * Describes a client in the client side(remote).
+ */
+class Client : public GameController{
 private:
-    int clientId = -1;
 public:
+    /**
+     * Accepts the given message.
+     *
+     * This method should be invoked logically by the server(port) part.
+     */
+    virtual void acceptMessage(const shared_ptr<Message> &command) = 0;
 
+    /**
+     * Sends the given message to the server.
+     *
+     * This method should be invoked logically by the player(/view) part.
+     */
+    void sendMessageToServer(const shared_ptr<Message>& message) override;
+
+    /**
+     * Sets the server port.
+     */
+    virtual void setServerPort(const shared_ptr<ServerPort> &server) = 0;
+
+    virtual shared_ptr<ServerPort> getServer() = 0;
 
     virtual ~Client();
 
-    int getClientId() const;
+    virtual shared_ptr<World> getWorld() = 0;
 
-    void setClientId(int clientId_);
+    virtual int getPlayerId() = 0;
 
-    /**
-     * Sends a message to the client.
-     * Performs the given command in the client world.
-     */
-    virtual void sendMessage(const shared_ptr<Message> &command) = 0;
 
-//    /**
-//     * Notifies the player of the given id to start the turn.
-//     */
-//    virtual void onTurn(int playerId) = 0;
 
-    /**
-     * Synchronizes the client world with the given server world.
-     * @return `true` if the operation succeed, otherwise false.
-     */
-    virtual bool syncWorld(const World &world) = 0;
 };
-
 }
 
 #endif //Z2_CLIENT_H

@@ -14,10 +14,11 @@ class Point {
 public:
     int x, y;
 
+    Point() noexcept ;
+
     Point(int x, int y) noexcept;
 
     Point operator+(const Point &p) const;
-
 
     static const array<Point, 4> &directions() {
         static array<Point, 4> DIRECTIONS = {

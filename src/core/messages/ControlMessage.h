@@ -10,8 +10,7 @@
 
 namespace z2 {
 enum class ControlMessageType {
-    //Control Messages:
-            StartGame, EndGame,
+    StartGame, EndGame,
     PlayerTurnStart, PlayerTurnFinish,
     PlayerDefeated, PlayerWin,
 
@@ -28,7 +27,6 @@ public:
 
     ControlMessageType getControlType() const;
 };
-
 }
 
 

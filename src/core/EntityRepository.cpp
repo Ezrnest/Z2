@@ -119,4 +119,14 @@ void EntityRepository::initEntityClasses() {
 
 }
 
+void EntityRepository::initDefaultEntities() {
+    initEntityClasses();
+    auto& repo = instance();
+    for(auto& en : repo.entityClasses){
+        auto cInfo = en.second;
+        EntityInfo info(cInfo->getClassName(),cInfo,Properties());
+        repo.registerEntity(info);
+    }
+}
+
 

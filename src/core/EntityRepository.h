@@ -115,6 +115,8 @@ public:
      * Loads the entity classes.
      */
     static void initEntityClasses();
+
+    static void initDefaultEntities();
 };
 
 }

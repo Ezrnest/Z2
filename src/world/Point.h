@@ -20,6 +20,12 @@ public:
 
     Point operator+(const Point &p) const;
 
+    /**
+     * Returns the gird distance from
+     */
+    int girdDistance(const Point &p) const;
+
+
     static const array<Point, 4> &directions() {
         static array<Point, 4> DIRECTIONS = {
                 Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)

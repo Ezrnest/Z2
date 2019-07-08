@@ -11,13 +11,15 @@
 
 namespace z2 {
 
-class LocalClient : public Client, public virtual ClientPort {
+class LocalClient : public Client, public ClientPort {
 private:
-    shared_ptr<Server> server;
-    shared_ptr<GameGui> gui;
-    int playerId;
+    weak_ptr<Server> server;
+    weak_ptr<GameGui> gui;
+
+    void dealWithControlMessage(const shared_ptr<ControlMessage> &message);
+
 public:
-    const shared_ptr<Server> &getRealServer() const;
+    const weak_ptr<Server> &getRealServer() const;
 
     void setRealServer(const shared_ptr<Server> &server);
 
@@ -44,6 +46,8 @@ public:
     bool syncWorld(const World &world) override;
 
     void sendMessageToServer(const MessagePtr &message) override;
+
+
 };
 
 }

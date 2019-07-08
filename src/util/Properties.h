@@ -21,11 +21,11 @@ namespace ancono {
 
         void loadFromFile(const string &);
 
-        string get(const string &, const string &);
+        const string& get(const string &, const string &);
 
-        double getDouble(const string &, const double &);
+        double getDouble(const string &, const double &) const;
 
-        int getInt(const string &, const int &);
+        int getInt(const string &, const int &) const;
 
         void set(const string &, const string &);
 

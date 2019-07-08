@@ -33,4 +33,10 @@ void Farmer::performAbility(const Point &pos, World &world) {
     doFarm(pos, world);
 }
 
+void Farmer::initialize(const Properties &prop) {
+    GameUnit::initialize(prop);
+    goldPerTurn = prop.getInt("goldPerTurn",goldPerTurn);
+
+}
+
 

@@ -21,7 +21,7 @@ enum class LogLevel {
     ERROR
 };
 
-static ostream &out = cout;
+static ostream& out = cout;
 
 static LogLevel level = LogLevel::INFO;
 

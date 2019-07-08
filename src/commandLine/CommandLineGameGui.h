@@ -7,8 +7,19 @@
 
 #include "../core/GameGui.h"
 
+#include <queue>
+using namespace std;
 namespace z2 {
 class CommandLineGameGui : public GameGui{
+
+private:
+    using Task = function<void()>;
+    queue<Task> taskQueue;
+
+    void runLater(const Task& task);
+
+    void doPlayerTurn();
+
 public:
     void update() override;
 
@@ -18,7 +29,11 @@ public:
 
     void onPlayerWin(int playerId) override;
 
-    void printWorld();
+    void printWorld() const;
+
+    void mainLoop();
+
+    void makeMove();
 };
 }
 

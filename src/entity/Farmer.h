@@ -26,6 +26,8 @@ public:
     void doFarm(const Point& pos, World& world);
 
     void performAbility(const Point &pos, World &world) override;
+
+    void initialize(const Properties &prop) override;
 };
 
 }

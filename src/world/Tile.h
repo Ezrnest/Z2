@@ -4,7 +4,7 @@
 #ifndef Z2_TILE_H
 #define Z2_TILE_H
 
-namespace z2{
+namespace z2 {
 class Point;
 }
 
@@ -15,7 +15,7 @@ class Point;
 #include <vector>
 
 namespace z2 {
-    class Entity;
+class Entity;
 
 /**
 * Describes the terrain of a single tile.
@@ -44,8 +44,13 @@ private:
     /**
      * The visibility of the players
      */
-    vector<int> visibility;
+    vector<Visibility> visibility;
 public:
+    Tile();
+
+//    Tile(const Tile& tile) = delete;
+//
+//    Tile& operator=(const Tile& tile) = delete;
 
     Terrain getTerrain();
 
@@ -55,15 +60,26 @@ public:
 
     void setResource(const Resource &resource_);
 
+    Visibility getVisibility(int playerId);
+
+    void setVisibility(int playerId, Visibility v);
+
     bool hasEntity();
 
     bool isOccupied();
 
     std::shared_ptr<Entity> getEntity();
 
-    void setEntity(const shared_ptr<Entity>& entity_);
+    void setEntity(const shared_ptr<Entity> &entity_);
 
     std::shared_ptr<Entity> removeEntity();
+
+    /**
+     * If v != `DARK`, sets it to `GRAY`.
+     */
+    void resetVisibility(int playerId);
+
+    void setPlayerCount(int count);
 };
 
 

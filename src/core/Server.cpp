@@ -3,17 +3,22 @@
  */
 
 #include "Server.h"
+#include "Message.h"
+#include "ClientPort.h"
 #include "messages/PlayerMessage.h"
-
+#include "messages/ControlMessage.h"
+#include "../util/LogUtil.h"
 using namespace z2;
 
 void Server::acceptMessage(const shared_ptr<Message> &command) {
-    if (gameState != GameState::PAUSED) {
+    if (gameState == GameState::PAUSED) {
+        ancono::info("Reject message: Game Paused");
         return;
     }
+//    ancono::info("Accepted message!");
     switch (command->getGeneralType()) {
         case GeneralMessageType::ControlMessage: {
-            //TODO
+            dealWithControlMessage(static_pointer_cast<ControlMessage>(command));
             break;
         }
         case GeneralMessageType::GameMessage: {
@@ -27,12 +32,23 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
 
 bool z2::Server::registerClient(const shared_ptr<z2::ClientPort> &client) {
     client->setClientId(clients.size());
+
     clients.push_back(client);
 
-    return client->syncWorld(*world);
+    bool re =  client->syncWorld(*world);
+    if(re){
+        ancono::info("Client registered");
+        return true;
+    }else{
+        ancono::warn("Client register failed!");
+        return false;
+    }
 }
 
 void z2::Server::startGame() {
+    if(!checkGameReady()){
+        return;
+    }
     gameState = RUNNING;
 
     shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
@@ -71,6 +87,7 @@ void Server::onPlayerTurnFinish(const shared_ptr<Message> &message) {
     shared_ptr<PlayerMessage> msg = static_pointer_cast<PlayerMessage>(message);
     int playerId = msg->getPlayerId();
     if (playerId != world->getCurrentPlayer()) {
+        ancono::warn("Turn finish with not current player!");
         return;
     }
     shiftTurn();
@@ -86,6 +103,43 @@ int Server::getGameState() const {
 
 void Server::setWorld(const shared_ptr<World> &world) {
     Server::world = world;
+}
+
+bool Server::checkGameReady() {
+    if(gameState == RUNNING){
+        ancono::warn("Already started!");
+        return false;
+    }
+    if(clients.size() != world->getPlayerCount()){
+        ancono::warn("Player count != client count");
+        return false;
+    }
+    if(!world->checkReady()){
+        ancono::warn("The world is not correctly loaded!");
+        return false;
+    }
+    return true;
+}
+
+void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage>& message) {
+    switch (message->getControlType()){
+        case ControlMessageType::PlayerTurnFinish:{
+            onPlayerTurnFinish(message);
+            break;
+        }
+        case ControlMessageType::EndGame:{
+            onEndGame();
+            break;
+        }
+        case ControlMessageType::PlayerTurnStart:break;
+        case ControlMessageType::PlayerDefeated:break;
+        case ControlMessageType::PlayerWin:break;
+        case ControlMessageType::StartGame:break;
+    }
+}
+
+void Server::onEndGame() {
+    ancono::info("Game ended!");
 }
 
 

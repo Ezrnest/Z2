@@ -38,6 +38,12 @@ protected:
      */
     const int objectId;
 
+    /**
+     * The visibility of this object.
+     */
+    int visibility = 3;
+    int movesPerTurn = 3;
+    int remainingMoves = 0;
 public:
 
     explicit Entity(int objectId);
@@ -45,6 +51,10 @@ public:
     int getOwnerId() const;
 
     void setOwnerId(int ownerId);
+
+    int getVisibility() const;
+
+    void setVisibility(int visibility);
 
     const int getObjectId() const;
 
@@ -55,6 +65,21 @@ public:
     virtual void performAbility(const Point& pos, World& world);
 
     virtual ~Entity();
+
+    int getMovesPerTurn() const;
+
+    void setMovesPerTurn(int movesPerTurn);
+
+    int getRemainingMoves() const;
+
+    void setRemainingMoves(int remainingMoves);
+
+    void refreshMoves();
+
+    /**
+     * Equivalent to `setRemainingMoves(getRemainingMoves() - decrement)`
+     */
+    void decreaseMoves(int decrement);
 };
 
 

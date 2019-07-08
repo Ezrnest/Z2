@@ -5,6 +5,7 @@
 #include "EntityRepository.h"
 #include "../entity/ConstructionBase.h"
 #include "../entity/Farmer.h"
+#include "../util/LogUtil.h"
 
 using namespace z2;
 
@@ -109,6 +110,7 @@ void EntityRepository::registerEntity(const EntityInfo &info) {
 }
 
 void EntityRepository::initEntityClasses() {
+
     EntityRepository &repo = EntityRepository::instance();
 
     //Buildings:
@@ -116,7 +118,7 @@ void EntityRepository::initEntityClasses() {
     repo.registerEntityClass(ConstructionBase::getIdentifier(), ConstructionBase::create);
 
     repo.registerEntityClass(Farmer::getIdentifier(), Farmer::create);
-
+    ancono::info("Init entity classes: Done");
 }
 
 void EntityRepository::initDefaultEntities() {
@@ -127,6 +129,7 @@ void EntityRepository::initDefaultEntities() {
         EntityInfo info(cInfo->getClassName(),cInfo,Properties());
         repo.registerEntity(info);
     }
+    ancono::info("Init default entities: Done");
 }
 
 

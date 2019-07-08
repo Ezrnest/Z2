@@ -30,6 +30,6 @@ void z2::EntityWithHealth::setMaxHealth(int maxHealth) {
 void z2::EntityWithHealth::initialize(const Properties &prop) {
     Entity::initialize(prop);
     //TODO
-    //health = prop.getInt("health", health);
-    //maxHealth = prop.getInt("maxHealth", maxHealth);
+    health = prop.getInt("health", health);
+    maxHealth = prop.getInt("maxHealth", maxHealth);
 }

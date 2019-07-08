@@ -10,9 +10,10 @@
 namespace z2 {
 
 class GameUnit : public EntityWithHealth {
-private:
 public:
     explicit GameUnit(int objectId);
+
+    void initialize(const Properties &prop) override;
 };
 
 }

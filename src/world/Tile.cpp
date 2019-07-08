@@ -15,9 +15,9 @@ std::shared_ptr<Entity> Tile::getEntity() {
 }
 
 std::shared_ptr<Entity> Tile::removeEntity() {
-    auto ptr = entity.get();
+    auto copy = entity;
     entity.reset();
-    return shared_ptr<Entity>(ptr);
+    return copy;
 }
 
 Resource Tile::getResource() {
@@ -29,7 +29,7 @@ void Tile::setResource(const Resource &resource_) {
 }
 
 bool Tile::hasEntity() {
-    return bool(entity);
+    return entity != nullptr;
 }
 
 bool Tile::isOccupied() {
@@ -43,6 +43,30 @@ void Tile::setTerrain(Terrain terrain_) {
 void Tile::setEntity(const shared_ptr<Entity>& entity_) {
     entity = entity_;
 }
+
+Visibility Tile::getVisibility(int playerId) {
+    return visibility[playerId];
+}
+
+void Tile::setVisibility(int playerId, Visibility v) {
+    visibility[playerId] = v;
+}
+
+void Tile::resetVisibility(int playerId) {
+    Visibility v = visibility[playerId];
+    Visibility newVisibility = (v == Visibility::DARK) ? Visibility::DARK : Visibility::GREY;
+    visibility[playerId] = newVisibility;
+}
+
+void Tile::setPlayerCount(int count) {
+    visibility.reserve(count);
+    for(int i=0;i<count;i++){
+        visibility[i] = Visibility::DARK;
+    }
+}
+
+Tile::Tile() = default;
+
 
 bool isBlocking(const Terrain t) {
     switch(t){

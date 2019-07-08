@@ -57,8 +57,8 @@ namespace ancono {
         return;
     }
 
-    string Properties::get(const string &key, const string &defaultValue) {
-        map<string, string>::iterator iter = m.find(key);
+    const string& Properties::get(const string &key, const string &defaultValue) {
+        auto iter = m.find(key);
         if (iter == m.end()) {
             return defaultValue;
         } else {
@@ -66,8 +66,12 @@ namespace ancono {
         }
     }
 
-    double Properties::getDouble(const string &key, const double &defaultValue) {
-        string k = m[key];
+    double Properties::getDouble(const string &key, const double &defaultValue) const{
+        auto it = m.find(key);
+        if(it == m.end()){
+            return defaultValue;
+        }
+        const string & k = (*it).second;
         if (!isNumber(k)) {
             return defaultValue;
         } else {
@@ -78,7 +82,7 @@ namespace ancono {
         }
     }
 
-    int Properties::getInt(const string &key, const int &defaultValue) {
+    int Properties::getInt(const string &key, const int &defaultValue) const {
         return getDouble(key, defaultValue);
     }
 

@@ -5,12 +5,11 @@
 #ifndef Z2_CLIENTPORT_H
 #define Z2_CLIENTPORT_H
 
-#include "Message.h"
-#include "../world/World.h"
 #include <memory>
-
+using namespace std;
 namespace z2 {
-
+class World;
+class Message;
 /**
  * Client port represents a logic part in the game.
  * It is a message receiver that can receive the message of updates in the game.

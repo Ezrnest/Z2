@@ -19,8 +19,6 @@ class CommandLineGameGui;
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
 class World {
-public:
-    friend class CommandLineGameGui;
 private:
     int width = 1;
     int height = 1;
@@ -28,6 +26,12 @@ private:
      * The map of the world.
      */
     Tile **data;
+
+    /**
+     * The number of players in this game.
+     */
+    int playerCount = 1;
+
     /**
      * The players of this game.
      */
@@ -44,10 +48,15 @@ private:
      */
     int objectUID = 0;
 
+    // NOTE: updates `initPlainDataFrom` if new fields are added!
+
     void initPlainDataFrom(const World &world);
 
+    void resetVisibility(int playerId);
+
+    void setEntityVisibility(int x,int y, const shared_ptr<Entity>& en,int playerId);
 public:
-    World(int width_, int height_);
+    World(int width_, int height_, int playerCount);
 
     World(const World &world);
 
@@ -66,7 +75,9 @@ public:
 
     const vector<Player> &getPlayers() const;
 
-    void setPlayers(const vector<Player> &players_);
+    Player& getPlayer(int playerId);
+
+    bool checkReady();
 
     int getPlayerCount() const;
 
@@ -94,6 +105,12 @@ public:
     bool isOccupied(int x, int y) const;
 
     /**
+     * Computes the path length from `start` to `dest`.
+     */
+    int pathLength(const Point& start, const Point& dest) const;
+
+
+    /**
      * Gets an adjacent empty tile from the point.
      */
     Tile *getAdjacentEmptyTile(const Point &pos) const;
@@ -118,8 +135,6 @@ public:
      */
     int nextPlayer();
 
-    Player &getPlayer(int playerId);
-
     /**
      * Called when the current player starts his turn.
      */
@@ -130,7 +145,25 @@ public:
      */
     void onPlayerTurnFinish();
 
+    /**
+     * Applies the given function to all the entities of the player.
+     * @param f a function which accepts the x,y coordinates and the entity in order.
+     */
+    void forEachEntitiesOf(int playerId, const function<void(int,int,shared_ptr<Entity>)>& f);
 
+    /**
+     * Updates the visibility of a player. If the player id is not valid, this method will do nothing.
+     */
+    void updateVisibility(int playerId);
+
+    /**
+     * Refreshes all the units of the given player.
+     */
+    void refreshMoves(int playerId);
+
+    /**
+     * Deals with the given message.
+     */
     void dealWithMessage(const shared_ptr<GameMessage> &message);
 
     /**
@@ -154,6 +187,10 @@ public:
      * Creates an entity at the given tile with no properties.
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
+public:
+    friend class CommandLineGameGui;
+
+    const shared_ptr<Entity> getEntity(const Point &point);
 };
 }
 

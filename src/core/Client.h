@@ -48,6 +48,11 @@ public:
     void sendMessageToServer(const shared_ptr<Message>& message) override;
 
     /**
+     * Sends a message of turn finish of the player of this client.
+     */
+    void sendTurnFinishMessage();
+
+    /**
      * Sets the server port.
      */
     virtual void setServerPort(const shared_ptr<ServerPort> &server) = 0;

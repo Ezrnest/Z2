@@ -7,12 +7,15 @@
 
 #include <vector>
 #include <memory>
-#include "ClientPort.h"
 #include "../world/World.h"
 
 using namespace std;
 namespace z2 {
+class ClientPort;
 
+class Message;
+
+class ControlMessage;
 /*
  * MODEL:
  * The model of the game: C/S model.
@@ -38,9 +41,11 @@ namespace z2 {
  * ---------------------------------------------------
  *
  * PROCESS:
- * To start a game, firstly, a server is created.
- * Second, clients are created and registered to the server.
- * Third, after all the registers are finished, the server starts the game.
+ * To start a game:
+ * 1. A server is created.
+ * 2. World of the server is set, either from a new world or a world loaded from save.
+ * 3. Clients are created and registered to the server, and the world will be synchronized.
+ * 4. after all the registers are finished, the server starts the game.
  */
 
 
@@ -57,19 +62,20 @@ private:
      * The world of this server.
      */
     shared_ptr<World> world;
-    enum GameState{
-        PAUSED,RUNNING
+    enum GameState {
+        PAUSED, RUNNING
     };
     int gameState = PAUSED;
+
     /**
      * Broadcast the given message to all the clients.
      */
-    void broadcastMessage(const shared_ptr<Message>& message);
+    void broadcastMessage(const shared_ptr<Message> &message);
 
     /**
      * Send the given message to one of the client.
      */
-    void sendMessage(const shared_ptr<Message>& message, int clientId);
+    void sendMessage(const shared_ptr<Message> &message, int clientId);
 
     /**
      * Calls the next player.
@@ -78,10 +84,19 @@ private:
 
     void shiftTurn();
 
-    void onPlayerTurnFinish(const shared_ptr<Message>& message);
+    void onPlayerTurnFinish(const shared_ptr<Message> &message);
+
+    void onEndGame();
+
+    bool checkGameReady();
+
+    void dealWithControlMessage(const shared_ptr<z2::ControlMessage> &message);
+
+
 public:
 
     virtual ~Server();
+
     /**
      * Accepts the given message.
      *
@@ -90,13 +105,13 @@ public:
     void acceptMessage(const shared_ptr<Message> &command);
 
     /**
-     * Register the client to this server.
-     * The client will be assigned a client id and the world will be synchronized.
+     * Register the client to this server, the world will be synchronized.
+     * The client will be assigned a client id.
      */
-    bool registerClient(const shared_ptr<ClientPort>& client);
+    bool registerClient(const shared_ptr<ClientPort> &client);
 
     /**
-     * Starts the game, or restart the game.
+     * Starts the game.
      */
     void startGame();
 
@@ -110,6 +125,8 @@ public:
     void setWorld(const shared_ptr<World> &world);
 
     int getGameState() const;
+
+
 };
 
 }

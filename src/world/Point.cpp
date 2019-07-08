@@ -13,3 +13,7 @@ z2::Point z2::Point::operator+(const z2::Point &p) const {
 Point::Point() noexcept : Point(-1,-1){
 
 }
+
+int Point::girdDistance(const Point& p) const{
+    return abs(x - p.x) + abs(y - p.y);
+}

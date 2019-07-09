@@ -2,6 +2,7 @@
 // Created by liyicheng on 2019/7/3.
 //
 
+#include <cmath>
 #include "Point.h"
 using namespace z2;
 z2::Point::Point(int x, int y) noexcept : x(x), y(y) {}

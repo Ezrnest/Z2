@@ -21,7 +21,7 @@ namespace ancono {
 
         void loadFromFile(const string &);
 
-        const string& get(const string &, const string &);
+        const string & get(const string &, const string &) const;
 
         double getDouble(const string &, const double &) const;
 
@@ -33,9 +33,9 @@ namespace ancono {
 
         void setInt(const string &, const int &);
 
-        void saveTo(ostream &output);
+        void saveTo(ostream &output) const;
 
-        void saveToFile(const string &);
+        void saveToFile(const string &) const;
 
     private:
         map<string, string> m;

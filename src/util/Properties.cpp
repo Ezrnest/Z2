@@ -50,14 +50,14 @@ namespace ancono {
     }
 
     void Properties::loadFromFile(const string &path) {
-        const char *file = path.c_str();
+        const char * file = path.c_str();
         ifstream fin(file);
         this->loadFrom(fin);
         fin.close();
         return;
     }
 
-    const string& Properties::get(const string &key, const string &defaultValue) {
+    const string & Properties::get(const string &key, const string &defaultValue) const{
         auto iter = m.find(key);
         if (iter == m.end()) {
             return defaultValue;
@@ -67,11 +67,11 @@ namespace ancono {
     }
 
     double Properties::getDouble(const string &key, const double &defaultValue) const{
-        auto it = m.find(key);
-        if(it == m.end()){
+        auto iter = m.find(key);
+        if(iter == m.end()){
             return defaultValue;
         }
-        const string & k = (*it).second;
+        const string & k = iter->second;
         if (!isNumber(k)) {
             return defaultValue;
         } else {
@@ -82,15 +82,27 @@ namespace ancono {
         }
     }
 
-    int Properties::getInt(const string &key, const int &defaultValue) const {
-        return getDouble(key, defaultValue);
+    int Properties::getInt(const string &key, const int & defaultValue) const {
+        auto iter = m.find(key);
+        if(iter == m.end()){
+            return defaultValue;
+        }
+        const string & k = iter->second;
+        if (!isNumber(k)) {
+            return defaultValue;
+        } else {
+            stringstream ss(k);
+            int a = 0.0;
+            ss >> a;
+            return a;
+        }
     }
 
     void Properties::set(const string &key, const string &value) {
         m[key] = value;
     }
 
-    void Properties::setDouble(const string &key, const double &value) {
+    void Properties::setDouble(const string &key, const double & value) {
         stringstream ss("");
         ss << value;
         string v = "";
@@ -99,19 +111,18 @@ namespace ancono {
         return;
     }
 
-    void Properties::setInt(const string &key, const int &value) {
-        setDouble(key, value);
+    void Properties::setInt(const string & key, const int & value) {
+        setDouble(key, value); // does not involve conversion from double to int
         return;
     }
 
-    void Properties::saveTo(ostream &output) {
-        map<string, string>::iterator iter;
-        for (iter = m.begin(); iter != m.end(); iter++) {
+    void Properties::saveTo(ostream & output) const{
+        for (auto iter = m.begin(); iter != m.end(); iter++) {
             output << iter->first << "=" << iter->second << endl;
         }
     }
 
-    void Properties::saveToFile(const string &path) {
+    void Properties::saveToFile(const string &path) const{
         const char *file = path.c_str();
         ofstream fout(file);
         this->saveTo(fout);

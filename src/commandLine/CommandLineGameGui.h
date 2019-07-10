@@ -31,6 +31,8 @@ public:
 
     void printWorld() const;
 
+    static void printWorld(World& w);
+
     void mainLoop();
 
     void makeMove();

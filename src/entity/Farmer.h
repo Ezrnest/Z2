@@ -14,12 +14,14 @@ namespace z2 {
 class Farmer : public GameUnit{
 private:
     int goldPerTurn = 10;
+
+
 public:
-    explicit Farmer(int objectId);
+    explicit Farmer(unsigned int objectId);
 
-    const string &identifier() const override;
+    const string &getClassName() const override;
 
-    static const string& getIdentifier();
+    static const string& className();
 
     static Entity* create(int objectId, const Properties& initializer);
 
@@ -28,6 +30,15 @@ public:
     void performAbility(const Point &pos, World &world) override;
 
     void initialize(const Properties &prop) override;
+
+protected:
+    void serializeDataPart(ostream &output) override;
+
+    static void deserializeDataPart(istream &input, Farmer* en);
+public:
+    void serializeTo(ostream &output) override;
+
+    static Farmer* loadFrom(istream& input);
 };
 
 }

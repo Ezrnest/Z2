@@ -40,7 +40,9 @@ Properties &EntityClassInfo::getProperties() {
 }
 
 
-
+/**
+ * Gets the identifier(name) of this entity.
+ */
 const string &EntityInfo::getIdentifier() const {
     return identifier;
 }
@@ -50,8 +52,10 @@ const Properties &EntityInfo::getProperties() const {
 }
 
 EntityInfo::EntityInfo(const string &identifier, const shared_ptr<EntityClassInfo> &entityClassInfo,
-                       const Properties &properties) : identifier(identifier), entityClassInfo(entityClassInfo),
-                                                       properties(properties) {}
+                       const Properties &prop) : identifier(identifier), entityClassInfo(entityClassInfo),
+                                                       properties(prop) {
+    properties.set("entityName", identifier);
+}
 
 const shared_ptr<EntityClassInfo> &EntityInfo::getEntityClassInfo() const {
     return entityClassInfo;
@@ -83,14 +87,14 @@ const vector<string> EntityRepository::getAllLoadedEntityNames() const {
 shared_ptr<Entity> EntityRepository::createEntity(const string &entityName, int objectId) {
     const EntityInfo &info = getEntityInfo(entityName);
     const auto &f = info.getEntityClassInfo()->getCreatingFunction();
-    Entity* entity = f(objectId, info.getProperties());
+    Entity *entity = f(objectId, info.getProperties());
     return shared_ptr<Entity>(entity);
 }
 
 
 shared_ptr<Entity>
 EntityRepository::createEntity(const string &entityName, int objectId, const Properties &initialProperties) {
-    auto entity = createEntity(entityName,objectId);
+    auto entity = createEntity(entityName, objectId);
     entity->initialize(initialProperties);
     return entity;
 }
@@ -98,35 +102,53 @@ EntityRepository::createEntity(const string &entityName, int objectId, const Pro
 void EntityRepository::registerEntityClass(const string &className, const CreatingFunction &creatingFunction) {
     shared_ptr<EntityClassInfo> info(new EntityClassInfo(className, creatingFunction));
     entityClasses.insert(make_pair(className, info));
+    ancono::info("[EntityRegistry]: Registered class " + className);
 }
 
 
 const map<string, shared_ptr<EntityClassInfo>> &EntityRepository::getAllLoadedEntityClasses() const {
     return entityClasses;
 }
+
 EntityRepository::EntityRepository() = default;
+
+/**
+ * Register an entity to the repository. If there exists an entity of the same identifier, this method simply returns.
+ */
 void EntityRepository::registerEntity(const EntityInfo &info) {
     entities.insert(make_pair(info.getIdentifier(), info));
+    ancono::info("[EntityRegistry]: Registered entity " + info.getIdentifier());
 }
 
+/**
+ * Initializes the entity classes.
+ *
+ * Note: newly created entity sub-classes should be included in this function
+ */
 void EntityRepository::initEntityClasses() {
 
     EntityRepository &repo = EntityRepository::instance();
 
     //Buildings:
     //ConstructionBase:
-    repo.registerEntityClass(ConstructionBase::getIdentifier(), ConstructionBase::create);
+    repo.registerEntityClass(ConstructionBase::className(), ConstructionBase::create);
 
-    repo.registerEntityClass(Farmer::getIdentifier(), Farmer::create);
-    ancono::info("Init entity classes: Done");
+    repo.registerEntityClass(Farmer::className(), Farmer::create);
+    ancono::info("[EntityRegistry]: Init entity classes: Done");
 }
 
+/**
+ * Initializes the default entities. An entity type will be created for each loaded entity classes.
+ * The name of the entity will be the same as the name of the entity class.
+ *
+ * Note: This method will invoke `initEntityClasses()` firstly.
+ */
 void EntityRepository::initDefaultEntities() {
     initEntityClasses();
-    auto& repo = instance();
-    for(auto& en : repo.entityClasses){
+    auto &repo = instance();
+    for (auto &en : repo.entityClasses) {
         auto cInfo = en.second;
-        EntityInfo info(cInfo->getClassName(),cInfo,Properties());
+        EntityInfo info(cInfo->getClassName(), cInfo, Properties());
         repo.registerEntity(info);
     }
     ancono::info("Init default entities: Done");

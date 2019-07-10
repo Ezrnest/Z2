@@ -37,6 +37,7 @@ void info(const function<string()> &messageSupplier);
 
 void info(const char *message);
 
+
 void warn(const string &message);
 
 void warn(const function<string()> &messageSupplier);

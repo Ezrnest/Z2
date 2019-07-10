@@ -27,3 +27,13 @@ int z2::Player::getGold() const {
 void z2::Player::setGold(int gold) {
     Player::gold_ = gold;
 }
+
+void z2::Player::saveDataTo(ostream &output) {
+    output << playerId_ << ' '
+           << groupId_ << ' '
+           << gold_ << ' ';
+}
+
+void z2::Player::loadDataFrom(istream &input) {
+    input >> playerId_ >> groupId_ >> gold_;
+}

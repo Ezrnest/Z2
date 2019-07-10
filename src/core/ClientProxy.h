@@ -2,8 +2,8 @@
  * Created by liyicheng on 2019/7/3.
  */
 
-#ifndef Z2_CLIENTPORT_H
-#define Z2_CLIENTPORT_H
+#ifndef Z2_CLIENTPROXY_H
+#define Z2_CLIENTPROXY_H
 
 #include <memory>
 using namespace std;
@@ -17,13 +17,13 @@ class Message;
  *
  * There can be different implementations for this interface.
  */
-class ClientPort {
+class ClientProxy {
 private:
     int clientId = -1;
 public:
 
 
-    virtual ~ClientPort();
+    virtual ~ClientProxy();
 
     int getClientId() const;
 
@@ -49,4 +49,4 @@ public:
 
 }
 
-#endif //Z2_CLIENTPORT_H
+#endif //Z2_CLIENTPROXY_H

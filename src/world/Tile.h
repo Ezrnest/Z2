@@ -21,7 +21,7 @@ class Entity;
 * Describes the terrain of a single tile.
 */
 enum class Terrain {
-    PLAIN, MOUNTAIN
+    PLAIN = 0, MOUNTAIN = 1
 };
 
 /**
@@ -33,14 +33,14 @@ using namespace std;
 using namespace ancono;
 
 enum class Visibility {
-    DARK, GREY, CLEAR
+    DARK = 0, GREY = 1, CLEAR = 2
 };
 
 class Tile {
 private:
     Terrain terrain = Terrain::PLAIN;
-    shared_ptr<Entity> entity;
     Resource resource = Resource::NONE;
+    shared_ptr<Entity> entity;
     /**
      * The visibility of the players
      */
@@ -80,6 +80,8 @@ public:
     void resetVisibility(int playerId);
 
     void setPlayerCount(int count);
+
+    friend class World;
 };
 
 

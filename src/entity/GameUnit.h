@@ -11,9 +11,14 @@ namespace z2 {
 
 class GameUnit : public EntityWithHealth {
 public:
-    explicit GameUnit(int objectId);
+    explicit GameUnit(unsigned int objectId);
 
     void initialize(const Properties &prop) override;
+
+protected:
+    void serializeDataPart(ostream &output) override;
+
+    static void deserializeDataPart(istream &input, GameUnit *en);
 };
 
 }

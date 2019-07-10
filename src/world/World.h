@@ -12,20 +12,18 @@
 #include "../core/Message.h"
 #include "../core/messages/GameMessage.h"
 #include <vector>
-
+#include <unordered_map>
 namespace z2 {
 class CommandLineGameGui;
+
 /**
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
-class World {
+class World : public Serializable {
 private:
     int width = 1;
     int height = 1;
-    /**
-     * The map of the world.
-     */
-    Tile **data;
+
 
     /**
      * The number of players in this game.
@@ -33,20 +31,27 @@ private:
     int playerCount = 1;
 
     /**
-     * The players of this game.
-     */
-    vector<Player> players;
-
-    /**
      * The current player of this world.
      */
     int currentPlayer = 0;
+
+    /**
+     * The players of this game.
+     */
+    vector<Player> players;
     /**
      * The unique object id counter.
      *
      * Note: If this world is created from saves, this field must be set.
      */
-    int objectUID = 0;
+    unsigned int objectUID = 1;
+
+    unordered_map<int,shared_ptr<Entity>> entityMap;
+
+    /**
+     * The map of the world.
+     */
+    Tile **data;
 
     // NOTE: updates `initPlainDataFrom` if new fields are added!
 
@@ -54,7 +59,17 @@ private:
 
     void resetVisibility(int playerId);
 
-    void setEntityVisibility(int x,int y, const shared_ptr<Entity>& en,int playerId);
+    void setEntityVisibility(int x, int y, const shared_ptr<Entity> &en, int playerId);
+
+    void onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity);
+
+    void onEntityCreated(const Point &pos, const shared_ptr<Entity>& entity, const string &entityName, int playerId);
+
+    void removeEntity(const Point& pos);
+
+    void onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity);
+//    void removeEntity(int entityId);
+
 public:
     World(int width_, int height_, int playerCount);
 
@@ -75,7 +90,7 @@ public:
 
     const vector<Player> &getPlayers() const;
 
-    Player& getPlayer(int playerId);
+    Player &getPlayer(int playerId);
 
     bool checkReady();
 
@@ -93,10 +108,13 @@ public:
      */
     Tile &getTile(const Point &pos) const;
 
+    const shared_ptr<Entity> getEntity(const Point &point);
+
     /**
      * Determines whether the given coordinate is inside the map.
      */
     bool isInside(int x, int y) const;
+
     /**
      * Determines whether the given point is inside the map.
      */
@@ -107,18 +125,19 @@ public:
     /**
      * Computes the path length from `start` to `dest`.
      */
-    int pathLength(const Point& start, const Point& dest) const;
+    int pathLength(const Point &start, const Point &dest) const;
 
 
     /**
      * Gets an adjacent empty tile from the point.
      */
     Tile *getAdjacentEmptyTile(const Point &pos) const;
+
     /**
      * Gets the position of an adjacent empty tile from the point, if there is
      * no such point, returns a point (-1,-1).
      */
-    Point getAdjacentEmptyPos(const Point& pos) const;
+    Point getAdjacentEmptyPos(const Point &pos) const;
 
     /**
      * Gets the next object id of this world. Multiple calls of this method will
@@ -149,7 +168,7 @@ public:
      * Applies the given function to all the entities of the player.
      * @param f a function which accepts the x,y coordinates and the entity in order.
      */
-    void forEachEntitiesOf(int playerId, const function<void(int,int,shared_ptr<Entity>)>& f);
+    void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>)> &f);
 
     /**
      * Updates the visibility of a player. If the player id is not valid, this method will do nothing.
@@ -172,11 +191,8 @@ public:
      */
     bool moveEntity(const Point &from, const Point &dest);
 
-    void buyEntity(int playerId,const Point &pos, const string& entityName);
+    void buyEntity(int playerId, const Point &pos, const string &entityName);
 
-    void onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity);
-
-    void onEntityCreated(const Point& pos, const string& entityName, int playerId);
 
     /**
      * Creates an entity at the given tile.
@@ -187,10 +203,34 @@ public:
      * Creates an entity at the given tile with no properties.
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
+
+
+
 public:
+
+
     friend class CommandLineGameGui;
 
-    const shared_ptr<Entity> getEntity(const Point &point);
+
+public:
+
+    static const string &className();
+
+    /**
+    * Serialize this world to the stream.
+    */
+    void serializeTo(ostream &output) override;
+
+    /**
+     * Loads and creates a new world from an `istream`.
+     */
+    static World *loadFrom(istream &input);
+
+private:
+    void saveTileData(Tile &t, ostream &out);
+//    int objectCount()
+//    void se(ostream& output);
+    void loadTileData(Tile& t, istream& input);
 };
 }
 

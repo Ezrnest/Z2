@@ -13,12 +13,16 @@ protected:
     int health;
     int maxHealth;
     bool isDead = false;
+
+
+
 public:
-    explicit EntityWithHealth(int objectId);
+
+    explicit EntityWithHealth(unsigned int objectId);
 
 
 
-    virtual ~EntityWithHealth();
+    ~EntityWithHealth() override;
 
     int getHealth() const;
 
@@ -28,7 +32,12 @@ public:
 
     void setMaxHealth(int maxHealth);
 
-    virtual void initialize(const Properties &prop) override;
+    void initialize(const Properties &prop) override;
+
+protected:
+    void serializeDataPart(ostream &output) override;
+
+    static void deserializeDataPart(istream &input, EntityWithHealth *en);
 };
 
 }

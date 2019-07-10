@@ -6,7 +6,7 @@
 #include <string>
 using namespace std;
 using namespace z2;
-const string &z2::Farmer::getIdentifier() {
+const string &z2::Farmer::className() {
     static string name = "Farmer";
     return name;
 }
@@ -17,10 +17,10 @@ z2::Entity *z2::Farmer::create(int objectId, const Properties &initializer) {
     return entity;
 }
 
-z2::Farmer::Farmer(int objectId) : GameUnit(objectId) {}
+z2::Farmer::Farmer(unsigned int objectId) : GameUnit(objectId) {}
 
-const string &Farmer::identifier() const {
-    return Farmer::getIdentifier();
+const string &Farmer::getClassName() const {
+    return Farmer::className();
 }
 
 void Farmer::doFarm(const Point &pos, World &world) {
@@ -39,4 +39,29 @@ void Farmer::initialize(const Properties &prop) {
 
 }
 
+
+
+
+void Farmer::serializeDataPart(ostream &output) {
+    GameUnit::serializeDataPart(output);
+    output << goldPerTurn << ' ';
+}
+
+
+void Farmer::deserializeDataPart(istream &input, Farmer *en) {
+    GameUnit::deserializeDataPart(input, en);
+    input >> en->goldPerTurn;
+}
+
+void Farmer::serializeTo(ostream &output) {
+    output << className() << ' ';
+    serializeDataPart(output);
+}
+
+
+Farmer *Farmer::loadFrom(istream &input) {
+    auto* f = new Farmer(0);
+    Farmer::deserializeDataPart(input, f);
+    return f;
+}
 

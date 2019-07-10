@@ -5,12 +5,12 @@
 #ifndef Z2_COMMANDLINECLIENT_H
 #define Z2_COMMANDLINECLIENT_H
 
-#include "../core/ClientPort.h"
+#include "../core/ClientProxy.h"
 #include "../core/Server.h"
 #include "../core/Client.h"
 
 namespace z2 {
-class CommandLineClient : public Client, public ClientPort{
+class CommandLineClient : public Client, public ClientProxy{
 private:
     shared_ptr<Server> server;
 public:

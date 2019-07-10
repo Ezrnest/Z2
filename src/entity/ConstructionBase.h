@@ -8,25 +8,36 @@
 #include "Building.h"
 #include "../util/Properties.h"
 #include <map>
+
 using namespace std;
 namespace z2 {
 
-class ConstructionBase : public Building{
+class ConstructionBase : public Building {
+protected:
 
 
 public:
-    explicit ConstructionBase(int objectId);
+    explicit ConstructionBase(unsigned int objectId);
 
 
-    const std::string &identifier() const override;
+    const std::string &getClassName() const override;
 
-    static std::string& getIdentifier();
+    static std::string &className();
 
     void initialize(const Properties &prop) override;
 
+    static ConstructionBase *create(int objectId, const Properties &initializer);
+
+protected:
+    static void deserializeDataPart(istream &input, ConstructionBase *en);
+
+    void serializeDataPart(ostream &output) override;
+
 public:
 
-    static ConstructionBase* create(int objectId, const Properties& initializer);
+    void serializeTo(ostream &output) override;
+
+    static ConstructionBase* loadFrom(istream& input);
 };
 
 }

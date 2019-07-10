@@ -6,12 +6,12 @@
 #define Z2_LOCALCLIENT_H
 
 #include "Client.h"
-#include "ClientPort.h"
+#include "ClientProxy.h"
 #include "Server.h"
 
 namespace z2 {
 
-class LocalClient : public Client, public ClientPort {
+class LocalClient : public Client, public ClientProxy {
 private:
     weak_ptr<Server> server;
     weak_ptr<GameGui> gui;
@@ -26,12 +26,12 @@ public:
     /**
      * Ignores this method.
      */
-    void setServerPort(const shared_ptr<ServerPort> &server) override;
+    void setServerPort(const shared_ptr<ServerProxy> &server) override;
 
     /**
      * Ignores this method.
      */
-    shared_ptr<ServerPort> getServer() override;
+    shared_ptr<ServerProxy> getServer() override;
 
     void setView(const shared_ptr<GameGui> &gui) override;
 

@@ -26,7 +26,7 @@ namespace ancono {
 
     void Properties::loadFrom(istream &input) {
         int pos = 0;
-        string tmp = "";
+        string tmp;
         while (!input.eof()) {
             getline(input, tmp);
             if (tmp[0] != '#') {
@@ -92,7 +92,7 @@ namespace ancono {
             return defaultValue;
         } else {
             stringstream ss(k);
-            int a = 0.0;
+            int a = 0;
             ss >> a;
             return a;
         }
@@ -105,7 +105,7 @@ namespace ancono {
     void Properties::setDouble(const string &key, const double & value) {
         stringstream ss("");
         ss << value;
-        string v = "";
+        string v;
         ss >> v;
         m[key] = v;
         return;
@@ -117,8 +117,8 @@ namespace ancono {
     }
 
     void Properties::saveTo(ostream & output) const{
-        for (auto iter = m.begin(); iter != m.end(); iter++) {
-            output << iter->first << "=" << iter->second << endl;
+        for (const auto & iter : m) {
+            output << iter.first << "=" << iter.second << endl;
         }
     }
 

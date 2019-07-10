@@ -9,7 +9,8 @@
 
 namespace z2 {
 class Building : public EntityWithHealth{
-
+protected:
+    static void deserializeDataPart(istream &input, Building *en);
 public:
     explicit Building(int objectId);
 };

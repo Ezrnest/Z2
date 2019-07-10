@@ -4,10 +4,13 @@
 
 #include "GameUnit.h"
 #include "Entity.h"
+
 using namespace z2;
 
-Entity::Entity(const int objectId) : objectId(objectId) {}
+Entity::Entity(const unsigned int objectId) : objectId(objectId) {}
+
 Entity::~Entity() = default;
+
 int Entity::getOwnerId() const {
     return ownerId_;
 }
@@ -22,8 +25,10 @@ const int Entity::getObjectId() const {
 
 void Entity::initialize(const Properties &prop) {
     //TODO
+    entityName = prop.get("entityName", entityName);
+    ownerId_ = prop.getInt("ownerId", ownerId_);
     movesPerTurn = prop.getInt("movesPerTurn", movesPerTurn);
-    ownerId_ = prop.getInt("ownerId",ownerId_);
+    visibility = prop.getInt("visibility",visibility);
 }
 
 void Entity::performAbility(const Point &pos, World &world) {
@@ -62,3 +67,25 @@ void Entity::refreshMoves() {
 void Entity::decreaseMoves(int decrement) {
     remainingMoves -= decrement;
 }
+
+void Entity::serializeDataPart(ostream &output) {
+    output << entityName << ' '
+           << objectId << ' '
+           << ownerId_ << ' '
+           << visibility << ' '
+           << movesPerTurn << ' ';
+
+}
+
+void Entity::deserializeDataPart(istream &input, Entity *en) {
+    input >> en->entityName
+          >> en->objectId
+          >> en->ownerId_
+          >> en->visibility
+          >> en->movesPerTurn;
+}
+
+const string &Entity::getEntityName() const {
+    return entityName;
+}
+

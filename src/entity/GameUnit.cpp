@@ -5,12 +5,20 @@
 #include "GameUnit.h"
 #include "Entity.h"
 
-z2::GameUnit::GameUnit(int objectId) : EntityWithHealth(objectId) {}
+z2::GameUnit::GameUnit(unsigned int objectId) : EntityWithHealth(objectId) {}
 
 
 void z2::GameUnit::initialize(const Properties &prop) {
     EntityWithHealth::initialize(prop);
 
+}
+
+void z2::GameUnit::serializeDataPart(ostream &output) {
+    EntityWithHealth::serializeDataPart(output);
+}
+
+void z2::GameUnit::deserializeDataPart(istream &input, z2::GameUnit *en) {
+    EntityWithHealth::deserializeDataPart(input, en);
 }
 
 

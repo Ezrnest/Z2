@@ -35,44 +35,7 @@ void CommandLineGameGui::onPlayerWin(int playerId) {
 void CommandLineGameGui::printWorld()const {
     shared_ptr<World> wPtr = client->getWorld();
     World &w = *wPtr;
-//    cout << "CurrentPlayer:" << w.getCurrentPlayer() << '\n';
-    int playerId = w.getCurrentPlayer();
-    Tile **data = w.data;
-    for (int j = 0; j < w.width + 1; j++) {
-        cout << "--";
-    }
-    cout << '\n';
-    for (int j = w.height - 1; j > -1; j--) {
-        cout << "|";
-        for (int i = 0; i < w.width; i++) {
-            Tile &t = data[i][j];
-            char c;
-            switch (t.getVisibility(playerId)){
-                case Visibility::DARK:{
-                    c = '*';
-                    break;
-                }
-                case Visibility::GREY:{
-                    c = '.';
-                    break;
-                }
-                case Visibility::CLEAR:{
-                    if (!t.hasEntity()) {
-                        c =  ' ';
-                    } else {
-//                cout << '*';
-                        c = t.getEntity()->identifier()[0];
-                    }
-                }
-            }
-            cout << c << ' ';
-        }
-        cout << "|\n";
-    }
-    for (int j = 0; j < w.height + 1; j++) {
-        cout << "--";
-    }
-    cout << '\n';
+    printWorld(w);
 }
 
 void CommandLineGameGui::runLater(const CommandLineGameGui::Task &task) {
@@ -114,4 +77,45 @@ void CommandLineGameGui::makeMove() {
     cin >> nx >> ny;
     shared_ptr<UnitMove> msg(new UnitMove(Point(x,y),Point(nx,ny)));
     client->sendMessageToServer(msg);
+}
+
+void CommandLineGameGui::printWorld(World &w) {
+//    cout << "CurrentPlayer:" << w.getCurrentPlayer() << '\n';
+    int playerId = w.getCurrentPlayer();
+    Tile **data = w.data;
+    for (int j = 0; j < w.width + 1; j++) {
+        cout << "--";
+    }
+    cout << '\n';
+    for (int j = w.height - 1; j > -1; j--) {
+        cout << "|";
+        for (int i = 0; i < w.width; i++) {
+            Tile &t = data[i][j];
+            char c = '?';
+            switch (t.getVisibility(playerId)){
+                case Visibility::DARK:{
+                    c = '*';
+                    break;
+                }
+                case Visibility::GREY:{
+                    c = '.';
+                    break;
+                }
+                case Visibility::CLEAR:{
+                    if (!t.hasEntity()) {
+                        c =  ' ';
+                    } else {
+//                cout << '*';
+                        c = t.getEntity()->getClassName()[0];
+                    }
+                }
+            }
+            cout << c << ' ';
+        }
+        cout << "|\n";
+    }
+    for (int j = 0; j < w.height + 1; j++) {
+        cout << "--";
+    }
+    cout << '\n';
 }

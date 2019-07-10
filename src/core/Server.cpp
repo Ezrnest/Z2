@@ -4,7 +4,7 @@
 
 #include "Server.h"
 #include "Message.h"
-#include "ClientPort.h"
+#include "ClientProxy.h"
 #include "messages/PlayerMessage.h"
 #include "messages/ControlMessage.h"
 #include "../util/LogUtil.h"
@@ -30,7 +30,7 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
     }
 }
 
-bool z2::Server::registerClient(const shared_ptr<z2::ClientPort> &client) {
+bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
     client->setClientId(clients.size());
 
     clients.push_back(client);

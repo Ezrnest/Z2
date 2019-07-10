@@ -5,48 +5,89 @@
 #define Z2_ENTITY_H
 
 
-namespace z2{
+namespace z2 {
 class Point;
+
 class World;
 }
 
 #include <string>
+#include "../core/Serializable.h"
 #include "../util/Properties.h"
 
 using namespace ancono;
 namespace z2 {
 class World;
+
 /**
- * Represents an entity in the game.
+ * Represents a type of entity in the game.
+ * <h2>Entity Classes and Entities</h2>
+ * The c++ class `Entity` represents an entity class, but there is no one-to-one mapping from
+ * the entity classes to the types of entities in the game. Different types of entity in the game
+ * can be represented by a single entity class. For convenience, the word `entity` refers to a
+ * type of entity.
  *
- * A concrete sub-class of entity should always define a static function `getIdentifier()` to return the unique
- * identifier
+ * <h2>Entity Registration</h2>
+ * In the game, entities are managed through the entity registration. Generally, an entity registration
+ * file is loaded to register all the entities the the game. After registration, entities will be
+ * available in the entity repository.
  *
- * Note: Instance of this class (or its subclass) should be held by pointer, using `shared_ptr`.
+ * <h2>Creating Entities</h2>
+ * In the game, entities are created through the entity repository. With the name(identifier) of a type
+ * of entity, a creating function will be
+ * invoked to create a new instance of an entity and initialization will be done, using the properties
+ * of the corresponding entity type.
+ *
+ * <h2>Implementation Notes</h2>
+ * A concrete sub-class of entity should always define a static function <code>getIdentifier()</code>
+ * to return the unique identifier.
+ *
+ *
+ * <br>Note: Instance of this class (or its subclass) should be held by pointer, using `shared_ptr`.
  */
-class Entity {
+class Entity : public Serializable {
 protected:
+    /**
+     * The entity typename.
+     */
+    string entityName;
+    /**
+     * The id of the game object, which should be unique in the whole game. 0 for an invalid id.
+     *
+     * This id is also used for serialization.
+     */
+    unsigned int objectId;
+
     /**
      * The id of the player who owns the game object.
      */
     int ownerId_ = -1;
 
     /**
-     * The id of the game object, which should be unique in the whole game.
-     *
-     * This id is also used for serialization.
-     */
-    const int objectId;
-
-    /**
      * The visibility of this object.
      */
     int visibility = 3;
     int movesPerTurn = 3;
+
+    /**
+     * Transient.
+     */
     int remainingMoves = 0;
+
+    /**
+     * Serialize only the entity part to the output.
+     */
+    virtual void serializeDataPart(ostream &output);
+    /**
+     * Deserialize only the entity part to the output.
+     */
+    static void deserializeDataPart(istream &input, Entity *en);
+
 public:
 
-    explicit Entity(int objectId);
+    explicit Entity(unsigned int objectId);
+
+    const string &getEntityName() const;
 
     int getOwnerId() const;
 
@@ -58,11 +99,14 @@ public:
 
     const int getObjectId() const;
 
-    virtual const std::string &identifier() const = 0;
+    /**
+     * Gets the class name of this entity.
+     */
+    virtual const std::string &getClassName() const = 0;
 
-    virtual void initialize(const Properties& prop);
+    virtual void initialize(const Properties &prop);
 
-    virtual void performAbility(const Point& pos, World& world);
+    virtual void performAbility(const Point &pos, World &world);
 
     virtual ~Entity();
 
@@ -80,6 +124,8 @@ public:
      * Equivalent to `setRemainingMoves(getRemainingMoves() - decrement)`
      */
     void decreaseMoves(int decrement);
+
+
 };
 
 

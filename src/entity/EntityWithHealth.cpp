@@ -4,32 +4,46 @@
 
 #include "EntityWithHealth.h"
 
-z2::EntityWithHealth::EntityWithHealth(int objectId)
+using namespace z2;
+
+EntityWithHealth::EntityWithHealth(unsigned int objectId)
         : Entity(objectId),
           health(100),
           maxHealth(100) {}
 
-z2::EntityWithHealth::~EntityWithHealth() = default;
+EntityWithHealth::~EntityWithHealth() = default;
 
-int z2::EntityWithHealth::getHealth() const {
+int EntityWithHealth::getHealth() const {
     return health;
 }
 
-void z2::EntityWithHealth::setHealth(int health) {
+void EntityWithHealth::setHealth(int health) {
     EntityWithHealth::health = health;
 }
 
-int z2::EntityWithHealth::getMaxHealth() const {
+int EntityWithHealth::getMaxHealth() const {
     return maxHealth;
 }
 
-void z2::EntityWithHealth::setMaxHealth(int maxHealth) {
+void EntityWithHealth::setMaxHealth(int maxHealth) {
     EntityWithHealth::maxHealth = maxHealth;
 }
 
-void z2::EntityWithHealth::initialize(const Properties &prop) {
+void EntityWithHealth::initialize(const Properties &prop) {
     Entity::initialize(prop);
     //TODO
     health = prop.getInt("health", health);
     maxHealth = prop.getInt("maxHealth", maxHealth);
+}
+
+void EntityWithHealth::serializeDataPart(ostream &output) {
+    Entity::serializeDataPart(output);
+    output << health << ' '
+           << maxHealth << ' ';
+}
+
+void EntityWithHealth::deserializeDataPart(istream &input, EntityWithHealth *en) {
+    Entity::deserializeDataPart(input, en);
+    input >> en->health
+          >> en->maxHealth;
 }

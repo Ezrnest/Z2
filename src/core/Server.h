@@ -11,7 +11,7 @@
 
 using namespace std;
 namespace z2 {
-class ClientPort;
+class ClientProxy;
 
 class Message;
 
@@ -57,7 +57,7 @@ private:
     /**
      * The clients that are registered to this server.
      */
-    vector<shared_ptr<ClientPort>> clients;
+    vector<shared_ptr<ClientProxy>> clients;
     /**
      * The world of this server.
      */
@@ -108,7 +108,7 @@ public:
      * Register the client to this server, the world will be synchronized.
      * The client will be assigned a client id.
      */
-    bool registerClient(const shared_ptr<ClientPort> &client);
+    bool registerClient(const shared_ptr<ClientProxy> &client);
 
     /**
      * Starts the game.

@@ -15,12 +15,12 @@ void z2::LocalClient::setRealServer(const shared_ptr<z2::Server> &server) {
     LocalClient::server = server;
 }
 
-void z2::LocalClient::setServerPort(const shared_ptr<z2::ServerPort> &server) {
+void z2::LocalClient::setServerPort(const shared_ptr<z2::ServerProxy> &server) {
 
 }
 
-shared_ptr<z2::ServerPort> z2::LocalClient::getServer() {
-    return shared_ptr<ServerPort>();
+shared_ptr<z2::ServerProxy> z2::LocalClient::getServer() {
+    return shared_ptr<ServerProxy>();
 }
 
 void z2::LocalClient::setView(const shared_ptr<z2::GameGui> &gui) {

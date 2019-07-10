@@ -4,6 +4,9 @@
 
 #ifndef Z2_PLAYER_H
 #define Z2_PLAYER_H
+
+#include <iostream>
+using namespace std;
 namespace z2 {
 
 class Player {
@@ -20,7 +23,7 @@ private:
     /**
      * The number of gold that this player has.
      */
-    int gold_;
+    int gold_ = 10;
 public:
     int getPlayerId() const;
 
@@ -42,6 +45,10 @@ public:
      * The group id indicating no group, which requires a special process.
      */
     static const int NO_GROUP = -1;
+
+    void saveDataTo(ostream& output);
+
+    void loadDataFrom(istream& input);
 };
 }
 

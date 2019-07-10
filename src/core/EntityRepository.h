@@ -18,11 +18,13 @@ using namespace std;
 namespace z2 {
 using CreatingFunction = function<Entity *(int, const Properties &)>;
 
+
 class EntityClassInfo {
 private:
     string className;
     Properties properties;
     CreatingFunction creatingFunction;
+//    DeserializingFunction deserializingFunction;//deserializing
 public:
     EntityClassInfo(const string &identifier, const CreatingFunction &creatingFunction);
 
@@ -37,6 +39,7 @@ public:
     void setProperties(const Properties &properties);
 
     const CreatingFunction &getCreatingFunction() const;
+
 };
 
 class EntityInfo {
@@ -47,7 +50,7 @@ private:
 public:
 
     EntityInfo(const string &identifier, const shared_ptr<EntityClassInfo> &entityClassInfo,
-               const Properties &properties);
+               const Properties &prop);
 
 
     const shared_ptr<EntityClassInfo> &getEntityClassInfo() const;
@@ -61,8 +64,17 @@ public:
 };
 
 /**
- * In charge of the registering of entities in the game. An entity in the game is associated
+ * In charge of the registering of entities in the game. The word "entity" here refers
+ * to a type of entity, not an instance of entity in the game.
+ *
+ * An entity is described by the class `EntityInfo`. Firstly, each entity should have
+ * an unique name, in other words, an unique identifier. Secondly, it is associated
  * with a entity class, which is represented by `EntityClassInfo`, and some `Properties`.
+ * The `EntityClassInfo` describes the c++ class of this entity. Different entities
+ * can have the same c++ class. The properties in the `EntityInfo` will be used when
+ * instances of the entity are created, when some actions are perform, and so on.
+ * For example, the attribute `visibility` of an entity will be initialized according
+ * to the corresponding property.
  */
 class EntityRepository {
 

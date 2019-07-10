@@ -7,8 +7,8 @@
 
 #include <memory>
 #include "Message.h"
-#include "ClientPort.h"
-#include "ServerPort.h"
+#include "ClientProxy.h"
+#include "ServerProxy.h"
 #include "GameController.h"
 
 /*
@@ -55,9 +55,9 @@ public:
     /**
      * Sets the server port.
      */
-    virtual void setServerPort(const shared_ptr<ServerPort> &server) = 0;
+    virtual void setServerPort(const shared_ptr<ServerProxy> &server) = 0;
 
-    virtual shared_ptr<ServerPort> getServer() = 0;
+    virtual shared_ptr<ServerProxy> getServer() = 0;
 
     virtual ~Client();
 

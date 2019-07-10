@@ -5,14 +5,14 @@
 #ifndef Z2_BOTCLIENTPORT_H
 #define Z2_BOTCLIENTPORT_H
 
-#include "ClientPort.h"
+#include "ClientProxy.h"
 
 
 namespace z2 {
 class Server;
 
 
-class BotClientPort : public ClientPort{
+class BotClientPort : public ClientProxy{
 private:
     weak_ptr<Server> server;
 

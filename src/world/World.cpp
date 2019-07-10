@@ -11,10 +11,12 @@
 #include "../core/messages/GameMessage.h"
 #include "../core/messages/UnitMove.h"
 #include "../core/messages/UnitBuy.h"
+#include "../core/SerializableRegistry.h"
 
 namespace z2 {
 
 using namespace ancono;
+
 
 World::World(int width_, int height_, int playerCount)
         : width(width_), height(height_),
@@ -22,12 +24,15 @@ World::World(int width_, int height_, int playerCount)
     data = initMatrix<Tile>(width_, height_);
     for (int i = 0; i < width_; i++) {
         for (int j = 0; j < height_; j++) {
-            Tile& t = data[i][j];
+            Tile &t = data[i][j];
             data[i][j].setPlayerCount(playerCount);
 
         }
     }
     //init players
+    for(int i=0;i<playerCount;i++){
+        players[i].setPlayerId(i);
+    }
 }
 
 World::World(const World &world) {
@@ -64,6 +69,12 @@ World &World::operator=(World &&world) noexcept {
 World::~World() {
     deleteMatrix(data, height);
 }
+
+const string &World::className() {
+    static string name("World");
+    return name;
+}
+
 
 bool World::isInside(int x, int y) const {
     return 0 <= x < width && 0 <= y < height;
@@ -131,6 +142,7 @@ void World::initPlainDataFrom(const World &world) {
     objectUID = world.objectUID;
     currentPlayer = world.currentPlayer;
     playerCount = world.playerCount;
+    entityMap = world.entityMap;
 }
 
 void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
@@ -158,13 +170,13 @@ bool World::moveEntity(const Point &from, const Point &dest) {
         warn("Attempting to move outside the map!");
         return false;
     }
-    Tile& destTile = getTile(dest);
+    Tile &destTile = getTile(dest);
     if (destTile.isOccupied()) {
         //TODO add log info
         warn("Attempting to move to an occupied tile!");
         return false;
     }
-    Tile& fromTile = getTile(from);
+    Tile &fromTile = getTile(from);
     shared_ptr<GameUnit> entity = dynamic_pointer_cast<GameUnit>(fromTile.getEntity());
     if (!entity) {
         // not actually entity
@@ -202,12 +214,17 @@ void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr
     updateVisibility(entity->getOwnerId());
 }
 
-void World::onEntityCreated(const Point &pos, const string &entityName, int playerId) {
+void
+World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId) {
     //TODO dispatch
     info("Entity [" + entityName + "] created!");
-    setEntityVisibility(pos.x, pos.y, getEntity(pos), playerId);
+    setEntityVisibility(pos.x, pos.y, entity, playerId);
 }
 
+void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
+    info("Entity [" + entity->getEntityName() + "]removed");
+    updateVisibility(entity->getOwnerId());
+}
 
 void World::onPlayerTurnStart() {
     info("Player turn started.");
@@ -224,13 +241,20 @@ shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId,
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
     tile.setEntity(entity);
+    entityMap.insert(make_pair(entity->getObjectId(), entity));
     entity->setOwnerId(playerId);
-    onEntityCreated(pos, entityId, playerId);
+    onEntityCreated(pos, entity, entityId, playerId);
     return entity;
 }
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId) {
     return createEntity(pos, entityId, Player::NO_PLAYER);
+}
+
+void World::removeEntity(const Point &pos) {
+    shared_ptr<Entity> entity = getTile(pos).removeEntity();
+    entityMap.erase(entity->getObjectId());
+    onEntityRemoved(pos, entity);
 }
 
 Player &World::getPlayer(int playerId) {
@@ -264,6 +288,7 @@ Point World::getAdjacentEmptyPos(const Point &pos) const {
     }
     return {-1, -1};
 }
+
 
 void World::resetVisibility(int playerId) {
     for (int i = 0; i < width; i++) {
@@ -304,8 +329,8 @@ void World::setEntityVisibility(int x, int y, const shared_ptr<Entity> &en, int 
     int range = en->getVisibility();
     int xL = max(x - range, 0);
     int yL = max(y - range, 0);
-    int xR = min(x + range, width-1);
-    int yR = min(y + range, height-1);
+    int xR = min(x + range, width - 1);
+    int yR = min(y + range, height - 1);
     for (int i = xL; i <= xR; ++i) {
         for (int j = yL; j <= yR; j++) {
             if (hypot(i - x, j - y) <= range) {
@@ -335,6 +360,98 @@ bool World::checkReady() {
 int World::pathLength(const Point &start, const Point &dest) const {
 //    int** length
     return start.girdDistance(dest);
+}
+
+void World::serializeTo(ostream &output) {
+    //general information
+    output << className() << ' ';
+    output << width << ' '
+           << height << ' '
+           << playerCount << ' ';
+    // players
+    output << currentPlayer << ' ';
+    for (Player &p : players) {
+        p.saveDataTo(output);
+    }
+    //objects
+    output << objectUID << ' ';
+    output << entityMap.size() << ' ';
+    for (auto &en : entityMap) {
+        output << en.first << ' ';
+        en.second->serializeTo(output);
+    }
+
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            saveTileData(data[i][j], output);
+        }
+    }
+
+}
+
+
+World *World::loadFrom(istream &input) {
+    int width, height, playerCount;
+    input >> width >> height >> playerCount;
+    auto *world = new World(width, height, playerCount);
+    input >> world->currentPlayer;
+    for (int i = 0; i < playerCount; i++) {
+        world->getPlayer(i).loadDataFrom(input);
+    }
+
+    input >> world->objectUID;
+    int objectCount;
+    input >> objectCount;
+    auto &sr = SerializableRegistry::instance();
+    for (int i = 0; i < objectCount; i++) {
+        int uid;
+        input >> uid;
+        Serializable *s = sr.deserialize(input);
+        shared_ptr<Entity> en(static_cast<Entity *>(s));
+        world->entityMap.insert(make_pair(uid, en));
+    }
+
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            world->loadTileData(world->data[i][j], input);
+        }
+    }
+
+    return world;
+}
+
+
+void World::saveTileData(Tile &t, ostream &out) {
+    out << static_cast<int>(t.terrain) << ' '
+        << static_cast<int>(t.resource) << ' ';
+    if(t.hasEntity()){
+        out << t.entity->getObjectId();
+    }else{
+        out << -1;
+    }
+    out << ' ';
+
+    for (int i = 0; i < playerCount; i++) {
+        int vi = static_cast<int>(t.getVisibility(i));
+        out << vi<< ' ';
+    }
+}
+
+void World::loadTileData(Tile &t, istream &input) {
+    int terrain,resource;
+    input >> terrain >> resource;
+    t.terrain = static_cast<Terrain>(terrain);
+    t.resource = static_cast<Resource>(resource);
+    int uid;
+    input >> uid;
+    if(uid > 0){
+        t.setEntity(entityMap[uid]);
+    }
+    for (int i = 0; i < playerCount; i++) {
+        int v;
+        input >> v ;
+        t.visibility[i] = static_cast<Visibility>(v);
+    }
 }
 
 

@@ -8,13 +8,17 @@
 #include "../util/LogUtil.h"
 #include "../core/Message.h"
 #include "../core/EntityRepository.h"
-#include "../core/messages/GameMessage.h"
-#include "../core/messages/UnitMove.h"
-#include "../core/messages/UnitBuy.h"
 #include "../core/SerializableRegistry.h"
+#include "../entity/MeleeUnit.h"
+#include "../entity/RangeUnit.h"
+#include "../core/messages/GameMessage.h"
+#include "../core/messages/UnitBuy.h"
+#include "../core/messages/UnitMove.h"
+#include "../core/messages/UnitAttack.h"
+#include "../core/messages/UnitPerform.h"
 
 namespace z2 {
-
+using EntityPtr = shared_ptr<Entity>;
 using namespace ancono;
 
 
@@ -30,7 +34,7 @@ World::World(int width_, int height_, int playerCount)
         }
     }
     //init players
-    for(int i=0;i<playerCount;i++){
+    for (int i = 0; i < playerCount; i++) {
         players[i].setPlayerId(i);
     }
 }
@@ -107,6 +111,9 @@ Tile &World::getTile(const Point &pos) const {
 }
 
 const shared_ptr<Entity> World::getEntity(const Point &point) {
+    if (!isInside(point)) {
+        return shared_ptr<Entity>();
+    }
     return getTile(point).getEntity();
 }
 
@@ -158,10 +165,16 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
             moveEntity(msg->getFrom(), msg->getDest());
             break;
         }
-        case GameMessageType::UnitPerform:
+        case GameMessageType::UnitPerform: {
+            const shared_ptr<UnitPerform> msg = static_pointer_cast<UnitPerform>(message);
+            performEntity(msg->getPos());
             break;
-        case GameMessageType::UnitAttack:
+        }
+        case GameMessageType::UnitAttack: {
+            const shared_ptr<UnitAttack> msg = static_pointer_cast<UnitAttack>(message);
+            attackEntity(msg->getFrom(),msg->getDest());
             break;
+        }
     }
 }
 
@@ -184,12 +197,12 @@ bool World::moveEntity(const Point &from, const Point &dest) {
         return false;
     }
     int requiredMoves = pathLength(from, dest);
-    if (requiredMoves > entity->getRemainingMoves()) {
+    if (!entity->requireMoves(requiredMoves)) {
         warn("Unit out of move!");
         return false;
     }
     destTile.setEntity(fromTile.removeEntity());
-    entity->decreaseMoves(requiredMoves);
+
     onEntityMoved(from, dest, entity);
 
     return true;
@@ -203,6 +216,90 @@ void World::buyEntity(int playerId, const Point &pos, const string &entityName) 
     }
     createEntity(whereToPlace, entityName, playerId);
 
+}
+
+bool World::performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
+                               const shared_ptr<EntityWithHealth> &victim) {
+    int damage = melee->getAttackStrength();
+    onEntityDamaging(from, dest, melee, victim, damage);
+    victim->dealDamage(damage);
+    if (victim->isDead()) {
+        removeEntity(dest);
+        return true;
+    }
+    return false;
+}
+
+
+void World::attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
+                              const shared_ptr<EntityWithHealth> &victim) {
+    if (performMeleeAttack(from, dest, melee, victim)) {
+        //occupy the position
+        Tile &destTile = getTile(dest);
+        Tile &fromTile = getTile(from);
+        destTile.setEntity(fromTile.removeEntity());
+        onEntityMoved(from, dest, melee);
+    } else {
+        const shared_ptr<MeleeUnit> avenger = dynamic_pointer_cast<MeleeUnit>(victim);
+        //attack back
+        if (bool(avenger)) {
+            performMeleeAttack(dest, from, avenger, melee);
+        }
+    }
+}
+
+void World::attackEntityRange(const Point &from, const Point &dest, const shared_ptr<RangeUnit> &range,
+                              const shared_ptr<EntityWithHealth> &victim) {
+    int damage = range->getAttackStrength();
+    onEntityDamaging(from, dest, range, victim, damage);
+    victim->dealDamage(damage);
+    if (victim->isDead()) {
+        removeEntity(dest);
+    }
+}
+
+void World::attackEntity(const Point &from, const Point &dest) {
+    const EntityPtr &attacker = getEntity(from);
+    const EntityPtr &receiver = getEntity(dest);
+    if (!bool(attacker) || !bool(receiver)) {
+        warn("No unit to make attack!");
+        return;
+    }
+    if (!attacker->requireRestMoves()) {
+        warn("No sufficient move to perform attack!");
+        return;
+    }
+    const shared_ptr<EntityWithHealth> victim = dynamic_pointer_cast<EntityWithHealth>(receiver);
+    if(!victim){
+        warn("Not a valid target!");
+        return;
+    }
+    const shared_ptr<MeleeUnit> melee = dynamic_pointer_cast<MeleeUnit>(attacker);
+    if(melee){
+        attackEntityMelee(from, dest, melee, victim);
+        return;
+    }
+    const shared_ptr<RangeUnit> range = dynamic_pointer_cast<RangeUnit>(attacker);
+    if(range){
+        attackEntityRange(from, dest, range, victim);
+        return;
+    }
+    warn("The unit can't attack!");
+}
+
+
+void World::performEntity(const Point &target) {
+    const EntityPtr &entity = getEntity(target);
+    if(!entity){
+        warn("No unit to perform!");
+        return;
+    }
+    if(!entity->requireRestMoves()){
+        warn("No sufficient moves!");
+        return;
+    }
+    entity->performAbility(target, *this);
+    onEntityPerformed(target,entity);
 }
 
 
@@ -221,10 +318,22 @@ World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const
     setEntityVisibility(pos.x, pos.y, entity, playerId);
 }
 
+void World::onEntityDamaging(const Point &from, const Point &dest,
+                             const shared_ptr<Entity> &attacker,
+                             const shared_ptr<EntityWithHealth> &receiver, int &damage) {
+    info("Entity damaged!");
+}
+
+
 void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
-    info("Entity [" + entity->getEntityName() + "]removed");
+    info("Entity [" + entity->getEntityName() + "] removed");
     updateVisibility(entity->getOwnerId());
 }
+
+void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
+    info("Entity [" + entity->getEntityName() + "] performed!");
+}
+
 
 void World::onPlayerTurnStart() {
     info("Player turn started.");
@@ -424,34 +533,38 @@ World *World::loadFrom(istream &input) {
 void World::saveTileData(Tile &t, ostream &out) {
     out << static_cast<int>(t.terrain) << ' '
         << static_cast<int>(t.resource) << ' ';
-    if(t.hasEntity()){
+    if (t.hasEntity()) {
         out << t.entity->getObjectId();
-    }else{
+    } else {
         out << -1;
     }
     out << ' ';
 
     for (int i = 0; i < playerCount; i++) {
         int vi = static_cast<int>(t.getVisibility(i));
-        out << vi<< ' ';
+        out << vi << ' ';
     }
 }
 
 void World::loadTileData(Tile &t, istream &input) {
-    int terrain,resource;
+    int terrain, resource;
     input >> terrain >> resource;
     t.terrain = static_cast<Terrain>(terrain);
     t.resource = static_cast<Resource>(resource);
     int uid;
     input >> uid;
-    if(uid > 0){
+    if (uid > 0) {
         t.setEntity(entityMap[uid]);
     }
     for (int i = 0; i < playerCount; i++) {
         int v;
-        input >> v ;
+        input >> v;
         t.visibility[i] = static_cast<Visibility>(v);
     }
+}
+
+const string &World::getClassName()const {
+    return className();
 }
 
 

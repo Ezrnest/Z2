@@ -11,8 +11,11 @@
 #include "../entity/GameUnit.h"
 #include "../core/Message.h"
 #include "../core/messages/GameMessage.h"
+#include "../entity/MeleeUnit.h"
+#include "../entity/RangeUnit.h"
 #include <vector>
 #include <unordered_map>
+
 namespace z2 {
 class CommandLineGameGui;
 
@@ -46,7 +49,7 @@ private:
      */
     unsigned int objectUID = 1;
 
-    unordered_map<int,shared_ptr<Entity>> entityMap;
+    unordered_map<int, shared_ptr<Entity>> entityMap;
 
     /**
      * The map of the world.
@@ -63,12 +66,29 @@ private:
 
     void onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity);
 
-    void onEntityCreated(const Point &pos, const shared_ptr<Entity>& entity, const string &entityName, int playerId);
+    void onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId);
 
-    void removeEntity(const Point& pos);
+    /**
+     *
+     * @param damage it can be modified
+     */
+    void onEntityDamaging(const Point &from, const Point &dest, const shared_ptr<Entity> &attacker,
+                          const shared_ptr<EntityWithHealth> &receiver,
+                          int &damage);
+
+    void removeEntity(const Point &pos);
 
     void onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity);
 //    void removeEntity(int entityId);
+
+    void onEntityPerformed(const Point &pos, const shared_ptr<Entity> & entityPtr);
+
+    /**
+     *
+     * @return `true` if the victim is dead
+     */
+    bool performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
+                            const shared_ptr<EntityWithHealth> &victim);
 
 public:
     World(int width_, int height_, int playerCount);
@@ -82,6 +102,8 @@ public:
     World &operator=(World &&world) noexcept;
 
     ~World();
+
+    const string &getClassName()const  override;
 
     int getWidth() const;
 
@@ -142,8 +164,6 @@ public:
     /**
      * Gets the next object id of this world. Multiple calls of this method will
      * return different unique ids.
-     *
-     *
      */
     int getNextObjectId();
 
@@ -193,6 +213,24 @@ public:
 
     void buyEntity(int playerId, const Point &pos, const string &entityName);
 
+    void attackEntity(const Point &from, const Point &dest);
+
+    /**
+     * Performs a melee attack.
+     */
+    void attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &range,
+                           const shared_ptr<EntityWithHealth> &victim);
+
+    /**
+     * Performs a range attack.
+     */
+    void attackEntityRange(const Point &from, const Point &dest, const shared_ptr<RangeUnit> &range,
+                           const shared_ptr<EntityWithHealth> &victim);
+
+    /**
+     * Performs the entity at the target position.
+     */
+    void performEntity(const Point& target);
 
     /**
      * Creates an entity at the given tile.
@@ -203,7 +241,6 @@ public:
      * Creates an entity at the given tile with no properties.
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
-
 
 
 public:
@@ -228,9 +265,10 @@ public:
 
 private:
     void saveTileData(Tile &t, ostream &out);
+
 //    int objectCount()
 //    void se(ostream& output);
-    void loadTileData(Tile& t, istream& input);
+    void loadTileData(Tile &t, istream &input);
 };
 }
 

@@ -121,11 +121,17 @@ public:
     void refreshMoves();
 
     /**
-     * Equivalent to `setRemainingMoves(getRemainingMoves() - decrement)`
+     * Requires an entity the given count of moves. If it has
+     * sufficient moves, its `remainingMoves` will be decreased by the `count`, and `true` will be returned.
+     * Otherwise, its `remainingMoves` remains the same and `false` will be returned.
      */
-    void decreaseMoves(int decrement);
+    bool requireMoves(int count);
 
-
+    /**
+     * If this entity has at least one move, this method will return `true`, otherwise `false`.
+     * After this method, the `remainingMoves` of this entity will be set to zero.
+     */
+    bool requireRestMoves();
 };
 
 

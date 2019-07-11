@@ -6,11 +6,12 @@
 #define Z2_POINT_H
 
 #include <array>
+#include "../core/Serializable.h"
 
 namespace z2 {
 using namespace std;
 
-class Point {
+class Point : Serializable {
 public:
     int x, y;
 
@@ -33,7 +34,17 @@ public:
         return DIRECTIONS;
     }
 
+public:
 
+    void serializeData(ostream &output);
+
+    void deserializeData(istream &input);
+
+    void serializeTo(ostream &output) override;
+
+    const string &getClassName() const override;
+
+    static string& className();
 };
 
 

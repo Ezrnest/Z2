@@ -47,3 +47,12 @@ void EntityWithHealth::deserializeDataPart(istream &input, EntityWithHealth *en)
     input >> en->health
           >> en->maxHealth;
 }
+
+bool EntityWithHealth::isDead() {
+    return health <= 0;
+}
+
+bool EntityWithHealth::dealDamage(int damage) {
+    health -= damage;
+    return isDead();
+}

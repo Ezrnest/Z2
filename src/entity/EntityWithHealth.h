@@ -12,8 +12,6 @@ class EntityWithHealth : public Entity{
 protected:
     int health;
     int maxHealth;
-    bool isDead = false;
-
 
 
 public:
@@ -31,6 +29,14 @@ public:
     int getMaxHealth() const;
 
     void setMaxHealth(int maxHealth);
+
+    bool isDead();
+
+    /**
+     * Deals the given amount of damage to this unit.
+     * @return `true` if this unit is dead after the damage is dealt
+     */
+    bool dealDamage(int damage);
 
     void initialize(const Properties &prop) override;
 

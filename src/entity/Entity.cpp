@@ -64,8 +64,13 @@ void Entity::refreshMoves() {
     remainingMoves = movesPerTurn;
 }
 
-void Entity::decreaseMoves(int decrement) {
-    remainingMoves -= decrement;
+bool Entity::requireMoves(int count) {
+    if(remainingMoves > count){
+        remainingMoves -= count;
+        return true;
+    }else{
+        return false;
+    }
 }
 
 void Entity::serializeDataPart(ostream &output) {
@@ -89,3 +94,11 @@ const string &Entity::getEntityName() const {
     return entityName;
 }
 
+bool Entity::requireRestMoves(){
+    if(remainingMoves > 0){
+        remainingMoves = 0;
+        return true;
+    }else{
+        return false;
+    }
+}

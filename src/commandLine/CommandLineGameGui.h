@@ -36,6 +36,10 @@ public:
     void mainLoop();
 
     void makeMove();
+
+    void makeBuy();
+
+    void makeAttack();
 };
 }
 

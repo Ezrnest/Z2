@@ -49,3 +49,9 @@ z2::MeleeUnit *z2::MeleeUnit::loadFrom(istream &input) {
     deserializeDataPart(input,unit);
     return unit;
 }
+
+z2::Entity *z2::MeleeUnit::create(int objectId, const Properties &initializer) {
+    auto *en = new MeleeUnit(objectId);
+    en->initialize(initializer);
+    return en;
+}

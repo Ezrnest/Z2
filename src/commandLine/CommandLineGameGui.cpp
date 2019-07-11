@@ -6,6 +6,8 @@
 #include "../world/World.h"
 #include "../util/LogUtil.h"
 #include "../core/messages/UnitMove.h"
+#include "../core/messages/UnitBuy.h"
+#include "../core/messages/UnitAttack.h"
 #include <iostream>
 
 using namespace z2;
@@ -62,6 +64,10 @@ void CommandLineGameGui::doPlayerTurn() {
             break;
         } else if(strcasecmp(cmd.c_str(), "move") == 0){
             makeMove();
+        }else if(strcasecmp(cmd.c_str(), "buy") == 0){
+            makeBuy();
+        }else if(strcasecmp(cmd.c_str(), "attack") == 0){
+            makeAttack();
         }else{
             // do stuff here
             cout << "!" << endl;
@@ -118,4 +124,20 @@ void CommandLineGameGui::printWorld(World &w) {
         cout << "--";
     }
     cout << '\n';
+}
+
+void CommandLineGameGui::makeBuy() {
+    string name;
+    cin >> name;
+    Point pos = client->getWorld()->searchFor(client->getPlayerId(), "ConstructionBase");
+    shared_ptr<UnitBuy> msg(new UnitBuy(name, pos, client->getPlayerId()));
+    client->sendMessageToServer(msg);
+}
+
+void CommandLineGameGui::makeAttack() {
+    Point from,dest;
+    from.deserializeData(cin);
+    dest.deserializeData(cin);
+    shared_ptr<UnitAttack> msg(new UnitAttack(from,dest));
+    client->sendMessageToServer(msg);
 }

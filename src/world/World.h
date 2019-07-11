@@ -191,6 +191,11 @@ public:
     void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>)> &f);
 
     /**
+     * Searches the map for the first entity of the given `entityName`.
+     */
+    Point searchFor(int playerId, const string& entityName);
+
+    /**
      * Updates the visibility of a player. If the player id is not valid, this method will do nothing.
      */
     void updateVisibility(int playerId);

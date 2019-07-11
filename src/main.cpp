@@ -23,8 +23,8 @@ int main() {
     init();
     shared_ptr<World> w(new World(5, 5, 2));
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
-    w->createEntity(Point(1, 1), Farmer::className(), 0);
-//    w->pla
+    w->createEntity(Point(1, 1), Farmer::className(), 1);
+//    w->createEntity(Point(1,2), )
 
 
     shared_ptr<Server> server(new Server());
@@ -43,12 +43,13 @@ int main() {
     gui->setControllerAndView(static_pointer_cast<Client>(local));
 
 //    gui->printWorld();
-    cout << " -------------- \n";
-    stringstream ss;
-    w->serializeTo(ss);
-    cout << ss.str() << endl;
-    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
-    CommandLineGameGui::printWorld(*w2);
-//    server->startGame();
-//    gui->mainLoop();
+//    cout << " -------------- \n";
+//    stringstream ss;
+//    w->serializeTo(ss);
+//    cout << ss.str() << endl;
+//    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
+//    CommandLineGameGui::printWorld(*w2);
+
+    server->startGame();
+    gui->mainLoop();
 }

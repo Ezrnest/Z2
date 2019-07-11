@@ -10,7 +10,7 @@
 namespace z2 {
 class MeleeUnit : public GameUnit {
 protected:
-    int attackStrength = 25;
+    int attackStrength = 100;
 public:
     explicit MeleeUnit(unsigned int objectId);
 
@@ -28,6 +28,8 @@ public:
     void serializeTo(ostream &output) override;
 
     static MeleeUnit* loadFrom(istream& input);
+
+    static Entity* create(int objectId, const Properties& initializer);
 
 protected:
     void serializeDataPart(ostream &output) override;

@@ -36,6 +36,8 @@ public:
 
     static RangeUnit* loadFrom(istream& input);
 
+    static Entity* create(int objectId, const Properties& initializer);
+
 protected:
     void serializeDataPart(ostream &output) override;
 

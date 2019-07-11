@@ -61,3 +61,9 @@ z2::RangeUnit *z2::RangeUnit::loadFrom(istream &input) {
     deserializeDataPart(input, unit);
     return unit;
 }
+
+z2::Entity *z2::RangeUnit::create(int objectId, const Properties &initializer) {
+    auto* en = new RangeUnit(objectId);
+    en->initialize(initializer);
+    return en;
+}

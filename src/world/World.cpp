@@ -349,6 +349,10 @@ void World::onPlayerTurnFinish() {
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
+    if(entity == nullptr){
+        warn("Unable to create entity named: " + entityId);
+        return shared_ptr<Entity>();
+    }
     tile.setEntity(entity);
     entityMap.insert(make_pair(entity->getObjectId(), entity));
     entity->setOwnerId(playerId);
@@ -565,6 +569,21 @@ void World::loadTileData(Tile &t, istream &input) {
 
 const string &World::getClassName()const {
     return className();
+}
+
+Point World::searchFor(int playerId, const string &entityName) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            if(!data[i][j].hasEntity()){
+                continue;
+            }
+            const shared_ptr<Entity>& en = data[i][j].getEntity();
+            if(en->getEntityName() == entityName){
+                return Point(i, j);
+            }
+        }
+    }
+    return Point(-1, -1);
 }
 
 

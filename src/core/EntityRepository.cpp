@@ -85,10 +85,15 @@ const vector<string> EntityRepository::getAllLoadedEntityNames() const {
 }
 
 shared_ptr<Entity> EntityRepository::createEntity(const string &entityName, int objectId) {
-    const EntityInfo &info = getEntityInfo(entityName);
-    const auto &f = info.getEntityClassInfo()->getCreatingFunction();
-    Entity *entity = f(objectId, info.getProperties());
-    return shared_ptr<Entity>(entity);
+    try{
+        const EntityInfo &info = getEntityInfo(entityName);
+        const auto &f = info.getEntityClassInfo()->getCreatingFunction();
+        Entity *entity = f(objectId, info.getProperties());
+        return shared_ptr<Entity>(entity);
+    }catch (...){
+        return shared_ptr<Entity>();
+    }
+
 }
 
 
@@ -134,6 +139,10 @@ void EntityRepository::initEntityClasses() {
     repo.registerEntityClass(ConstructionBase::className(), ConstructionBase::create);
 
     repo.registerEntityClass(Farmer::className(), Farmer::create);
+
+    //TODO
+    repo.registerEntityClass(MeleeUnit::className(), MeleeUnit::create);
+    repo.registerEntityClass(RangeUnit::className(), RangeUnit::create);
     ancono::info("[EntityRegistry]: Init entity classes: Done");
 }
 

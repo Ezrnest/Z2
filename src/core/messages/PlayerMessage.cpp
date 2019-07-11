@@ -3,11 +3,21 @@
  */
 
 #include "PlayerMessage.h"
-
+#include <iostream>
 
 z2::PlayerMessage::PlayerMessage(z2::ControlMessageType type, int playerId)
         : ControlMessage(type), playerId(playerId) {}
 
 int z2::PlayerMessage::getPlayerId() const {
     return playerId;
+}
+
+void z2::PlayerMessage::serializeData(ostream &output) {
+    ControlMessage::serializeData(output);
+    output << playerId << ' ';
+}
+
+void z2::PlayerMessage::deserializeData(istream &input) {
+    ControlMessage::deserializeData(input);
+    input >> playerId;
 }

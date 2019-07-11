@@ -11,14 +11,23 @@
 namespace z2 {
 class UnitMove : public GameMessage {
 private:
-    const Point from;
-    const Point dest;
+    Point from;
+    Point dest;
 public:
     UnitMove(const z2::Point &from, const z2::Point &dest);
+
+    UnitMove();
 
     const Point &getFrom() const;
 
     const Point &getDest() const;
+
+    const string &getClassName()const  override;
+
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
 };
 
 }

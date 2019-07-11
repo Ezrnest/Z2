@@ -16,6 +16,12 @@ public:
     PlayerMessage(ControlMessageType type, int playerId);
 
     int getPlayerId() const;
+
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
+
 };
 
 }

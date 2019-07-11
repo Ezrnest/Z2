@@ -15,11 +15,20 @@ class EntityPerform : public GameMessage {
 private:
     Point pos;
 public:
-    EntityPerform(GameMessageType type, const Point &pos);
+    explicit EntityPerform(const Point &pos);
+
+    EntityPerform();
 
     const Point &getPos() const;
 
     void setPos(const Point &pos);
+
+    const string &getClassName()const override;
+
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
 };
 }
 

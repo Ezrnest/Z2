@@ -16,28 +16,32 @@ namespace z2 {
 
 class UnitBuy : public GameMessage {
 private:
-    const string identifier;
-    const int playerId;
+    string identifier;
+    int playerId;
     /**
      * The position of the building.
      */
-    const Point pos;
-    Properties prop;
+    Point pos;
 public:
     UnitBuy(const string &identifier, const Point &pos, int playerId);
 
-    UnitBuy(const string &identifier, int playerId, const Point &pos,
-            const Properties &prop);
+    UnitBuy();
 
+    /**
+     * Gets the identifier (name of the entity) of the entity to buy.
+     */
     const string &getIdentifier() const;
 
     int getPlayerId() const;
 
     const Point &getPos() const;
 
-    const Properties &getProp() const;
+    const string &getClassName() const override;
 
-    void setProp(const Properties &prop);
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
 };
 
 }

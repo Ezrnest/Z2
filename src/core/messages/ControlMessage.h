@@ -23,9 +23,18 @@ class ControlMessage : public Message {
 private:
     ControlMessageType controlType;
 public:
-    ControlMessage(ControlMessageType type1);
+    explicit ControlMessage(ControlMessageType type1);
+
+    ControlMessage();
 
     ControlMessageType getControlType() const;
+
+    const string &getClassName()const override;
+
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
 };
 }
 

@@ -29,6 +29,11 @@ public:
     explicit GameMessage(GameMessageType type);
 
     GameMessageType getGameType() const;
+
+protected:
+    void serializeData(ostream &output) override;
+public:
+    void deserializeData(istream &input) override;
 };
 
 }

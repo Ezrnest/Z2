@@ -23,12 +23,20 @@ public:
      */
     virtual void serializeTo(ostream &output) = 0;
 
+
     /**
      * The method that will create a new object of this type. There is no leading class name.
      * <br> <b>This method is only an example!</b>
      * <br><b>Subclasses of this interface should define a static method the same as this method.</b>
      */
     static Serializable* loadFrom(istream& input);
+
+    /**
+     * Gets the class name.
+     */
+    virtual const string& getClassName() const = 0;
+
+
 };
 
 }

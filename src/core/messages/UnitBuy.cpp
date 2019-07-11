@@ -3,16 +3,12 @@
  */
 
 #include "UnitBuy.h"
+
 using namespace z2;
-UnitBuy::UnitBuy(const string &identifier, const int playerId, const Point &pos,
-                     const Properties &prop) : GameMessage(GameMessageType::UnitBuy), identifier(identifier),
-                                               playerId(playerId), pos(pos),
-                                               prop(prop) {}
 
 
 UnitBuy::UnitBuy(const string &identifier, const Point &pos, int playerId) :
-        GameMessage(GameMessageType::UnitBuy), identifier(identifier), playerId(playerId), pos(pos),
-        prop() {}
+        GameMessage(GameMessageType::UnitBuy), identifier(identifier), playerId(playerId), pos(pos) {}
 
 const string &UnitBuy::getIdentifier() const {
     return identifier;
@@ -26,12 +22,25 @@ const Point &UnitBuy::getPos() const {
     return pos;
 }
 
-const Properties &UnitBuy::getProp() const {
-    return prop;
+UnitBuy::UnitBuy() : GameMessage(GameMessageType::UnitBuy), identifier(), playerId(-1), pos(0, 0) {
+
 }
 
-void UnitBuy::setProp(const Properties &prop) {
-    UnitBuy::prop = prop;
+void UnitBuy::serializeData(ostream &output) {
+//    GameMessage::serializeData(output);
+    output << identifier << ' ' << playerId << ' ';
+    pos.serializeData(output);
+}
+
+void UnitBuy::deserializeData(istream &input) {
+//    GameMessage::deserializeData(input);
+    input >> identifier >> playerId;
+    pos.deserializeData(input);
+}
+
+const string &UnitBuy::getClassName()const {
+    static string name = "UnitBuy";
+    return name;
 }
 
 

@@ -23,7 +23,9 @@ int main() {
     init();
     shared_ptr<World> w(new World(5, 5, 2));
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
-    w->createEntity(Point(1, 1), Farmer::className(), 1);
+    w->createEntity(Point(1, 1), Farmer::className(), 0);
+    w->createEntity(Point(3, 3), Farmer::className(), 1);
+    w->getTile(0, 3).setResource(Resource::MINE);
 //    w->createEntity(Point(1,2), )
 
 

@@ -40,6 +40,8 @@ public:
     void makeBuy();
 
     void makeAttack();
+
+    void makePerform();
 };
 }
 

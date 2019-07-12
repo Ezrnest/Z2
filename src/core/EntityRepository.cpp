@@ -163,4 +163,8 @@ void EntityRepository::initDefaultEntities() {
     ancono::info("Init default entities: Done");
 }
 
+bool EntityRepository::hasEntity(const string &entityName) const {
+    return entities.find(entityName) != entities.end();
+}
+
 

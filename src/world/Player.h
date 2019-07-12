@@ -6,6 +6,7 @@
 #define Z2_PLAYER_H
 
 #include <iostream>
+
 using namespace std;
 namespace z2 {
 
@@ -14,16 +15,16 @@ private:
     /**
      * The id of the player.
      */
-    int playerId_;
+    int playerId_ = NO_PLAYER;
     /**
      * The group of the player.
      */
-    int groupId_;
+    int groupId_ = NO_GROUP;
 
     /**
      * The number of gold that this player has.
      */
-    int gold_ = 10;
+    int gold_ = 50;
 public:
     int getPlayerId() const;
 
@@ -37,6 +38,10 @@ public:
 
     void setGold(int gold);
 
+    bool requireGold(int amount);
+
+    void addGold(int delta);
+
     /**
      * The player id indicating null player.
      */
@@ -46,9 +51,9 @@ public:
      */
     static const int NO_GROUP = -1;
 
-    void saveDataTo(ostream& output);
+    void saveDataTo(ostream &output);
 
-    void loadDataFrom(istream& input);
+    void loadDataFrom(istream &input);
 };
 }
 

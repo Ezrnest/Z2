@@ -106,6 +106,7 @@ public:
 
     EntityInfo &getEntityInfo(const string &identifier);
 
+    bool hasEntity(const string &entityName) const;
 
     const vector<string> getAllLoadedEntityNames() const;
 

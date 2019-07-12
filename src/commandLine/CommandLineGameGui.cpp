@@ -8,6 +8,7 @@
 #include "../core/messages/UnitMove.h"
 #include "../core/messages/UnitBuy.h"
 #include "../core/messages/UnitAttack.h"
+#include "../core/messages/EntityPerform.h"
 #include <iostream>
 
 using namespace z2;
@@ -34,7 +35,7 @@ void CommandLineGameGui::onPlayerWin(int playerId) {
     cout << "Player " << playerId << " has won!\n";
 }
 
-void CommandLineGameGui::printWorld()const {
+void CommandLineGameGui::printWorld() const {
     shared_ptr<World> wPtr = client->getWorld();
     World &w = *wPtr;
     printWorld(w);
@@ -57,18 +58,20 @@ void CommandLineGameGui::mainLoop() {
 void CommandLineGameGui::doPlayerTurn() {
     while (true) {
         printWorld();
-        cout << "Please enter the command: Buy, Move, Attack,End" << endl;
+        cout << "Please enter the command: Buy, Move, Attack,Perform, End" << endl;
         string cmd;
         cin >> cmd;
         if (strcasecmp(cmd.c_str(), "end") == 0) {
             break;
-        } else if(strcasecmp(cmd.c_str(), "move") == 0){
+        } else if (strcasecmp(cmd.c_str(), "move") == 0) {
             makeMove();
-        }else if(strcasecmp(cmd.c_str(), "buy") == 0){
+        } else if (strcasecmp(cmd.c_str(), "buy") == 0) {
             makeBuy();
-        }else if(strcasecmp(cmd.c_str(), "attack") == 0){
+        } else if (strcasecmp(cmd.c_str(), "attack") == 0) {
             makeAttack();
-        }else{
+        } else if (strcasecmp(cmd.c_str(), "perform") == 0) {
+            makePerform();
+        }  else {
             // do stuff here
             cout << "!" << endl;
         }
@@ -77,11 +80,11 @@ void CommandLineGameGui::doPlayerTurn() {
 }
 
 void CommandLineGameGui::makeMove() {
-    int x,y;
+    int x, y;
     cin >> x >> y;
-    int nx,ny;
+    int nx, ny;
     cin >> nx >> ny;
-    shared_ptr<UnitMove> msg(new UnitMove(Point(x,y),Point(nx,ny)));
+    shared_ptr<UnitMove> msg(new UnitMove(Point(x, y), Point(nx, ny)));
     client->sendMessageToServer(msg);
 }
 
@@ -98,18 +101,27 @@ void CommandLineGameGui::printWorld(World &w) {
         for (int i = 0; i < w.width; i++) {
             Tile &t = data[i][j];
             char c = '?';
-            switch (t.getVisibility(playerId)){
-                case Visibility::DARK:{
+            switch (t.getVisibility(playerId)) {
+                case Visibility::DARK: {
                     c = '*';
                     break;
                 }
-                case Visibility::GREY:{
+                case Visibility::GREY: {
                     c = '.';
                     break;
                 }
-                case Visibility::CLEAR:{
+                case Visibility::CLEAR: {
                     if (!t.hasEntity()) {
-                        c =  ' ';
+                        switch (t.getResource()) {
+                            case Resource::NONE: {
+                                c = ' ';
+                                break;
+                            }
+                            case Resource::MINE: {
+                                c = '_';
+                                break;
+                            }
+                        }
                     } else {
 //                cout << '*';
                         c = t.getEntity()->getClassName()[0];
@@ -124,6 +136,7 @@ void CommandLineGameGui::printWorld(World &w) {
         cout << "--";
     }
     cout << '\n';
+    cout << "Gold: " << w.getPlayer(w.getCurrentPlayer()).getGold() << endl;
 }
 
 void CommandLineGameGui::makeBuy() {
@@ -135,9 +148,16 @@ void CommandLineGameGui::makeBuy() {
 }
 
 void CommandLineGameGui::makeAttack() {
-    Point from,dest;
+    Point from, dest;
     from.deserializeData(cin);
     dest.deserializeData(cin);
-    shared_ptr<UnitAttack> msg(new UnitAttack(from,dest));
+    shared_ptr<UnitAttack> msg(new UnitAttack(from, dest));
+    client->sendMessageToServer(msg);
+}
+
+void CommandLineGameGui::makePerform() {
+    Point pos;
+    pos.deserializeData(cin);
+    shared_ptr<EntityPerform> msg(new EntityPerform(pos));
     client->sendMessageToServer(msg);
 }

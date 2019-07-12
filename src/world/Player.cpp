@@ -37,3 +37,16 @@ void z2::Player::saveDataTo(ostream &output) {
 void z2::Player::loadDataFrom(istream &input) {
     input >> playerId_ >> groupId_ >> gold_;
 }
+
+bool z2::Player::requireGold(int amount) {
+    if(amount > gold_){
+        return false;
+    }else{
+        gold_ -= amount;
+        return true;
+    }
+}
+
+void z2::Player::addGold(int delta) {
+    gold_ += delta;
+}

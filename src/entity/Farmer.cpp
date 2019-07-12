@@ -25,7 +25,12 @@ const string &Farmer::getClassName() const {
 
 void Farmer::doFarm(const Point &pos, World &world) {
     Player& player = world.getPlayer(ownerId_);
-    player.setGold(player.getGold() + goldPerTurn);
+    Tile& tile = world.getTile(pos);
+    if(tile.getResource() != Resource::MINE){
+        return;
+    }
+    player.addGold(goldPerTurn);
+//    player.setGold(player.getGold() + goldPerTurn);
     //TODO dispatch event
 }
 

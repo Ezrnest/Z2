@@ -11,7 +11,7 @@
 namespace z2 {
 class RangeUnit : public GameUnit{
 protected:
-    int attackStrength = 25;
+    int attackStrength = 100;
 
     int range = 2;
 public:

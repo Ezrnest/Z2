@@ -68,6 +68,7 @@ private:
 
     void onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId);
 
+//    void onEntityBought()
     /**
      *
      * @param damage it can be modified
@@ -196,6 +197,11 @@ public:
     Point searchFor(int playerId, const string& entityName);
 
     /**
+     * Determines whether the two entities are of the same group.
+     */
+    bool isOfSameGroup(const shared_ptr<Entity>& e1, const shared_ptr<Entity>& e2);
+
+    /**
      * Updates the visibility of a player. If the player id is not valid, this method will do nothing.
      */
     void updateVisibility(int playerId);
@@ -274,6 +280,7 @@ private:
 //    int objectCount()
 //    void se(ostream& output);
     void loadTileData(Tile &t, istream &input);
+
 };
 }
 

@@ -172,7 +172,7 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
         }
         case GameMessageType::UnitAttack: {
             const shared_ptr<UnitAttack> msg = static_pointer_cast<UnitAttack>(message);
-            attackEntity(msg->getFrom(),msg->getDest());
+            attackEntity(msg->getFrom(), msg->getDest());
             break;
         }
     }
@@ -214,6 +214,21 @@ void World::buyEntity(int playerId, const Point &pos, const string &entityName) 
         warn("Nowhere to place the bought unit.");
         return;
     }
+    if (playerId != Player::NO_PLAYER) {
+        Player &p = players[playerId];
+        auto &repo = EntityRepository::instance();
+        if (!repo.hasEntity(entityName)) {
+            warn("Unknown entity: "+entityName);
+            return;
+        }
+        auto &info = repo.getEntityInfo(entityName);
+        int cost = info.getProperties().getInt("price", 25);
+        if (!p.requireGold(cost)) {
+            warn("Not enough gold!");
+            return;
+        }
+    }
+
     createEntity(whereToPlace, entityName, playerId);
 
 }
@@ -233,6 +248,11 @@ bool World::performMeleeAttack(const Point &from, const Point &dest, const share
 
 void World::attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                               const shared_ptr<EntityWithHealth> &victim) {
+    if (!from.isAdjacentTo(dest)) {
+        warn("Not adjacent for melee attack!");
+        return;
+    }
+
     if (performMeleeAttack(from, dest, melee, victim)) {
         //occupy the position
         Tile &destTile = getTile(dest);
@@ -269,18 +289,22 @@ void World::attackEntity(const Point &from, const Point &dest) {
         warn("No sufficient move to perform attack!");
         return;
     }
+    if (isOfSameGroup(attacker, receiver)) {
+        warn("Cannot attack an ally!");
+        return;
+    }
     const shared_ptr<EntityWithHealth> victim = dynamic_pointer_cast<EntityWithHealth>(receiver);
-    if(!victim){
+    if (!victim) {
         warn("Not a valid target!");
         return;
     }
     const shared_ptr<MeleeUnit> melee = dynamic_pointer_cast<MeleeUnit>(attacker);
-    if(melee){
+    if (melee) {
         attackEntityMelee(from, dest, melee, victim);
         return;
     }
     const shared_ptr<RangeUnit> range = dynamic_pointer_cast<RangeUnit>(attacker);
-    if(range){
+    if (range) {
         attackEntityRange(from, dest, range, victim);
         return;
     }
@@ -290,16 +314,16 @@ void World::attackEntity(const Point &from, const Point &dest) {
 
 void World::performEntity(const Point &target) {
     const EntityPtr &entity = getEntity(target);
-    if(!entity){
+    if (!entity) {
         warn("No unit to perform!");
         return;
     }
-    if(!entity->requireRestMoves()){
+    if (!entity->requireRestMoves()) {
         warn("No sufficient moves!");
         return;
     }
     entity->performAbility(target, *this);
-    onEntityPerformed(target,entity);
+    onEntityPerformed(target, entity);
 }
 
 
@@ -349,7 +373,7 @@ void World::onPlayerTurnFinish() {
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
-    if(entity == nullptr){
+    if (entity == nullptr) {
         warn("Unable to create entity named: " + entityId);
         return shared_ptr<Entity>();
     }
@@ -567,23 +591,34 @@ void World::loadTileData(Tile &t, istream &input) {
     }
 }
 
-const string &World::getClassName()const {
+const string &World::getClassName() const {
     return className();
 }
 
 Point World::searchFor(int playerId, const string &entityName) {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            if(!data[i][j].hasEntity()){
+            if (!data[i][j].hasEntity()) {
                 continue;
             }
-            const shared_ptr<Entity>& en = data[i][j].getEntity();
-            if(en->getEntityName() == entityName){
+            const shared_ptr<Entity> &en = data[i][j].getEntity();
+            if (en->getEntityName() == entityName) {
                 return Point(i, j);
             }
         }
     }
     return Point(-1, -1);
+}
+
+bool World::isOfSameGroup(const shared_ptr<Entity> &e1, const shared_ptr<Entity> &e2) {
+    int p1 = e1->getOwnerId();
+    int p2 = e2->getOwnerId();
+    if (p1 == Player::NO_PLAYER || p2 == Player::NO_PLAYER) {
+        return false;
+    }
+    int g1 = players[p1].getGroupId();
+    int g2 = players[p2].getGroupId();
+    return !(g1 == Player::NO_GROUP || g2 == Player::NO_GROUP || g1 != g2);
 }
 
 

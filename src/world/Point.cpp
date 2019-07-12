@@ -42,4 +42,11 @@ void Point::deserializeData(istream &input) {
     input >> x >> y;
 }
 
+bool Point::isAdjacentTo(const Point &p) const {
+    int dx = x - p.x;
+    int dy = y - p.y;
+    return (dx == 0 && (dy == -1 || dy == 1)) ||
+           (dy == 0 && (dx == -1 || dx == 1));
+}
+
 

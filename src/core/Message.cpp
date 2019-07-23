@@ -23,10 +23,10 @@ void Message::deserializeData(istream &input) {
     mType = static_cast<GeneralMessageType >(t);
 }
 
-void Message::serializeTo(ostream &output) {
-    output << getClassName() << ' ';
-    serializeData(output);
-}
+//void Message::serializeTo(ostream &output) {
+//    output << getClassName() << ' ';
+//    serializeData(output);
+//}
 
 
 z2::Message::~Message() = default;

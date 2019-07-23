@@ -10,6 +10,7 @@
 
 namespace z2 {
 enum class ControlMessageType {
+    RegisterPlayer, SyncWorld,
     StartGame, EndGame,
     PlayerTurnStart, PlayerTurnFinish,
     PlayerDefeated, PlayerWin,

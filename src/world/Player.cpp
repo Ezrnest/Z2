@@ -29,19 +29,20 @@ void z2::Player::setGold(int gold) {
 }
 
 void z2::Player::saveDataTo(ostream &output) {
-    output << playerId_ << ' '
+    output << name << ' '
+           << playerId_ << ' '
            << groupId_ << ' '
            << gold_ << ' ';
 }
 
 void z2::Player::loadDataFrom(istream &input) {
-    input >> playerId_ >> groupId_ >> gold_;
+    input >> name >> playerId_ >> groupId_ >> gold_;
 }
 
 bool z2::Player::requireGold(int amount) {
-    if(amount > gold_){
+    if (amount > gold_) {
         return false;
-    }else{
+    } else {
         gold_ -= amount;
         return true;
     }
@@ -49,4 +50,20 @@ bool z2::Player::requireGold(int amount) {
 
 void z2::Player::addGold(int delta) {
     gold_ += delta;
+}
+
+bool z2::Player::isDead() const {
+    return dead;
+}
+
+void z2::Player::setDead(bool dead) {
+    Player::dead = dead;
+}
+
+const string &z2::Player::getName() const {
+    return name;
+}
+
+void z2::Player::setName(const string &name) {
+    Player::name = name;
 }

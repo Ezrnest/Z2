@@ -8,7 +8,13 @@
 namespace z2 {
 class GameConfiguration {
 public:
+
+    static void initAll();
+
     static void initRegistration();
+
+    static void disposeAll();
+
 };
 
 }

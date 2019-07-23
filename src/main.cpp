@@ -1,3 +1,6 @@
+
+#define ASIO_STANDALONE
+
 #include <iostream>
 #include "world/World.h"
 #include "core/Server.h"
@@ -10,13 +13,19 @@
 #include "core/BotClientPort.h"
 #include "core/GameConfiguration.h"
 #include "core/SerializableRegistry.h"
+#include "easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 using namespace z2;
 
 void init() {
-//    Gam::initDefaultEntities();
-    GameConfiguration::initRegistration();
+
+
+
+
+    GameConfiguration::initAll();
 }
 
 int main() {

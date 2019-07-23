@@ -28,7 +28,7 @@ void Entity::initialize(const Properties &prop) {
     entityName = prop.get("entityName", entityName);
     ownerId_ = prop.getInt("ownerId", ownerId_);
     movesPerTurn = prop.getInt("movesPerTurn", movesPerTurn);
-    visibility = prop.getInt("visibility",visibility);
+    visibility = prop.getInt("visibility", visibility);
 }
 
 void Entity::performAbility(const Point &pos, World &world) {
@@ -65,10 +65,10 @@ void Entity::refreshMoves() {
 }
 
 bool Entity::requireMoves(int count) {
-    if(remainingMoves > count){
+    if (remainingMoves > count) {
         remainingMoves -= count;
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -78,7 +78,8 @@ void Entity::serializeDataPart(ostream &output) {
            << objectId << ' '
            << ownerId_ << ' '
            << visibility << ' '
-           << movesPerTurn << ' ';
+           << movesPerTurn << ' '
+           << remainingMoves << ' ';
 
 }
 
@@ -87,18 +88,19 @@ void Entity::deserializeDataPart(istream &input, Entity *en) {
           >> en->objectId
           >> en->ownerId_
           >> en->visibility
-          >> en->movesPerTurn;
+          >> en->movesPerTurn
+          >> en->remainingMoves;
 }
 
 const string &Entity::getEntityName() const {
     return entityName;
 }
 
-bool Entity::requireRestMoves(){
-    if(remainingMoves > 0){
+bool Entity::requireRestMoves() {
+    if (remainingMoves > 0) {
         remainingMoves = 0;
         return true;
-    }else{
+    } else {
         return false;
     }
 }

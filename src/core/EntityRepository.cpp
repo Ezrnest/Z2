@@ -6,9 +6,9 @@
 #include "../entity/ConstructionBase.h"
 #include "../entity/Farmer.h"
 #include "../util/LogUtil.h"
+#include "../lib/easylogging++.h"
 
 using namespace z2;
-
 
 EntityClassInfo::EntityClassInfo(const string &identifier, const CreatingFunction &creatingFunction) : className(
         identifier),
@@ -107,7 +107,7 @@ EntityRepository::createEntity(const string &entityName, int objectId, const Pro
 void EntityRepository::registerEntityClass(const string &className, const CreatingFunction &creatingFunction) {
     shared_ptr<EntityClassInfo> info(new EntityClassInfo(className, creatingFunction));
     entityClasses.insert(make_pair(className, info));
-    ancono::info("[EntityRegistry]: Registered class " + className);
+    LOG(INFO) << ("[EntityRegistry]: Registered class " + className);
 }
 
 
@@ -122,7 +122,7 @@ EntityRepository::EntityRepository() = default;
  */
 void EntityRepository::registerEntity(const EntityInfo &info) {
     entities.insert(make_pair(info.getIdentifier(), info));
-    ancono::info("[EntityRegistry]: Registered entity " + info.getIdentifier());
+    LOG(INFO) << ("[EntityRegistry]: Registered entity " + info.getIdentifier());
 }
 
 /**
@@ -143,7 +143,7 @@ void EntityRepository::initEntityClasses() {
     //TODO
     repo.registerEntityClass(MeleeUnit::className(), MeleeUnit::create);
     repo.registerEntityClass(RangeUnit::className(), RangeUnit::create);
-    ancono::info("[EntityRegistry]: Init entity classes: Done");
+    LOG(INFO) << "[EntityRegistry]: Init entity classes: Done";
 }
 
 /**
@@ -160,7 +160,7 @@ void EntityRepository::initDefaultEntities() {
         EntityInfo info(cInfo->getClassName(), cInfo, Properties());
         repo.registerEntity(info);
     }
-    ancono::info("Init default entities: Done");
+    LOG(INFO) << ("[EntityRegistry]: Initialized default entities.");
 }
 
 bool EntityRepository::hasEntity(const string &entityName) const {

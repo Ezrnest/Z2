@@ -17,7 +17,7 @@ enum class GeneralMessageType {
     ChatMessage,
 };
 
-class Message : public Serializable {
+class Message : public DataSerializable {
 private:
     GeneralMessageType mType;
 public:
@@ -27,15 +27,12 @@ public:
 
     GeneralMessageType getGeneralType() const;
 
-//    template<typename Clazz>
-//    static Clazz *deserializeT(istream &input);
-
-    void serializeTo(ostream &output) override;
+//    void serializeTo(ostream &output) override;
 
 protected:
-    virtual void serializeData(ostream &output);
+    void serializeData(ostream &output) override;
 public:
-    virtual void deserializeData(istream &input);
+    void deserializeData(istream &input) override;
 };
 
 using MessagePtr = std::shared_ptr<Message>;

@@ -13,7 +13,6 @@ namespace z2 {
  * <h2>Serializing</h2>
  * When serializing, the serializable object should firstly save its class name.
  * <h2>Deserializing</h2>
- * The general deserializing
  */
 class Serializable {
 public:
@@ -39,7 +38,19 @@ public:
 
 };
 
+class DataSerializable : public Serializable{
+public:
+    void serializeTo(ostream &output) override;
+
+protected:
+    virtual void serializeData(ostream &output) = 0 ;
+public:
+    virtual void deserializeData(istream &input) = 0;
+};
+
 }
+
+
 
 
 #endif //Z2_SERIALIZABLE_H

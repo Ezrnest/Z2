@@ -12,6 +12,7 @@ namespace z2 {
 
 class Player {
 private:
+    string name = "Player";
     /**
      * The id of the player.
      */
@@ -25,6 +26,10 @@ private:
      * The number of gold that this player has.
      */
     int gold_ = 50;
+
+    bool dead = false;
+
+
 public:
     int getPlayerId() const;
 
@@ -41,6 +46,14 @@ public:
     bool requireGold(int amount);
 
     void addGold(int delta);
+
+    bool isDead() const;
+
+    void setDead(bool dead = true);
+
+    const string &getName() const;
+
+    void setName(const string &name);
 
     /**
      * The player id indicating null player.

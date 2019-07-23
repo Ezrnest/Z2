@@ -36,7 +36,7 @@ private:
     /**
      * The current player of this world.
      */
-    int currentPlayer = 0;
+    int currentPlayer = -1;
 
     /**
      * The players of this game.
@@ -56,7 +56,10 @@ private:
      */
     Tile **data;
 
+
     // NOTE: updates `initPlainDataFrom` if new fields are added!
+
+
 
     void initPlainDataFrom(const World &world);
 
@@ -90,6 +93,17 @@ private:
      */
     bool performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                             const shared_ptr<EntityWithHealth> &victim);
+
+    bool checkPlayerLostAllUnit(int playerId);
+
+    /**
+     * May call `onPlayerGroupWon`.
+     */
+    void checkPlayerGroupWin();
+
+    void onPlayerDefeated(int playerId);
+
+    void onPlayerGroupWon(int groupId);
 
 public:
     World(int width_, int height_, int playerCount);
@@ -189,7 +203,7 @@ public:
      * Applies the given function to all the entities of the player.
      * @param f a function which accepts the x,y coordinates and the entity in order.
      */
-    void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>)> &f);
+    void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>&)> &f);
 
     /**
      * Searches the map for the first entity of the given `entityName`.

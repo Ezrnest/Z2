@@ -55,7 +55,7 @@ public:
     /**
      * Sets the server port.
      */
-    virtual void setServerPort(const shared_ptr<ServerProxy> &server) = 0;
+    virtual void setServerProxy(const shared_ptr<ServerProxy> &server) = 0;
 
     virtual shared_ptr<ServerProxy> getServer() = 0;
 
@@ -65,6 +65,7 @@ public:
 
     virtual int getPlayerId() = 0;
 
+    virtual const string& getPlayerName() = 0 ;
 
 
 };

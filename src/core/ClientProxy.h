@@ -44,7 +44,7 @@ public:
      * Synchronizes the client world with the given server world.
      * @return `true` if the operation succeed, otherwise false.
      */
-    virtual bool syncWorld(const World &world) = 0;
+    virtual bool syncWorld(const shared_ptr<World> &world) = 0;
 };
 
 }

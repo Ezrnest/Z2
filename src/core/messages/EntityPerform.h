@@ -1,29 +1,26 @@
 /*
- * Created by liyicheng on 2019/7/5.
+ * Created by liyicheng on 2019/7/11.
  */
 
 #ifndef Z2_ENTITYPERFORM_H
 #define Z2_ENTITYPERFORM_H
 
-#include "../Message.h"
-#include "../../world/Point.h"
 #include "GameMessage.h"
+#include "../../world/Point.h"
 
 namespace z2 {
-
-class EntityPerform : public GameMessage {
+class EntityPerform : public GameMessage{
 private:
     Point pos;
 public:
-    explicit EntityPerform(const Point &pos);
+
+    explicit EntityPerform(const z2::Point &pos);
 
     EntityPerform();
 
     const Point &getPos() const;
 
-    void setPos(const Point &pos);
-
-    const string &getClassName()const override;
+    const string &getClassName() const override;
 
 protected:
     void serializeData(ostream &output) override;

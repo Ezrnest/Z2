@@ -7,11 +7,13 @@
 #include "../entity/Farmer.h"
 #include "../entity/ConstructionBase.h"
 #include "messages/ControlMessage.h"
-#include "messages/EntityPerform.h"
 #include "messages/UnitAttack.h"
 #include "messages/UnitBuy.h"
 #include "messages/UnitMove.h"
-#include "messages/UnitPerform.h"
+#include "messages/EntityPerform.h"
+#include "messages/RegisterPlayer.h"
+#include "messages/EntityKill.h"
+#include "messages/SyncWorld.h"
 
 using namespace z2;
 
@@ -49,11 +51,17 @@ void registerMessageClass(SerializableRegistry &sr) {
 
 void initMessageClass(SerializableRegistry &sr) {
     registerMessageClass<ControlMessage>(sr);
+    registerMessageClass<RegisterPlayer>(sr);
+    registerMessageClass<SyncWorld>(sr);
+
+
     registerMessageClass<EntityPerform>(sr);
+    registerMessageClass<EntityKill>(sr);
+
     registerMessageClass<UnitAttack>(sr);
     registerMessageClass<UnitBuy>(sr);
     registerMessageClass<UnitMove>(sr);
-    registerMessageClass<UnitPerform>(sr);
+    //TODO add message classes
 }
 }
 
@@ -77,7 +85,7 @@ void SerializableRegistry::registerClass() {
 
 template<typename Clazz>
 Clazz *SerializableRegistry::deserializeT(istream &input) {
-    static_assert(is_base_of<Message, Clazz>::value, "The base class should be a ");
+    static_assert(is_base_of<DataSerializable, Clazz>::value, "The class should be a subclass of Message!");
     auto *msg = new Clazz();
     msg->deserializeData(input);
     return msg;

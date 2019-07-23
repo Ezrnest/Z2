@@ -16,6 +16,8 @@ private:
     weak_ptr<Server> server;
     weak_ptr<GameGui> gui;
 
+    string playerName = "local";
+
     void dealWithControlMessage(const shared_ptr<ControlMessage> &message);
 
 public:
@@ -26,7 +28,7 @@ public:
     /**
      * Ignores this method.
      */
-    void setServerPort(const shared_ptr<ServerProxy> &server) override;
+    void setServerProxy(const shared_ptr<ServerProxy> &server) override;
 
     /**
      * Ignores this method.
@@ -43,11 +45,13 @@ public:
 
     void sendMessage(const shared_ptr<Message> &command) override;
 
-    bool syncWorld(const World &world) override;
+    bool syncWorld(const shared_ptr<World> &world) override;
 
     void sendMessageToServer(const MessagePtr &message) override;
 
+    const string& getPlayerName() override ;
 
+    void setPlayerName(const string &playerName);
 };
 
 }

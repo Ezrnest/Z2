@@ -34,7 +34,7 @@ void z2::BotClientPort::sendMessage(const std::shared_ptr<z2::Message> &command)
     }
 }
 
-bool z2::BotClientPort::syncWorld(const z2::World &world) {
+bool z2::BotClientPort::syncWorld(const shared_ptr<World> &world) {
     return true;
 }
 

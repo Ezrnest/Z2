@@ -8,11 +8,13 @@
 #include "messages/PlayerMessage.h"
 #include "messages/ControlMessage.h"
 #include "../util/LogUtil.h"
+#include "../lib/easylogging++.h"
+
 using namespace z2;
 
 void Server::acceptMessage(const shared_ptr<Message> &command) {
     if (gameState == GameState::PAUSED) {
-        ancono::info("Reject message: Game Paused");
+        LOG(INFO) <<("Reject message: Game Paused");
         return;
     }
 //    ancono::info("Accepted message!");
@@ -23,6 +25,7 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
         }
         case GeneralMessageType::GameMessage: {
             world->dealWithMessage(static_pointer_cast<GameMessage>(command));
+            //TODO
             break;
         }
         case GeneralMessageType::ChatMessage:
@@ -35,12 +38,12 @@ bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
 
     clients.push_back(client);
 
-    bool re =  client->syncWorld(*world);
+    bool re =  client->syncWorld(world);
     if(re){
-        ancono::info("Client registered");
+        LOG(INFO) <<("Client registered");
         return true;
     }else{
-        ancono::warn("Client register failed!");
+        LOG(WARNING) <<("Client register failed!");
         return false;
     }
 }
@@ -50,11 +53,11 @@ void z2::Server::startGame() {
         return;
     }
     gameState = RUNNING;
-
+    LOG(INFO) << "Game Started!";
     shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
     broadcastMessage(startGame);
 
-    int playerId = world->getCurrentPlayer();
+    int playerId = world->nextPlayer();
     callPlayer(playerId);
 }
 
@@ -87,7 +90,7 @@ void Server::onPlayerTurnFinish(const shared_ptr<Message> &message) {
     shared_ptr<PlayerMessage> msg = static_pointer_cast<PlayerMessage>(message);
     int playerId = msg->getPlayerId();
     if (playerId != world->getCurrentPlayer()) {
-        ancono::warn("Turn finish with not current player!");
+        LOG(WARNING) <<("Turn finish with not current player!");
         return;
     }
     shiftTurn();
@@ -107,15 +110,15 @@ void Server::setWorld(const shared_ptr<World> &world) {
 
 bool Server::checkGameReady() {
     if(gameState == RUNNING){
-        ancono::warn("Already started!");
+        LOG(WARNING) << "Already started!";
         return false;
     }
     if(clients.size() != world->getPlayerCount()){
-        ancono::warn("Player count != client count");
+        LOG(WARNING) <<("Player count != client count");
         return false;
     }
     if(!world->checkReady()){
-        ancono::warn("The world is not correctly loaded!");
+        LOG(WARNING) << ("The world is not correctly loaded!");
         return false;
     }
     return true;
@@ -135,11 +138,25 @@ void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage>& messag
         case ControlMessageType::PlayerDefeated:break;
         case ControlMessageType::PlayerWin:break;
         case ControlMessageType::StartGame:break;
+        case ControlMessageType::RegisterPlayer:break;
+        case ControlMessageType::SyncWorld:break;
     }
 }
 
 void Server::onEndGame() {
-    ancono::info("Game ended!");
+    broadcastMessage(make_shared<ControlMessage>(ControlMessageType::EndGame));
+    LOG(INFO) << "Game ended!";
+}
+
+void Server::endGame(int winnerGroupId) {
+    LOG(INFO) << "The group " << winnerGroupId << " wins!";
+
+    onEndGame();
+}
+
+void Server::exceptionalEndGame(const string &cause) {
+    gameState = GameState::PAUSED;
+    LOG(INFO) << "Game ended, cause: " << cause;
 }
 
 

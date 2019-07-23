@@ -15,7 +15,9 @@
 #include "../core/messages/UnitBuy.h"
 #include "../core/messages/UnitMove.h"
 #include "../core/messages/UnitAttack.h"
-#include "../core/messages/UnitPerform.h"
+#include "../core/messages/EntityPerform.h"
+#include "../core/messages/EntityKill.h"
+#include "../lib/easylogging++.h"
 
 namespace z2 {
 using EntityPtr = shared_ptr<Entity>;
@@ -135,10 +137,18 @@ int World::getCurrentPlayer() const {
 }
 
 int World::nextPlayer() {
-    currentPlayer++;
-    if (currentPlayer >= getPlayerCount()) {
-        currentPlayer -= getPlayerCount();
-    }
+    int count = 0;
+    do {
+        currentPlayer++;
+        if (count > getPlayerCount()) {
+            LOG(WARNING) << ("All players are dead!");
+            return -1;
+        }
+        count++;
+        if (currentPlayer >= getPlayerCount()) {
+            currentPlayer -= getPlayerCount();
+        }
+    } while (players[currentPlayer].isDead());
     return currentPlayer;
 }
 
@@ -165,8 +175,8 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
             moveEntity(msg->getFrom(), msg->getDest());
             break;
         }
-        case GameMessageType::UnitPerform: {
-            const shared_ptr<UnitPerform> msg = static_pointer_cast<UnitPerform>(message);
+        case GameMessageType::EntityPerform: {
+            const shared_ptr<EntityPerform> msg = static_pointer_cast<EntityPerform>(message);
             performEntity(msg->getPos());
             break;
         }
@@ -175,30 +185,35 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
             attackEntity(msg->getFrom(), msg->getDest());
             break;
         }
+        case GameMessageType::EntityKill: {
+            const shared_ptr<EntityKill> msg = static_pointer_cast<EntityKill>(message);
+            removeEntity(msg->getPos());
+            break;
+        }
     }
 }
 
 bool World::moveEntity(const Point &from, const Point &dest) {
     if (!isInside(from) || !isInside(dest)) {
-        warn("Attempting to move outside the map!");
+        LOG(WARNING) << ("Attempting to move outside the map!");
         return false;
     }
     Tile &destTile = getTile(dest);
     if (destTile.isOccupied()) {
         //TODO add log info
-        warn("Attempting to move to an occupied tile!");
+        LOG(WARNING) << ("Attempting to move to an occupied tile!");
         return false;
     }
     Tile &fromTile = getTile(from);
     shared_ptr<GameUnit> entity = dynamic_pointer_cast<GameUnit>(fromTile.getEntity());
     if (!entity) {
         // not actually entity
-        warn("Attempting to move a non-entity!");
+        LOG(WARNING) << ("Attempting to move a non-entity!");
         return false;
     }
     int requiredMoves = pathLength(from, dest);
     if (!entity->requireMoves(requiredMoves)) {
-        warn("Unit out of move!");
+        LOG(WARNING) << ("Unit out of move!");
         return false;
     }
     destTile.setEntity(fromTile.removeEntity());
@@ -211,20 +226,20 @@ bool World::moveEntity(const Point &from, const Point &dest) {
 void World::buyEntity(int playerId, const Point &pos, const string &entityName) {
     const Point &whereToPlace = getAdjacentEmptyPos(pos);
     if (whereToPlace.x < 0) {
-        warn("Nowhere to place the bought unit.");
+        LOG(WARNING) << ("Nowhere to place the bought unit.");
         return;
     }
     if (playerId != Player::NO_PLAYER) {
         Player &p = players[playerId];
         auto &repo = EntityRepository::instance();
         if (!repo.hasEntity(entityName)) {
-            warn("Unknown entity: "+entityName);
+            LOG(WARNING) << ("Unknown entity: " + entityName);
             return;
         }
         auto &info = repo.getEntityInfo(entityName);
         int cost = info.getProperties().getInt("price", 25);
         if (!p.requireGold(cost)) {
-            warn("Not enough gold!");
+            LOG(WARNING) << ("Not enough gold!");
             return;
         }
     }
@@ -249,7 +264,7 @@ bool World::performMeleeAttack(const Point &from, const Point &dest, const share
 void World::attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                               const shared_ptr<EntityWithHealth> &victim) {
     if (!from.isAdjacentTo(dest)) {
-        warn("Not adjacent for melee attack!");
+        LOG(WARNING) << ("Not adjacent for melee attack!");
         return;
     }
 
@@ -282,20 +297,20 @@ void World::attackEntity(const Point &from, const Point &dest) {
     const EntityPtr &attacker = getEntity(from);
     const EntityPtr &receiver = getEntity(dest);
     if (!bool(attacker) || !bool(receiver)) {
-        warn("No unit to make attack!");
+        LOG(WARNING) << ("No unit to make attack!");
         return;
     }
     if (!attacker->requireRestMoves()) {
-        warn("No sufficient move to perform attack!");
+        LOG(WARNING) << ("No sufficient move to perform attack!");
         return;
     }
     if (isOfSameGroup(attacker, receiver)) {
-        warn("Cannot attack an ally!");
+        LOG(WARNING) << ("Cannot attack an ally!");
         return;
     }
     const shared_ptr<EntityWithHealth> victim = dynamic_pointer_cast<EntityWithHealth>(receiver);
     if (!victim) {
-        warn("Not a valid target!");
+        LOG(WARNING) << ("Not a valid target!");
         return;
     }
     const shared_ptr<MeleeUnit> melee = dynamic_pointer_cast<MeleeUnit>(attacker);
@@ -308,18 +323,18 @@ void World::attackEntity(const Point &from, const Point &dest) {
         attackEntityRange(from, dest, range, victim);
         return;
     }
-    warn("The unit can't attack!");
+    LOG(WARNING) << ("The unit can't attack!");
 }
 
 
 void World::performEntity(const Point &target) {
     const EntityPtr &entity = getEntity(target);
     if (!entity) {
-        warn("No unit to perform!");
+        LOG(WARNING) << ("No unit to perform!");
         return;
     }
     if (!entity->requireRestMoves()) {
-        warn("No sufficient moves!");
+        LOG(WARNING) << ("No sufficient moves!");
         return;
     }
     entity->performAbility(target, *this);
@@ -331,50 +346,66 @@ void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr
     //TODO add log info
     //TODO dispatch
 
-    info("Entity moved!");
+    LOG(INFO) << ("Entity moved!");
     updateVisibility(entity->getOwnerId());
 }
 
 void
 World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId) {
     //TODO dispatch
-    info("Entity [" + entityName + "] created!");
+    LOG(INFO) << ("Entity [" + entityName + "] created!");
     setEntityVisibility(pos.x, pos.y, entity, playerId);
 }
 
 void World::onEntityDamaging(const Point &from, const Point &dest,
                              const shared_ptr<Entity> &attacker,
                              const shared_ptr<EntityWithHealth> &receiver, int &damage) {
-    info("Entity damaged!");
+    LOG(INFO) << ("Entity damaged!");
 }
 
 
 void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
-    info("Entity [" + entity->getEntityName() + "] removed");
-    updateVisibility(entity->getOwnerId());
+    LOG(INFO) << ("Entity [" + entity->getEntityName() + "] removed");
+    int playerId = entity->getOwnerId();
+    updateVisibility(playerId);
+    if(checkPlayerLostAllUnit(playerId)){
+        onPlayerDefeated(playerId);
+    }
 }
 
 void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
-    info("Entity [" + entity->getEntityName() + "] performed!");
+    LOG(INFO) << ("Entity [" + entity->getEntityName() + "] performed!");
 }
 
 
 void World::onPlayerTurnStart() {
-    info("Player turn started.");
+    LOG(INFO) << ("Player turn started.");
     updateVisibility(currentPlayer);
     refreshMoves(currentPlayer);
 }
 
 void World::onPlayerTurnFinish() {
-    info("Player turn finished.");
+    LOG(INFO) << ("Player turn finished.");
     //TODO: update visibility
 }
+
+void World::onPlayerDefeated(int playerId) {
+    players[playerId].setDead(true);
+    LOG(INFO) << "Player" << playerId << " is defeated";
+    checkPlayerGroupWin();
+}
+
+void World::onPlayerGroupWon(int groupId) {
+    LOG(INFO) << "Player group " << groupId << " won!";
+}
+
+
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
     if (entity == nullptr) {
-        warn("Unable to create entity named: " + entityId);
+        LOG(WARNING) << ("Unable to create entity named: " + entityId);
         return shared_ptr<Entity>();
     }
     tile.setEntity(entity);
@@ -435,7 +466,7 @@ void World::resetVisibility(int playerId) {
     }
 }
 
-void World::forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>)> &f) {
+void World::forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>&)> &f) {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             Tile &t = data[i][j];
@@ -607,7 +638,7 @@ Point World::searchFor(int playerId, const string &entityName) {
             }
         }
     }
-    return Point(-1, -1);
+    return {-1, -1};
 }
 
 bool World::isOfSameGroup(const shared_ptr<Entity> &e1, const shared_ptr<Entity> &e2) {
@@ -619,6 +650,28 @@ bool World::isOfSameGroup(const shared_ptr<Entity> &e1, const shared_ptr<Entity>
     int g1 = players[p1].getGroupId();
     int g2 = players[p2].getGroupId();
     return !(g1 == Player::NO_GROUP || g2 == Player::NO_GROUP || g1 != g2);
+}
+
+bool World::checkPlayerLostAllUnit(int playerId) {
+    bool lostAll = true;
+    forEachEntitiesOf(playerId,
+            [&lostAll](int, int, shared_ptr<Entity> &) { lostAll = false; });
+    return lostAll;
+}
+
+void World::checkPlayerGroupWin() {
+    int group = Player::NO_GROUP;
+    for(Player& p : players){
+        if(p.isDead()){
+            continue;
+        }
+        if (group == -1) {
+            group = p.getGroupId();
+        } else if (group != p.getGroupId()) {
+            return;
+        }
+    }
+    onPlayerGroupWon(group);
 }
 
 

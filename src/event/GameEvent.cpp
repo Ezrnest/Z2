@@ -11,3 +11,5 @@ z2::EventType z2::GameEvent::getType() const {
 void z2::GameEvent::setType(z2::EventType type) {
     GameEvent::type = type;
 }
+
+z2::GameEvent::GameEvent(z2::EventType type) : type(type) {}

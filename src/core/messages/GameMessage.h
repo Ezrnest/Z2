@@ -16,7 +16,9 @@ enum class GameMessageType{
     UnitBuy,
 
     //Entity Message:
-    UnitMove, UnitPerform, UnitAttack,
+    EntityPerform, EntityKill,
+
+    UnitAttack,UnitMove,
 };
 
 /**

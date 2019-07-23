@@ -5,17 +5,20 @@
 #ifndef Z2_GAMEEVENT_H
 #define Z2_GAMEEVENT_H
 
+#include <core/Serializable.h>
+
 namespace z2 {
 enum EventType {
-    EUnitMove,
-    EUnitBuy,
-    EUnitAttack,
+    StateEvent,
+    InGameEvent
 };
 
-class GameEvent {
+class GameEvent : public Serializable {
 protected:
     EventType type;
 public:
+    explicit GameEvent(EventType type);
+
     EventType getType() const;
 
     void setType(EventType type);

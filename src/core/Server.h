@@ -120,6 +120,10 @@ public:
      */
     void pauseGame();
 
+    void endGame(int winnerGroupId);
+
+    void exceptionalEndGame(const string& cause);
+
     const shared_ptr<World> &getWorld() const;
 
     void setWorld(const shared_ptr<World> &world);

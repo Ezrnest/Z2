@@ -3,7 +3,12 @@
  */
 
 #include "Serializable.h"
-
+#include <stdexcept>
 z2::Serializable *z2::Serializable::loadFrom(istream &input) {
-    throw logic_error("Not implemented!");
+    throw std::logic_error("Not implemented!");
+}
+
+void z2::DataSerializable::serializeTo(ostream &output) {
+    output << getClassName() << ' ';
+    serializeData(output);
 }

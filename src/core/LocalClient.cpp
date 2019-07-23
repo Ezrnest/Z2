@@ -15,7 +15,7 @@ void z2::LocalClient::setRealServer(const shared_ptr<z2::Server> &server) {
     LocalClient::server = server;
 }
 
-void z2::LocalClient::setServerPort(const shared_ptr<z2::ServerProxy> &server) {
+void z2::LocalClient::setServerProxy(const shared_ptr<z2::ServerProxy> &server) {
 
 }
 
@@ -61,7 +61,7 @@ void z2::LocalClient::sendMessage(const shared_ptr<z2::Message> &command) {
     acceptMessage(command);
 }
 
-bool z2::LocalClient::syncWorld(const z2::World &world) {
+bool z2::LocalClient::syncWorld(const shared_ptr<World> &world) {
     return true;
 }
 
@@ -92,5 +92,15 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
         case ControlMessageType::PlayerWin: {
             break;
         }
+        case ControlMessageType::RegisterPlayer:break;
+        case ControlMessageType::SyncWorld:break;
     }
+}
+
+const string &z2::LocalClient::getPlayerName(){
+    return playerName;
+}
+
+void z2::LocalClient::setPlayerName(const string &playerName) {
+    LocalClient::playerName = playerName;
 }

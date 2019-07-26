@@ -7,17 +7,16 @@
 #include "ClientProxy.h"
 #include "messages/PlayerMessage.h"
 #include "messages/ControlMessage.h"
-#include "../util/LogUtil.h"
-#include "../lib/easylogging++.h"
+#include "plog/Log.h"
 
 using namespace z2;
 
 void Server::acceptMessage(const shared_ptr<Message> &command) {
     if (gameState == GameState::PAUSED) {
-        LOG(INFO) <<("Reject message: Game Paused");
+        PLOG(plog::info) <<"Reject message: Game Paused";
         return;
     }
-//    ancono::info("Accepted message!");
+//    ancono::info"Accepted message!";
     switch (command->getGeneralType()) {
         case GeneralMessageType::ControlMessage: {
             dealWithControlMessage(static_pointer_cast<ControlMessage>(command));
@@ -40,10 +39,10 @@ bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
 
     bool re =  client->syncWorld(world);
     if(re){
-        LOG(INFO) <<("Client registered");
+        PLOG(plog::info) << "Client registered";
         return true;
     }else{
-        LOG(WARNING) <<("Client register failed!");
+        PLOG_WARNING <<"Client register failed!";
         return false;
     }
 }
@@ -53,7 +52,7 @@ void z2::Server::startGame() {
         return;
     }
     gameState = RUNNING;
-    LOG(INFO) << "Game Started!";
+    PLOG(plog::info) << "Game Started!";
     shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
     broadcastMessage(startGame);
 
@@ -78,7 +77,7 @@ void Server::broadcastMessage(const shared_ptr<Message> &message) {
 void Server::callPlayer(int playerId) {
     shared_ptr<Message> msg(new PlayerMessage(ControlMessageType::PlayerTurnStart, playerId));
     world->onPlayerTurnStart();
-    sendMessage(msg, playerId);
+    broadcastMessage(msg);
 }
 
 void Server::shiftTurn() {
@@ -90,9 +89,10 @@ void Server::onPlayerTurnFinish(const shared_ptr<Message> &message) {
     shared_ptr<PlayerMessage> msg = static_pointer_cast<PlayerMessage>(message);
     int playerId = msg->getPlayerId();
     if (playerId != world->getCurrentPlayer()) {
-        LOG(WARNING) <<("Turn finish with not current player!");
+        PLOG_WARNING <<"Turn finish with not current player!";
         return;
     }
+    broadcastMessage(msg);
     shiftTurn();
 }
 
@@ -110,15 +110,15 @@ void Server::setWorld(const shared_ptr<World> &world) {
 
 bool Server::checkGameReady() {
     if(gameState == RUNNING){
-        LOG(WARNING) << "Already started!";
+        PLOG_WARNING << "Already started!";
         return false;
     }
     if(clients.size() != world->getPlayerCount()){
-        LOG(WARNING) <<("Player count != client count");
+        PLOG_WARNING <<"Player count != client count";
         return false;
     }
     if(!world->checkReady()){
-        LOG(WARNING) << ("The world is not correctly loaded!");
+        PLOG_WARNING << "The world is not correctly loaded!";
         return false;
     }
     return true;
@@ -145,18 +145,18 @@ void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage>& messag
 
 void Server::onEndGame() {
     broadcastMessage(make_shared<ControlMessage>(ControlMessageType::EndGame));
-    LOG(INFO) << "Game ended!";
+    PLOG(plog::info) << "Game ended!";
 }
 
 void Server::endGame(int winnerGroupId) {
-    LOG(INFO) << "The group " << winnerGroupId << " wins!";
+    PLOG(plog::info) << "The group " << winnerGroupId << " wins!";
 
     onEndGame();
 }
 
 void Server::exceptionalEndGame(const string &cause) {
     gameState = GameState::PAUSED;
-    LOG(INFO) << "Game ended, cause: " << cause;
+    PLOG(plog::info) << "Game ended, cause: " << cause;
 }
 
 

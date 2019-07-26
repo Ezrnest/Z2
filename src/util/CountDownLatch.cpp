@@ -4,11 +4,13 @@
 
 #include "CountDownLatch.h"
 
-z2::CountDownLatch::CountDownLatch(const unsigned int count) : m_count(count) { }
+z2::CountDownLatch::CountDownLatch(const unsigned int count) : m_count(count) {
+}
 
 void z2::CountDownLatch::await() {
     std::unique_lock<std::mutex> lock(m_mutex);
     if (m_count > 0) {
+//        m_cv.wa
         m_cv.wait(lock, [this](){ return m_count == 0; });
     }
 }

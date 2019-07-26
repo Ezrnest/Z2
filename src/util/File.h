@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
-
+#include <functional>
 using namespace std;
 
 namespace ancono {

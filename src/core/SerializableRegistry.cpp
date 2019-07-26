@@ -2,6 +2,8 @@
  * Created by liyicheng on 2019/7/9.
  */
 
+#include <core/messages/SignalMessage.h>
+#include <core/messages/PlayerMessage.h>
 #include "SerializableRegistry.h"
 #include "../world/World.h"
 #include "../entity/Farmer.h"
@@ -14,7 +16,7 @@
 #include "messages/RegisterPlayer.h"
 #include "messages/EntityKill.h"
 #include "messages/SyncWorld.h"
-
+#include "plog/Log.h"
 using namespace z2;
 
 void z2::SerializableRegistry::registerClass(const string &className, const z2::DeserializingFunction &df) {
@@ -34,6 +36,13 @@ z2::SerializableRegistry &z2::SerializableRegistry::instance() {
 z2::Serializable *z2::SerializableRegistry::deserialize(istream &input) {
     string className;
     input >> className;
+    
+    auto it = nameMap.find(className);
+    if(it == nameMap.end()){
+        PLOG_WARNING << "[SerializableRegistry] Unregistered class name: [" << className << ']';
+        return nullptr;
+    }
+    PLOG_INFO << "[SerializableRegistry] Deserialize:[" << className << ']';
     auto &df = nameMap[className];
     return df(input);
 }
@@ -51,8 +60,10 @@ void registerMessageClass(SerializableRegistry &sr) {
 
 void initMessageClass(SerializableRegistry &sr) {
     registerMessageClass<ControlMessage>(sr);
+    registerMessageClass<PlayerMessage>(sr);
     registerMessageClass<RegisterPlayer>(sr);
     registerMessageClass<SyncWorld>(sr);
+    registerMessageClass<SignalMessage>(sr);
 
 
     registerMessageClass<EntityPerform>(sr);

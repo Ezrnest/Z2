@@ -1,4 +1,5 @@
 #include <utility>
+#include <plog/Log.h>
 
 //
 // Created by liyicheng on 2019/7/22.
@@ -22,7 +23,12 @@ const string &SyncWorld::getClassName() const {
 
 void SyncWorld::deserializeData(istream &input) {
 //    ControlMessage::deserializeData(input);
-    world = shared_ptr<World>(World::loadFrom(input));
+    auto* de = SerializableRegistry::instance().deserialize(input);
+    auto* w = dynamic_cast<World*>(de);
+    world = shared_ptr<World>(w);
+    if(!world){
+        PLOG_WARNING << "Failed to deserialize the world!";
+    }
 }
 
 void SyncWorld::serializeData(ostream &output) {

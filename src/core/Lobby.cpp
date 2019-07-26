@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <utility>
 
 #include <memory>
@@ -10,16 +12,20 @@
 #include "messages/RegisterPlayer.h"
 #include "RemoteClientProxy.h"
 #include <thread>
-#include <easylogging++.h>
+#include "plog/Log.h"
+#include <core/messages/SignalMessage.h>
 #include "core/Server.h"
+#include "BotClientPort.h"
+#include "LocalClient.h"
+
 namespace z2 {
 
 
-int getRemoteClientCount(const vector<PlayerType>& v){
+int getRemoteClientCount(const vector<PlayerType> &v) {
     int c = 0;
     for (auto &it : v) {
         if (it == PlayerType::REMOTE_PLAYER) {
-            c ++;
+            c++;
         }
     }
     return c;
@@ -28,53 +34,83 @@ int getRemoteClientCount(const vector<PlayerType>& v){
 void Lobby::openLobby(int port) {
     int requiredCount = getRemoteClientCount(players);
     latch.reset(new CountDownLatch(requiredCount));
-    auto listener =[this](istream& input){
-        shared_ptr<Message> msg(dynamic_cast<Message*>(SerializableRegistry::instance().deserialize(input)));
+    function<void(istream&)> listener = [this](istream &input) {
+        shared_ptr<Message> msg(dynamic_cast<Message *>(SerializableRegistry::instance().deserialize(input)));
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
-        if(!rp){
+        if (!rp) {
             return;
         }
         int id = rp->getPlayerId();
-        if(players[id] != PlayerType::REMOTE_PLAYER){
+        if (id < 0 || id >= players.size() || players[id] != PlayerType::REMOTE_PLAYER) {
+            PLOG_WARNING << "[Lobby] Invalid remote player id = " << id;
             return;
         }
 
-        const string& name = rp->getPlayerName();
-        RemoteClientProxy *cp = new RemoteClientProxy(conductor,connectionCount++);
-        pair<shared_ptr<ClientProxy>,string> pair(shared_ptr<ClientProxy>(cp),name);
+        const string &name = rp->getPlayerName();
+        RemoteClientProxy *cp = new RemoteClientProxy(conductor, connectionCount++);
+        cp->sendMessage(make_shared<SignalMessage>(SignalMessage::GOOD));
+        pair<shared_ptr<ClientProxy>, string> pair(shared_ptr<ClientProxy>(cp), name);
         clients[id] = pair;
         latch->countDown();
         onPlayerConnected(*this, id);
-        LOG(INFO)  << "Player connected!";
+        PLOG(plog::info) << "[Lobby] Player connected!";
         return;
     };
-    conductor = std::make_shared<MessageConductor>(listener);
-    conductor->start(port,requiredCount);
+    conductor = shared_ptr<MessageConductor>(new MessageConductor(listener));
+    conductor->start(port, requiredCount, conductor);
+    PLOG(plog::info) << "[Lobby] Lobby opened!";
 }
 
-Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World>  world)
-        : players(players), clients(players.size()), world(std::move(world)){
+Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> world)
+        : players(players), clients(players.size()), world(std::move(world)) {
     openLobby(port);
 }
 
 
 shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
-    latch->await(std::chrono::milliseconds(timeOut));
+    bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
+//    latch->await();
+//    bool waitRe = true;
+    if (!waitRe) {
+        PLOG_WARNING << "[Lobby] Wait timeout!";
+        return shared_ptr<Server>();
+    }
     auto server = make_shared<Server>();
     server->setWorld(world);
-    for(int i=0;i<players.size();i++){
-        auto &p = clients[i];
-        world->getPlayer(i).setName(p.second);
-        server->registerClient(p.first);
+    for (int i = 0; i < players.size(); i++) {
+        switch (players[i]) {
+            case PlayerType::LOCAL_PLAYER: {
+                auto cl = std::make_shared<LocalClient>();
+                cl->setRealServer(server);
+                server->registerClient(cl);
+                auto view = gui.lock();
+                cl->setView(view);
+                view->setControllerAndView(cl);
+                break;
+            }
+            case PlayerType::BOT_PLAYER: {
+                auto cl = std::make_shared<BotClientPort>();
+                cl->setServer(server);
+                server->registerClient(cl);
+                break;
+            }
+            case PlayerType::REMOTE_PLAYER: {
+                auto &p = clients[i];
+                world->getPlayer(i).setName(p.second);
+                server->registerClient(p.first);
+                break;
+            }
+        }
+
     }
     weak_ptr<Server> ws = server;
-    auto listener =[ws](istream& input){
-        shared_ptr<Message> msg(dynamic_cast<Message*>(SerializableRegistry::instance().deserialize(input)));
-        if(!msg){
-            LOG(WARNING) << "Failed to accept message!";
+    auto listener = [ws](istream &input) {
+        shared_ptr<Message> msg(dynamic_cast<Message *>(SerializableRegistry::instance().deserialize(input)));
+        if (!msg) {
+            PLOG_WARNING << "[Lobby] Failed to accept message!";
             return;
         }
-        LOG(INFO)  << "Received message: " << msg->getClassName();
+        PLOG(plog::info) << "[Lobby] Received message: " << msg->getClassName();
         ws.lock()->acceptMessage(msg);
         return;
     };

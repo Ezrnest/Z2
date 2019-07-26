@@ -50,6 +50,10 @@ public:
     void sendMessageToServer(const MessagePtr &message) override;
 
     void setView(const shared_ptr<GameGui> &gui) override;
+
+    void onConnectionLost() override;
+
+    bool isGameRunning() override;
 };
 }
 

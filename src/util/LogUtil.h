@@ -18,7 +18,7 @@ enum class LogLevel {
     INFO,
     WARN,
     FATAL,
-    ERROR
+    ERROR,
 };
 
 static ostream& out = cout;

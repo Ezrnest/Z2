@@ -23,7 +23,8 @@ public:
     virtual void sendMessageToServer(const MessagePtr &message) = 0;
 
     virtual void setView(const shared_ptr<GameGui> &gui) = 0;
-
+    
+    virtual bool isGameRunning() = 0;
 };
 }
 

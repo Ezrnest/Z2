@@ -74,5 +74,7 @@ bool isBlocking(const Terrain t) {
             return false;
         case Terrain::MOUNTAIN:
             return true;
+        default:
+            return false;
     }
 }

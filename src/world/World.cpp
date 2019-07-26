@@ -5,7 +5,6 @@
 #include <cmath>
 #include "World.h"
 #include "../util/ArrayUtil.h"
-#include "../util/LogUtil.h"
 #include "../core/Message.h"
 #include "../core/EntityRepository.h"
 #include "../core/SerializableRegistry.h"
@@ -17,7 +16,7 @@
 #include "../core/messages/UnitAttack.h"
 #include "../core/messages/EntityPerform.h"
 #include "../core/messages/EntityKill.h"
-#include "../lib/easylogging++.h"
+#include "plog/Log.h"
 
 namespace z2 {
 using EntityPtr = shared_ptr<Entity>;
@@ -31,13 +30,14 @@ World::World(int width_, int height_, int playerCount)
     for (int i = 0; i < width_; i++) {
         for (int j = 0; j < height_; j++) {
             Tile &t = data[i][j];
-            data[i][j].setPlayerCount(playerCount);
+            t.setPlayerCount(playerCount);
 
         }
     }
     //init players
     for (int i = 0; i < playerCount; i++) {
         players[i].setPlayerId(i);
+        players[i].setGroupId(i);
     }
 }
 
@@ -77,7 +77,7 @@ World::~World() {
 }
 
 const string &World::className() {
-    static string name("World");
+    static string name = "World";
     return name;
 }
 
@@ -141,7 +141,7 @@ int World::nextPlayer() {
     do {
         currentPlayer++;
         if (count > getPlayerCount()) {
-            LOG(WARNING) << ("All players are dead!");
+            PLOG_WARNING << "All players are dead!";
             return -1;
         }
         count++;
@@ -195,25 +195,25 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
 
 bool World::moveEntity(const Point &from, const Point &dest) {
     if (!isInside(from) || !isInside(dest)) {
-        LOG(WARNING) << ("Attempting to move outside the map!");
+        PLOG_WARNING << "Attempting to move outside the map!";
         return false;
     }
     Tile &destTile = getTile(dest);
     if (destTile.isOccupied()) {
         //TODO add log info
-        LOG(WARNING) << ("Attempting to move to an occupied tile!");
+        PLOG_WARNING << "Attempting to move to an occupied tile!";
         return false;
     }
     Tile &fromTile = getTile(from);
     shared_ptr<GameUnit> entity = dynamic_pointer_cast<GameUnit>(fromTile.getEntity());
     if (!entity) {
         // not actually entity
-        LOG(WARNING) << ("Attempting to move a non-entity!");
+        PLOG_WARNING << "Attempting to move a non-entity!";
         return false;
     }
     int requiredMoves = pathLength(from, dest);
     if (!entity->requireMoves(requiredMoves)) {
-        LOG(WARNING) << ("Unit out of move!");
+        PLOG_WARNING << "Unit out of move!";
         return false;
     }
     destTile.setEntity(fromTile.removeEntity());
@@ -226,20 +226,20 @@ bool World::moveEntity(const Point &from, const Point &dest) {
 void World::buyEntity(int playerId, const Point &pos, const string &entityName) {
     const Point &whereToPlace = getAdjacentEmptyPos(pos);
     if (whereToPlace.x < 0) {
-        LOG(WARNING) << ("Nowhere to place the bought unit.");
+        PLOG_WARNING << "Nowhere to place the bought unit.";
         return;
     }
     if (playerId != Player::NO_PLAYER) {
         Player &p = players[playerId];
         auto &repo = EntityRepository::instance();
         if (!repo.hasEntity(entityName)) {
-            LOG(WARNING) << ("Unknown entity: " + entityName);
+            PLOG_WARNING << ("Unknown entity: " + entityName);
             return;
         }
         auto &info = repo.getEntityInfo(entityName);
         int cost = info.getProperties().getInt("price", 25);
         if (!p.requireGold(cost)) {
-            LOG(WARNING) << ("Not enough gold!");
+            PLOG_WARNING << "Not enough gold!";
             return;
         }
     }
@@ -264,7 +264,7 @@ bool World::performMeleeAttack(const Point &from, const Point &dest, const share
 void World::attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                               const shared_ptr<EntityWithHealth> &victim) {
     if (!from.isAdjacentTo(dest)) {
-        LOG(WARNING) << ("Not adjacent for melee attack!");
+        PLOG_WARNING << "Not adjacent for melee attack!";
         return;
     }
 
@@ -297,20 +297,20 @@ void World::attackEntity(const Point &from, const Point &dest) {
     const EntityPtr &attacker = getEntity(from);
     const EntityPtr &receiver = getEntity(dest);
     if (!bool(attacker) || !bool(receiver)) {
-        LOG(WARNING) << ("No unit to make attack!");
+        PLOG_WARNING << "No unit to make attack!";
         return;
     }
     if (!attacker->requireRestMoves()) {
-        LOG(WARNING) << ("No sufficient move to perform attack!");
+        PLOG_WARNING << "No sufficient move to perform attack!";
         return;
     }
     if (isOfSameGroup(attacker, receiver)) {
-        LOG(WARNING) << ("Cannot attack an ally!");
+        PLOG_WARNING << "Cannot attack an ally!";
         return;
     }
     const shared_ptr<EntityWithHealth> victim = dynamic_pointer_cast<EntityWithHealth>(receiver);
     if (!victim) {
-        LOG(WARNING) << ("Not a valid target!");
+        PLOG_WARNING << "Not a valid target!";
         return;
     }
     const shared_ptr<MeleeUnit> melee = dynamic_pointer_cast<MeleeUnit>(attacker);
@@ -323,18 +323,18 @@ void World::attackEntity(const Point &from, const Point &dest) {
         attackEntityRange(from, dest, range, victim);
         return;
     }
-    LOG(WARNING) << ("The unit can't attack!");
+    PLOG_WARNING << "The unit can't attack!";
 }
 
 
 void World::performEntity(const Point &target) {
     const EntityPtr &entity = getEntity(target);
     if (!entity) {
-        LOG(WARNING) << ("No unit to perform!");
+        PLOG_WARNING << "No unit to perform!";
         return;
     }
     if (!entity->requireRestMoves()) {
-        LOG(WARNING) << ("No sufficient moves!");
+        PLOG_WARNING << "No sufficient moves!";
         return;
     }
     entity->performAbility(target, *this);
@@ -346,26 +346,26 @@ void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr
     //TODO add log info
     //TODO dispatch
 
-    LOG(INFO) << ("Entity moved!");
+    PLOG(plog::info) << "Entity moved!";
     updateVisibility(entity->getOwnerId());
 }
 
 void
 World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId) {
     //TODO dispatch
-    LOG(INFO) << ("Entity [" + entityName + "] created!");
+    PLOG(plog::info) << "Entity [" + entityName + "] created!";
     setEntityVisibility(pos.x, pos.y, entity, playerId);
 }
 
 void World::onEntityDamaging(const Point &from, const Point &dest,
                              const shared_ptr<Entity> &attacker,
                              const shared_ptr<EntityWithHealth> &receiver, int &damage) {
-    LOG(INFO) << ("Entity damaged!");
+    PLOG(plog::info) << "Entity damaged!";
 }
 
 
 void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
-    LOG(INFO) << ("Entity [" + entity->getEntityName() + "] removed");
+    PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] removed";
     int playerId = entity->getOwnerId();
     updateVisibility(playerId);
     if(checkPlayerLostAllUnit(playerId)){
@@ -374,29 +374,34 @@ void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) 
 }
 
 void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
-    LOG(INFO) << ("Entity [" + entity->getEntityName() + "] performed!");
+    PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] performed!";
 }
 
 
 void World::onPlayerTurnStart() {
-    LOG(INFO) << ("Player turn started.");
+    PLOG(plog::info) << "Player turn started: "<< currentPlayer;
     updateVisibility(currentPlayer);
     refreshMoves(currentPlayer);
 }
 
+void World::onPlayerTurnStart(int playerId) {
+    currentPlayer = playerId;
+    onPlayerTurnStart();
+}
+
 void World::onPlayerTurnFinish() {
-    LOG(INFO) << ("Player turn finished.");
+    PLOG(plog::info) << "Player turn finished.";
     //TODO: update visibility
 }
 
 void World::onPlayerDefeated(int playerId) {
     players[playerId].setDead(true);
-    LOG(INFO) << "Player" << playerId << " is defeated";
+    PLOG(plog::info) << "Player" << playerId << " is defeated";
     checkPlayerGroupWin();
 }
 
 void World::onPlayerGroupWon(int groupId) {
-    LOG(INFO) << "Player group " << groupId << " won!";
+    PLOG(plog::info) << "Player group " << groupId << " won!";
 }
 
 
@@ -405,7 +410,7 @@ shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId,
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
     if (entity == nullptr) {
-        LOG(WARNING) << ("Unable to create entity named: " + entityId);
+        PLOG_WARNING << "Unable to create entity named: " << entityId;
         return shared_ptr<Entity>();
     }
     tile.setEntity(entity);
@@ -673,6 +678,8 @@ void World::checkPlayerGroupWin() {
     }
     onPlayerGroupWon(group);
 }
+
+
 
 
 }

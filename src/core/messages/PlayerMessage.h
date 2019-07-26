@@ -15,7 +15,11 @@ private:
 public:
     PlayerMessage(ControlMessageType type, int playerId);
 
+    PlayerMessage();
+
     int getPlayerId() const;
+
+    const string &getClassName() const override;
 
 protected:
     void serializeData(ostream &output) override;

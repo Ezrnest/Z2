@@ -4,13 +4,13 @@
 
 #ifndef Z2_LOBBY_H
 #define Z2_LOBBY_H
+#include "util/CountDownLatch.h"
 #include <memory>
 #include <string>
 #include <vector>
 #include <mutex>
 #include "GameGui.h"
 #include "MessageConductor.h"
-#include "util/CountDownLatch.h"
 
 using namespace std;
 namespace z2 {
@@ -38,7 +38,7 @@ private:
 
     shared_ptr<CountDownLatch> latch;
 
-    function<void(Lobby&,int)> onPlayerConnected = [](Lobby&,int){};
+    function<void(Lobby&,int)> onPlayerConnected = [](Lobby&,int){return;};
 
     void openLobby(int port);
 

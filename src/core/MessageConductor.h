@@ -15,17 +15,20 @@
 using namespace std;
 using namespace asio;
 namespace z2 {
-typedef shared_ptr<ip::tcp::socket> socket_ptr;
+typedef ip::tcp::socket* socket_ptr;
 class MessageConductor {
 
 private:
     std::thread workingThread;
     bool stopped = false;
     function<void(istream&)> processor;
+
+    shared_ptr<ip::tcp::acceptor> acceptor;
+
     vector<socket_ptr> connections;
     vector<asio::streambuf> buffers;
     mutex processorMutex;
-    socket_ptr server;
+//    socket_ptr server;
     io_service service;
 
     void handleAccept(const error_code &error, int id);
@@ -39,7 +42,8 @@ public:
 
     void setProcessor(const function<void(istream &)> &processor);
 
-    void start(int port, int count);
+    void start(int port, int count, const shared_ptr<MessageConductor> &self);
+
 
     bool isStopped() const;
 

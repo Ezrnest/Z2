@@ -66,8 +66,10 @@ public:
     virtual int getPlayerId() = 0;
 
     virtual const string& getPlayerName() = 0 ;
+    
+    virtual void onConnectionLost();
 
-
+    bool isGameRunning() override;
 };
 }
 

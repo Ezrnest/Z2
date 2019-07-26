@@ -5,8 +5,7 @@
 #include "EntityRepository.h"
 #include "../entity/ConstructionBase.h"
 #include "../entity/Farmer.h"
-#include "../util/LogUtil.h"
-#include "../lib/easylogging++.h"
+#include "plog/Log.h"
 
 using namespace z2;
 
@@ -107,7 +106,7 @@ EntityRepository::createEntity(const string &entityName, int objectId, const Pro
 void EntityRepository::registerEntityClass(const string &className, const CreatingFunction &creatingFunction) {
     shared_ptr<EntityClassInfo> info(new EntityClassInfo(className, creatingFunction));
     entityClasses.insert(make_pair(className, info));
-    LOG(INFO) << ("[EntityRegistry]: Registered class " + className);
+    PLOG(plog::info) << ("[EntityRegistry]: Registered class " + className);
 }
 
 
@@ -122,7 +121,7 @@ EntityRepository::EntityRepository() = default;
  */
 void EntityRepository::registerEntity(const EntityInfo &info) {
     entities.insert(make_pair(info.getIdentifier(), info));
-    LOG(INFO) << ("[EntityRegistry]: Registered entity " + info.getIdentifier());
+    PLOG(plog::info) << ("[EntityRegistry]: Registered entity " + info.getIdentifier());
 }
 
 /**
@@ -143,7 +142,7 @@ void EntityRepository::initEntityClasses() {
     //TODO
     repo.registerEntityClass(MeleeUnit::className(), MeleeUnit::create);
     repo.registerEntityClass(RangeUnit::className(), RangeUnit::create);
-    LOG(INFO) << "[EntityRegistry]: Init entity classes: Done";
+    PLOG(plog::info) << "[EntityRegistry]: Init entity classes: Done";
 }
 
 /**
@@ -160,7 +159,7 @@ void EntityRepository::initDefaultEntities() {
         EntityInfo info(cInfo->getClassName(), cInfo, Properties());
         repo.registerEntity(info);
     }
-    LOG(INFO) << ("[EntityRegistry]: Initialized default entities.");
+    PLOG(plog::info) << ("[EntityRegistry]: Initialized default entities.");
 }
 
 bool EntityRepository::hasEntity(const string &entityName) const {

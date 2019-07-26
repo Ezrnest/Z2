@@ -21,6 +21,7 @@ void z2::RemoteClient::acceptMessage(const shared_ptr<z2::Message> &command) {
         }
         case GeneralMessageType::GameMessage: {
             world->dealWithMessage(static_pointer_cast<GameMessage>(command));
+            gui.lock()->update();
         }
         case GeneralMessageType::ChatMessage: {
             //TODO
@@ -34,11 +35,11 @@ void z2::RemoteClient::setServerProxy(const shared_ptr<z2::ServerProxy> &server)
 }
 
 shared_ptr<z2::ServerProxy> z2::RemoteClient::getServer() {
-    return shared_ptr<ServerProxy>();
+    return serverProxy;
 }
 
 shared_ptr<z2::World> z2::RemoteClient::getWorld() {
-    return shared_ptr<World>();
+    return world;
 }
 
 int z2::RemoteClient::getPlayerId() {
@@ -75,24 +76,42 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
             dealWithSyncWorld(static_pointer_cast<SyncWorld>(message));
             break;
         }
-        case ControlMessageType::StartGame:break;
+        case ControlMessageType::StartGame:{
+            view->onGameStarted();
+            break;
+        }
         case ControlMessageType::EndGame:break;
         case ControlMessageType::PlayerTurnStart: {
+            auto msg = static_pointer_cast<PlayerMessage>(message);
+            world->onPlayerTurnStart(msg->getPlayerId());
             view->onPlayerTurnStarted(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
             break;
         }
-        case ControlMessageType::PlayerTurnFinish:break;
+        case ControlMessageType::PlayerTurnFinish:{
+            world->onPlayerTurnFinish();
+//            view->on(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
+            break;
+        }
         case ControlMessageType::PlayerDefeated:{
-
+            break;
         }
         case ControlMessageType::PlayerWin:{
             view->onPlayerWin(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
+            break;
         }
     }
 }
 
 void RemoteClient::dealWithSyncWorld(const shared_ptr<SyncWorld> &msg) {
     world = msg->getWorld();
+}
+
+void RemoteClient::onConnectionLost() {
+    serverProxy.reset();
+}
+
+bool RemoteClient::isGameRunning() {
+    return bool(serverProxy);
 }
 
 

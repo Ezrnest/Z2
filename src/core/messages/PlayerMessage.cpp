@@ -21,3 +21,10 @@ void z2::PlayerMessage::deserializeData(istream &input) {
     ControlMessage::deserializeData(input);
     input >> playerId;
 }
+
+const string &z2::PlayerMessage::getClassName() const {
+    static string name = "PlayerMessage";
+    return name;
+}
+
+z2::PlayerMessage::PlayerMessage(): playerId(0) {}

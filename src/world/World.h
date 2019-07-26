@@ -193,7 +193,9 @@ public:
      * Called when the current player starts his turn.
      */
     void onPlayerTurnStart();
-
+    
+    void onPlayerTurnStart(int playerId);
+    
     /**
      * Called when the current player finishes his turn.
      */

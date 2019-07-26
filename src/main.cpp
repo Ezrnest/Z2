@@ -9,21 +9,14 @@
 #include "core/LocalClient.h"
 #include "commandLine/CommandLineGameGui.h"
 #include "entity/ConstructionBase.h"
-#include "util/LogUtil.h"
 #include "core/BotClientPort.h"
 #include "core/GameConfiguration.h"
 #include "core/SerializableRegistry.h"
-#include "easylogging++.h"
-
-INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 using namespace z2;
 
 void init() {
-
-
-
 
     GameConfiguration::initAll();
 }
@@ -53,6 +46,7 @@ int main() {
     local->setView(static_pointer_cast<GameGui>(gui));
     gui->setControllerAndView(static_pointer_cast<Client>(local));
 
+//    w->nextPlayer();
 //    gui->printWorld();
 //    cout << " -------------- \n";
 //    stringstream ss;
@@ -61,6 +55,6 @@ int main() {
 //    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
 //    CommandLineGameGui::printWorld(*w2);
 
-    server->startGame();
-    gui->mainLoop();
+//    server->startGame();
+//    gui->mainLoop();
 }

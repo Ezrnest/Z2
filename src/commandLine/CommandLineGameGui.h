@@ -8,6 +8,8 @@
 #include "../core/GameGui.h"
 
 #include <queue>
+#include <mutex>
+#include <condition_variable>
 using namespace std;
 namespace z2 {
 class CommandLineGameGui : public GameGui{
@@ -16,10 +18,15 @@ private:
     using Task = function<void()>;
     queue<Task> taskQueue;
 
+    condition_variable queueCV;
+    mutex queueMutex;
+    
+    
     void runLater(const Task& task);
 
     void doPlayerTurn();
-
+    
+    static void printNoPlayerWorld(World& w);
 public:
     void update() override;
 

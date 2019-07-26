@@ -21,3 +21,13 @@ add_executable(z2
         ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
         ${CommandLine}
         )
+add_executable(Client
+        src/ClientMain.cpp
+        ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
+        ${CommandLine}
+        )
+add_executable(Server
+        src/ServerMain.cpp
+        ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
+        ${CommandLine}
+        )

@@ -14,5 +14,12 @@ void z2::Client::sendMessageToServer(const shared_ptr<z2::Message> &message) {
 void z2::Client::sendTurnFinishMessage() {
     shared_ptr<Message> msg(new PlayerMessage(ControlMessageType::PlayerTurnFinish, getPlayerId()));
     sendMessageToServer(msg);
+}
 
+void z2::Client::onConnectionLost() {
+
+}
+
+bool z2::Client::isGameRunning() {
+    return true;
 }

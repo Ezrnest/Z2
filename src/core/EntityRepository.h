@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <functional>
 #include "../util/Properties.h"
 #include "../entity/Entity.h"
 

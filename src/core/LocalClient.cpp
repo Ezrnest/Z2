@@ -77,6 +77,7 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
             break;
         }
         case ControlMessageType::EndGame: {
+            view->onGameStopped();
             break;
         }
         case ControlMessageType::PlayerTurnStart: {
@@ -92,15 +93,28 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
         case ControlMessageType::PlayerWin: {
             break;
         }
-        case ControlMessageType::RegisterPlayer:break;
-        case ControlMessageType::SyncWorld:break;
+        case ControlMessageType::RegisterPlayer:
+            break;
+        case ControlMessageType::SyncWorld:
+            break;
+        case ControlMessageType::Signal:
+            break;
     }
 }
 
-const string &z2::LocalClient::getPlayerName(){
+const string &z2::LocalClient::getPlayerName() {
     return playerName;
 }
 
 void z2::LocalClient::setPlayerName(const string &playerName) {
     LocalClient::playerName = playerName;
 }
+
+bool z2::LocalClient::isGameRunning() {
+    auto s = server.lock();
+    if (!s) {
+        return false;
+    }
+    return s->getGameState() == Server::GameState::RUNNING;
+}
+

@@ -13,16 +13,36 @@ enum EventType {
     InGameEvent
 };
 
-class GameEvent : public Serializable {
+/**
+ * Describes an event of the game.
+ *
+ * This class is used only locally.
+ */
+class GameEvent{
 protected:
     EventType type;
 public:
     explicit GameEvent(EventType type);
 
+    virtual ~GameEvent();
+
     EventType getType() const;
 
     void setType(EventType type);
+
+    virtual const string& name() = 0;
+};
+
+class InGameEvent : public GameEvent{
+public:
+    InGameEvent();
+};
+
+class StateEvent : public GameEvent{
+public:
+    StateEvent();
 };
 }
+
 
 #endif //Z2_GAMEEVENT_H

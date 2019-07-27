@@ -40,6 +40,10 @@ public:
 
     static void printWorld(World& w);
 
+    void onGameStopped() override;
+
+    void onEvent(shared_ptr<GameEvent> &event) override;
+
     void mainLoop();
 
     void makeMove();

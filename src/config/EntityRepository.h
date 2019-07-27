@@ -11,8 +11,8 @@
 #include <set>
 #include <vector>
 #include <functional>
-#include "../util/Properties.h"
-#include "../entity/Entity.h"
+#include "util/Properties.h"
+#include "entity/Entity.h"
 
 using namespace std;
 
@@ -131,6 +131,8 @@ public:
     static void initEntityClasses();
 
     static void initDefaultEntities();
+
+    static void initFromFolder(const string &path);
 };
 
 }

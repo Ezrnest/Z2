@@ -1,5 +1,7 @@
 #include <memory>
 
+#include <memory>
+
 #include <utility>
 
 #include <memory>
@@ -15,7 +17,7 @@
 #include "plog/Log.h"
 #include <core/messages/SignalMessage.h>
 #include "core/Server.h"
-#include "BotClientPort.h"
+#include "bot/BotClientPort.h"
 #include "LocalClient.h"
 
 namespace z2 {
@@ -34,8 +36,7 @@ int getRemoteClientCount(const vector<PlayerType> &v) {
 void Lobby::openLobby(int port) {
     int requiredCount = getRemoteClientCount(players);
     latch.reset(new CountDownLatch(requiredCount));
-    function<void(istream&)> listener = [this](istream &input) {
-        shared_ptr<Message> msg(dynamic_cast<Message *>(SerializableRegistry::instance().deserialize(input)));
+    function<void(const MessagePtr&)> listener = [this](const MessagePtr &msg) {
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
         if (!rp) {
             return;
@@ -56,7 +57,7 @@ void Lobby::openLobby(int port) {
         PLOG(plog::info) << "[Lobby] Player connected!";
         return;
     };
-    conductor = shared_ptr<MessageConductor>(new MessageConductor(listener));
+    conductor = std::make_shared<MessageConductor>(listener);
     conductor->start(port, requiredCount, conductor);
     PLOG(plog::info) << "[Lobby] Lobby opened!";
 }
@@ -69,8 +70,6 @@ Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> worl
 
 shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
-//    latch->await();
-//    bool waitRe = true;
     if (!waitRe) {
         PLOG_WARNING << "[Lobby] Wait timeout!";
         return shared_ptr<Server>();
@@ -104,8 +103,7 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
 
     }
     weak_ptr<Server> ws = server;
-    auto listener = [ws](istream &input) {
-        shared_ptr<Message> msg(dynamic_cast<Message *>(SerializableRegistry::instance().deserialize(input)));
+    function<void(const MessagePtr&)> listener = [ws](const MessagePtr &msg) {
         if (!msg) {
             PLOG_WARNING << "[Lobby] Failed to accept message!";
             return;
@@ -120,7 +118,9 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
 }
 
 void Lobby::closeLobby() {
-
+    if(conductor){
+        conductor->stop();
+    }
 }
 
 const vector<PlayerType> &Lobby::getPlayers() const {

@@ -51,7 +51,7 @@ void z2::Server::startGame() {
     if(!checkGameReady()){
         return;
     }
-    gameState = RUNNING;
+    gameState = GameState::RUNNING;
     PLOG(plog::info) << "Game Started!";
     shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
     broadcastMessage(startGame);
@@ -100,7 +100,7 @@ const shared_ptr<World> &Server::getWorld() const {
     return world;
 }
 
-int Server::getGameState() const {
+Server::GameState Server::getGameState() const {
     return gameState;
 }
 
@@ -109,7 +109,7 @@ void Server::setWorld(const shared_ptr<World> &world) {
 }
 
 bool Server::checkGameReady() {
-    if(gameState == RUNNING){
+    if(gameState == GameState::RUNNING){
         PLOG_WARNING << "Already started!";
         return false;
     }
@@ -157,6 +157,7 @@ void Server::endGame(int winnerGroupId) {
 void Server::exceptionalEndGame(const string &cause) {
     gameState = GameState::PAUSED;
     PLOG(plog::info) << "Game ended, cause: " << cause;
+    broadcastMessage(make_shared<ControlMessage>(ControlMessageType::EndGame));
 }
 
 

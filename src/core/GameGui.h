@@ -5,6 +5,7 @@
 #ifndef Z2_GAMEGUI_H
 #define Z2_GAMEGUI_H
 
+#include <event/GameEvent.h>
 #include "Client.h"
 
 namespace z2 {
@@ -37,6 +38,10 @@ public:
     virtual void onGameStarted() = 0;
 
     virtual void onPlayerWin(int playerId) = 0;
+
+    virtual void onGameStopped() = 0;
+
+    virtual void onEvent(shared_ptr<GameEvent> &event) = 0;
 };
 
 }

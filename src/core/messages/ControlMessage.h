@@ -10,10 +10,25 @@
 
 namespace z2 {
 enum class ControlMessageType {
-    RegisterPlayer, SyncWorld, Signal,
-    StartGame, EndGame,
-    PlayerTurnStart, PlayerTurnFinish,
-    PlayerDefeated, PlayerWin,
+    ///class RegisterPlayer
+    RegisterPlayer,
+    ///class SyncWorld
+    SyncWorld,
+    ///class SignalMessage
+    Signal,
+    ///class ControlMessage
+    StartGame,
+    ///class ControlMessage
+    EndGame,
+
+    ///class PlayerMessage
+    PlayerTurnStart,
+    ///class PlayerMessage
+    PlayerTurnFinish,
+    ///class PlayerMessage
+    PlayerDefeated,
+    ///class PlayerMessage
+    PlayerWin,
 
 };
 

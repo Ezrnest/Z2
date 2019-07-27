@@ -53,6 +53,10 @@ class ControlMessage;
  *
  */
 class Server {
+public:
+    enum class GameState {
+        PAUSED, RUNNING
+    };
 private:
     /**
      * The clients that are registered to this server.
@@ -62,10 +66,8 @@ private:
      * The world of this server.
      */
     shared_ptr<World> world;
-    enum GameState {
-        PAUSED, RUNNING
-    };
-    int gameState = PAUSED;
+
+    GameState gameState = GameState::PAUSED;
 
     /**
      * Broadcast the given message to all the clients.
@@ -128,7 +130,7 @@ public:
 
     void setWorld(const shared_ptr<World> &world);
 
-    int getGameState() const;
+    GameState getGameState() const;
 
 
 };

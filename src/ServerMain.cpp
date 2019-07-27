@@ -12,14 +12,14 @@ using namespace std;
 #include <core/Lobby.h>
 #include "world/World.h"
 #include "core/Server.h"
-#include "core/EntityRepository.h"
+#include "config/EntityRepository.h"
 #include "entity/Farmer.h"
 #include "core/LocalClient.h"
 #include "commandLine/CommandLineGameGui.h"
 #include "entity/ConstructionBase.h"
-#include "core/BotClientPort.h"
-#include "core/GameConfiguration.h"
-#include "core/SerializableRegistry.h"
+#include "bot/BotClientPort.h"
+#include "config/GameConfiguration.h"
+#include "config/SerializableRegistry.h"
 
 
 

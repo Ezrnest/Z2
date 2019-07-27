@@ -7,7 +7,7 @@
 
 #include <memory>
 #include "Serializable.h"
-#include "SerializableRegistry.h"
+#include "config/SerializableRegistry.h"
 
 namespace z2 {
 
@@ -33,6 +33,8 @@ protected:
     void serializeData(ostream &output) override;
 public:
     void deserializeData(istream &input) override;
+
+
 };
 
 using MessagePtr = std::shared_ptr<Message>;

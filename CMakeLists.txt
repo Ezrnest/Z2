@@ -10,24 +10,22 @@ include_directories(lib src)
 file(GLOB Core src/core/*.cpp src/core/*.h src/core/*/*.cpp src/core/*/*.h)
 file(GLOB World src/world/*.cpp src/world/*.h)
 file(GLOB Entity src/entity/*.cpp src/entity/*.h)
-file(GLOB Player src/player/*.cpp src/player/*.h)
 file(GLOB Event src/event/*.cpp src/event/*.h)
-file(GLOB Util src/util/*.cpp src/util/*.h)
+file(GLOB Config src/config/*.cpp src/config/*.h)
+file(GLOB Bot src/bot/*.cpp src/bot/*.h)
 file(GLOB CommandLine src/commandLine/*.cpp src/commandLine/*.h)
-file(GLOB_RECURSE Lib lib *.hpp *.cc *.h *.ipp)
+file(GLOB Util src/util/*.cpp src/util/*.h)
+file(GLOB_RECURSE Lib lib lib/*.hpp lib/*.cc lib/*.h lib/*.ipp)
 #aux_source_directory(lib Lib)
+set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLine} ${Util} ${Lib})
 add_executable(z2
-        src/main.cpp
-        ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
-        ${CommandLine}
+        src/main.cpp ${Z2_Sources}
         )
 add_executable(Client
         src/ClientMain.cpp
-        ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
-        ${CommandLine}
+        ${Z2_Sources}
         )
 add_executable(Server
         src/ServerMain.cpp
-        ${Core} ${Lib} ${World} ${Entity} ${Player} ${Event} ${Util}
-        ${CommandLine}
+        ${Z2_Sources}
         )

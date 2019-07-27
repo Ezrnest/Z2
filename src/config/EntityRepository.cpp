@@ -3,8 +3,8 @@
  */
 
 #include "EntityRepository.h"
-#include "../entity/ConstructionBase.h"
-#include "../entity/Farmer.h"
+#include "entity/ConstructionBase.h"
+#include "entity/Farmer.h"
 #include "plog/Log.h"
 
 using namespace z2;
@@ -164,6 +164,12 @@ void EntityRepository::initDefaultEntities() {
 
 bool EntityRepository::hasEntity(const string &entityName) const {
     return entities.find(entityName) != entities.end();
+}
+
+void EntityRepository::initFromFolder(const string &path) {
+    auto& repo = instance();
+//    File f;
+    //TODO
 }
 
 

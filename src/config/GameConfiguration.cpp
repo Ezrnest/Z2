@@ -4,8 +4,8 @@
 
 #include <plog/Formatters/ServityFormatter.h>
 #include "GameConfiguration.h"
-#include "EntityRepository.h"
-#include "SerializableRegistry.h"
+#include "config/EntityRepository.h"
+#include "config/SerializableRegistry.h"
 #include "plog/Log.h"
 #include "plog/Appenders/ConsoleAppender.h"
 

@@ -214,3 +214,13 @@ void CommandLineGameGui::makePerform() {
     shared_ptr<EntityPerform> msg(new EntityPerform(pos));
     client->sendMessageToServer(msg);
 }
+
+void CommandLineGameGui::onGameStopped() {
+    runLater([](){
+    });
+
+}
+
+void CommandLineGameGui::onEvent(shared_ptr<GameEvent> &event) {
+
+}

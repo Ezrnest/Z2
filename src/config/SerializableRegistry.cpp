@@ -5,17 +5,17 @@
 #include <core/messages/SignalMessage.h>
 #include <core/messages/PlayerMessage.h>
 #include "SerializableRegistry.h"
-#include "../world/World.h"
-#include "../entity/Farmer.h"
-#include "../entity/ConstructionBase.h"
-#include "messages/ControlMessage.h"
-#include "messages/UnitAttack.h"
-#include "messages/UnitBuy.h"
-#include "messages/UnitMove.h"
-#include "messages/EntityPerform.h"
-#include "messages/RegisterPlayer.h"
-#include "messages/EntityKill.h"
-#include "messages/SyncWorld.h"
+#include "world/World.h"
+#include "entity/Farmer.h"
+#include "entity/ConstructionBase.h"
+#include "core/messages/ControlMessage.h"
+#include "core/messages/UnitAttack.h"
+#include "core/messages/UnitBuy.h"
+#include "core/messages/UnitMove.h"
+#include "core/messages/EntityPerform.h"
+#include "core/messages/RegisterPlayer.h"
+#include "core/messages/EntityKill.h"
+#include "core/messages/SyncWorld.h"
 #include "plog/Log.h"
 using namespace z2;
 

@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 #include <functional>
-#include "Serializable.h"
+#include "core/Serializable.h"
 
 using namespace std;
 namespace z2 {

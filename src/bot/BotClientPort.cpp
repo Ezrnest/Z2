@@ -4,9 +4,9 @@
 
 #include "plog/Log.h"
 #include "BotClientPort.h"
-#include "messages/ControlMessage.h"
-#include "Server.h"
-#include "messages/PlayerMessage.h"
+#include "core/messages/ControlMessage.h"
+#include "core/Server.h"
+#include "core/messages/PlayerMessage.h"
 
 void z2::BotClientPort::sendMessage(const std::shared_ptr<z2::Message> &command) {
     if (command->getGeneralType() == GeneralMessageType::ControlMessage) {

@@ -18,6 +18,8 @@ private:
 
     string playerName = "local";
 
+    bool stopped = false;
+
     void dealWithControlMessage(const shared_ptr<ControlMessage> &message);
 
 public:
@@ -52,6 +54,8 @@ public:
     const string& getPlayerName() override ;
 
     void setPlayerName(const string &playerName);
+
+    bool isGameRunning() override;
 };
 
 }

@@ -5,7 +5,7 @@
 #ifndef Z2_BOTCLIENTPORT_H
 #define Z2_BOTCLIENTPORT_H
 
-#include "ClientProxy.h"
+#include "core/ClientProxy.h"
 
 
 namespace z2 {

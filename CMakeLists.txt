@@ -30,8 +30,8 @@ add_executable(z2
 #        ${Z2_Sources}
 #        )
 add_library(Z2Core ${Z2_Sources})
-install(TARGETS Z2Core DESTINATION F:/liyicheng/document/cpp/api/z2Core)
-install(DIRECTORY src/ DESTINATION F:/liyicheng/document/cpp/api/z2Core/include
+install(TARGETS Z2Core DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core)
+install(DIRECTORY src/ DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core/include
         FILES_MATCHING PATTERN "*.h")
 
 

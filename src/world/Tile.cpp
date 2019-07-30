@@ -3,7 +3,7 @@
 //
 
 #include "Tile.h"
-
+#include "entity/GameUnit.h"
 using namespace z2;
 
 Terrain Tile::getTerrain() {
@@ -32,8 +32,20 @@ bool Tile::hasEntity() {
     return entity != nullptr;
 }
 
+bool z2::isBlocking(const Terrain t) {
+    switch(t){
+        case Terrain::PLAIN:
+            return false;
+        case Terrain::MOUNTAIN:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
 bool Tile::isOccupied() {
-    return false;
+    return ::isBlocking(terrain) || hasEntity() ;
 }
 
 void Tile::setTerrain(Terrain terrain_) {
@@ -65,16 +77,10 @@ void Tile::setPlayerCount(int count) {
     }
 }
 
+bool Tile::canPassThrough(const shared_ptr<GameUnit> &unit) {
+    return (!isBlocking(terrain)) && (!hasEntity() || entity->getOwnerId() == unit->getOwnerId());
+}
+
 Tile::Tile() = default;
 
 
-bool isBlocking(const Terrain t) {
-    switch(t){
-        case Terrain::PLAIN:
-            return false;
-        case Terrain::MOUNTAIN:
-            return true;
-        default:
-            return false;
-    }
-}

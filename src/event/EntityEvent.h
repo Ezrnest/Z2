@@ -11,14 +11,21 @@
 
 namespace z2 {
 
+class Entity;
+
 enum class EntityEventType{
+    ///class EntityEvent
     EntityCreated,
-    EntityDied,
+    ///class EntityEvent
+    EntityRemoved,
     ///class EEntityMoved
     EntityMoved,
-    EntityAttacked,
-    ///class EEntityDamaged
-    EntityDamaged,
+
+    ///class EEntityDamaging
+    EntityDamaging,
+
+    ///class EntityEvent
+    EntityPerformed,
 };
 
 /**
@@ -26,12 +33,12 @@ enum class EntityEventType{
  */
 class EntityEvent : public InGameEvent {
 private:
-    int entityId;
+    shared_ptr<Entity> entity;
     EntityEventType entityEventType;
 public:
-    explicit EntityEvent(int entityId, EntityEventType type);
+    explicit EntityEvent(shared_ptr<Entity> entityId, EntityEventType type);
 
-    int getEntityId() const;
+    const shared_ptr<Entity> &getEntity() const;
 };
 
 class EEntityMoved : public EntityEvent{
@@ -39,23 +46,29 @@ private:
     Point from;
     Point dest;
 public:
-    EEntityMoved(int entityId, Point from, Point dest);
+    EEntityMoved(shared_ptr<Entity> entityId, Point from, Point dest);
 
     const Point &getFrom() const;
 
     const Point &getDest() const;
+
 };
 
-class EEntityDamaged : public EntityEvent{
+class EEntityDamaging : public EntityEvent{
 private:
     int damage;
+    shared_ptr<Entity> attacker;
 public:
-    EEntityDamaged(int entityId, int damage);
+    EEntityDamaging(shared_ptr<Entity> entityId, shared_ptr<Entity> attacker, int damage);
 
     int getDamage() const;
 
     void setDamage(int damage);
+
+    const shared_ptr<Entity> &getAttacker() const;
+
 };
+
 
 
 

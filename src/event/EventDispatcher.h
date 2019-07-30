@@ -5,7 +5,7 @@
 #ifndef Z2_EVENTDISPATCHER_H
 #define Z2_EVENTDISPATCHER_H
 
-class GameEvent;
+
 
 
 #include <memory>
@@ -13,36 +13,21 @@ class GameEvent;
 #include <functional>
 #include "GameEvent.h"
 namespace z2 {
-
+class GameEvent;
 using namespace std;
-
-template <typename T>
+using EventListener = function<void(const GameEventPtr&)>;
 class EventDispatcher {
 private:
-    using EventListener = function<void(T)>;
     vector<EventListener> listeners;
-
 public:
 
     void addListener(const EventListener &listener);
 
-
-    void dispatchEvent(shared_ptr<GameEvent> &event);
+    void publish(shared_ptr<GameEvent> &event);
 
 
 };
 
-template<typename T>
-void EventDispatcher<T>::addListener(const EventDispatcher::EventListener &listener) {
-    listeners.push_back(listener);
-}
-
-template<typename T>
-void EventDispatcher<T>::dispatchEvent(shared_ptr<GameEvent> &event) {
-    for(auto& listener : listeners){
-        listener(event);
-    }
-}
 
 }
 

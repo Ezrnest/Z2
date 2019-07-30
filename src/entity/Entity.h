@@ -14,10 +14,10 @@ class World;
 #include <string>
 #include "../core/Serializable.h"
 #include "../util/Properties.h"
+#include "world/Point.h"
 
 using namespace ancono;
 namespace z2 {
-class World;
 
 /**
  * Represents a type of entity in the game.
@@ -57,6 +57,11 @@ protected:
      * This id is also used for serialization.
      */
     unsigned int objectId;
+
+    /**
+     * The current position of this entity.
+     */
+    Point pos;
 
     /**
      * The id of the player who owns the game object.
@@ -102,7 +107,7 @@ public:
     /**
      * Gets the class name of this entity.
      */
-    virtual const std::string &getClassName() const = 0;
+    const std::string &getClassName() const override = 0;
 
     virtual void initialize(const Properties &prop);
 
@@ -117,6 +122,10 @@ public:
     int getRemainingMoves() const;
 
     void setRemainingMoves(int remainingMoves);
+
+    const Point &getPos() const;
+
+    void setPos(const Point &pos);
 
     void refreshMoves();
 

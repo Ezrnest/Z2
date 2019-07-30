@@ -6,19 +6,21 @@
 #define Z2_GAMEEVENT_H
 
 #include <core/Serializable.h>
-
+#include <memory>
 namespace z2 {
+
 enum EventType {
-    StateEvent,
-    InGameEvent
+    STATE_EVENT,
+    IN_GAME_EVENT
 };
+
 
 /**
  * Describes an event of the game.
  *
  * This class is used only locally.
  */
-class GameEvent{
+class GameEvent {
 protected:
     EventType type;
 public:
@@ -30,19 +32,16 @@ public:
 
     void setType(EventType type);
 
-    virtual const string& name() = 0;
 };
 
-class InGameEvent : public GameEvent{
+using GameEventPtr = std::shared_ptr<GameEvent>;
+
+class InGameEvent : public GameEvent {
 public:
     InGameEvent();
 };
-
-class StateEvent : public GameEvent{
-public:
-    StateEvent();
-};
 }
+
 
 
 #endif //Z2_GAMEEVENT_H

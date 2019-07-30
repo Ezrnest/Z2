@@ -101,6 +101,37 @@ void CommandLineGameGui::makeMove() {
     client->sendMessageToServer(msg);
 }
 
+char getTileChar(Tile& t){
+    char c = '?';
+    if (!t.hasEntity()) {
+        switch (t.getResource()) {
+            case Resource::NONE: {
+                c = ' ';
+                break;
+            }
+            case Resource::MINE: {
+                c = '_';
+                break;
+            }
+            case Resource::GEM: {
+                c = '-';
+                break;
+            }
+        }
+        switch (t.getTerrain()){
+
+            case Terrain::PLAIN:break;
+            case Terrain::MOUNTAIN:{
+                c = '#';
+                break;
+            }
+        }
+    } else {
+        c = t.getEntity()->getClassName()[0];
+    }
+    return c;
+}
+
 void CommandLineGameGui::printNoPlayerWorld(World &w) {
     Tile **data = w.data;
     for (int j = 0; j < w.width + 1; j++) {
@@ -111,22 +142,7 @@ void CommandLineGameGui::printNoPlayerWorld(World &w) {
         cout << "|";
         for (int i = 0; i < w.width; i++) {
             Tile &t = data[i][j];
-            char c = '?';
-            if (!t.hasEntity()) {
-                switch (t.getResource()) {
-                    case Resource::NONE: {
-                        c = ' ';
-                        break;
-                    }
-                    case Resource::MINE: {
-                        c = '_';
-                        break;
-                    }
-                }
-            } else {
-//                cout << '*';
-                c = t.getEntity()->getClassName()[0];
-            }
+            char c = getTileChar(t);
             cout << c << ' ';
         }
         cout << "|\n";
@@ -141,7 +157,6 @@ void CommandLineGameGui::printWorld(World &w) {
 //    cout << "CurrentPlayer:" << w.getCurrentPlayer() << '\n';
     int playerId = w.getCurrentPlayer();
     if (playerId == Player::NO_PLAYER) {
-
         return;
     }
     Tile **data = w.data;
@@ -153,34 +168,7 @@ void CommandLineGameGui::printWorld(World &w) {
         cout << "|";
         for (int i = 0; i < w.width; i++) {
             Tile &t = data[i][j];
-            char c = '?';
-            switch (t.getVisibility(playerId)) {
-                case Visibility::DARK: {
-                    c = '*';
-                    break;
-                }
-                case Visibility::GREY: {
-                    c = '.';
-                    break;
-                }
-                case Visibility::CLEAR: {
-                    if (!t.hasEntity()) {
-                        switch (t.getResource()) {
-                            case Resource::NONE: {
-                                c = ' ';
-                                break;
-                            }
-                            case Resource::MINE: {
-                                c = '_';
-                                break;
-                            }
-                        }
-                    } else {
-//                cout << '*';
-                        c = t.getEntity()->getClassName()[0];
-                    }
-                }
-            }
+            char c = getTileChar(t);
             cout << c << ' ';
         }
         cout << "|\n";

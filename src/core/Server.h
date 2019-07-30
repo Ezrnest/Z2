@@ -94,7 +94,7 @@ private:
 
     void dealWithControlMessage(const shared_ptr<z2::ControlMessage> &message);
 
-
+    void attackListeners(const shared_ptr<World> &world);
 public:
 
     virtual ~Server();
@@ -116,11 +116,6 @@ public:
      * Starts the game.
      */
     void startGame();
-
-    /**
-     * Pause the game, when pausing, all the message send will be discarded.
-     */
-    void pauseGame();
 
     void endGame(int winnerGroupId);
 

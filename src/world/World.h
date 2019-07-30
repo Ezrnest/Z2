@@ -15,7 +15,7 @@
 #include "../entity/RangeUnit.h"
 #include <vector>
 #include <unordered_map>
-
+#include "event/EventDispatcher.h"
 namespace z2 {
 class CommandLineGameGui;
 
@@ -36,7 +36,7 @@ private:
     /**
      * The current player of this world.
      */
-    int currentPlayer = -1;
+    int currentPlayer = 0;
 
     /**
      * The players of this game.
@@ -56,6 +56,10 @@ private:
      */
     Tile **data;
 
+    /**
+     * volatile
+     */
+    EventDispatcher dispatcher;
 
     // NOTE: updates `initPlainDataFrom` if new fields are added!
 
@@ -162,7 +166,7 @@ public:
     /**
      * Computes the path length from `start` to `dest`.
      */
-    int pathLength(const Point &start, const Point &dest) const;
+    int pathLength(const Point &start, const Point &dest,shared_ptr<GameUnit>& unit) const;
 
 
     /**
@@ -185,9 +189,14 @@ public:
     int getCurrentPlayer() const;
 
     /**
-     * Resets the current player to the next player.
+     * Finds the next available player and then resets the current player to the next player.
      */
     int nextPlayer();
+
+    /**
+     * Finds the next available player, taking the current player as candidate as well.
+     */
+    int nextPlayerFromCurrent();
 
     /**
      * Called when the current player starts his turn.
@@ -269,6 +278,7 @@ public:
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
 
+    void addEventListener(const EventListener &listener);
 
 public:
 

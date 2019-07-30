@@ -3,6 +3,10 @@
 //
 
 #include <cmath>
+#include <stack>
+#include <event/EntityEvent.h>
+#include "event/GameEvent.h"
+#include "event/StateEvent.h"
 #include "World.h"
 #include "../util/ArrayUtil.h"
 #include "../core/Message.h"
@@ -83,7 +87,7 @@ const string &World::className() {
 
 
 bool World::isInside(int x, int y) const {
-    return 0 <= x < width && 0 <= y < height;
+    return 0 <= x && x < width && 0 <= y && y < height;
 }
 
 
@@ -128,6 +132,7 @@ int World::getPlayerCount() const {
     return playerCount;
 }
 
+
 int World::getNextObjectId() {
     return objectUID++;
 }
@@ -138,6 +143,9 @@ int World::getCurrentPlayer() const {
 
 int World::nextPlayer() {
     int count = 0;
+    if (currentPlayer < -1) {
+        currentPlayer = -1;
+    }
     do {
         currentPlayer++;
         if (count > getPlayerCount()) {
@@ -151,6 +159,12 @@ int World::nextPlayer() {
     } while (players[currentPlayer].isDead());
     return currentPlayer;
 }
+
+int World::nextPlayerFromCurrent() {
+    currentPlayer--;
+    return nextPlayer();
+}
+
 
 void World::initPlainDataFrom(const World &world) {
     height = world.height;
@@ -211,7 +225,7 @@ bool World::moveEntity(const Point &from, const Point &dest) {
         PLOG_WARNING << "Attempting to move a non-entity!";
         return false;
     }
-    int requiredMoves = pathLength(from, dest);
+    int requiredMoves = pathLength(from, dest, entity);
     if (!entity->requireMoves(requiredMoves)) {
         PLOG_WARNING << "Unit out of move!";
         return false;
@@ -270,8 +284,8 @@ void World::attackEntityMelee(const Point &from, const Point &dest, const shared
 
     if (performMeleeAttack(from, dest, melee, victim)) {
         //occupy the position
-        Tile &destTile = getTile(dest);
         Tile &fromTile = getTile(from);
+        Tile &destTile = getTile(dest);
         destTile.setEntity(fromTile.removeEntity());
         onEntityMoved(from, dest, melee);
     } else {
@@ -341,47 +355,62 @@ void World::performEntity(const Point &target) {
     onEntityPerformed(target, entity);
 }
 
+/* -------------------------------------- Start of on... ---------------------------------------------- */
 
-void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity) {
-    //TODO add log info
-    //TODO dispatch
-
-    PLOG(plog::info) << "Entity moved!";
-    updateVisibility(entity->getOwnerId());
-}
 
 void
 World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const string &entityName, int playerId) {
-    //TODO dispatch
-    PLOG(plog::info) << "Entity [" + entityName + "] created!";
+    PLOG(plog::info) << "[World] Entity [" + entityName + "] created!";
     setEntityVisibility(pos.x, pos.y, entity, playerId);
+    shared_ptr<GameEvent> event(new EntityEvent(entity, EntityEventType::EntityCreated));
+    dispatcher.publish(event);
+}
+
+void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity) {
+    entity->setPos(dest);
+    PLOG(plog::info) << "[World] Entity moved!";
+
+    shared_ptr<GameEvent> event(new EEntityMoved(entity, from, dest));
+    updateVisibility(entity->getOwnerId());
+    dispatcher.publish(event);
 }
 
 void World::onEntityDamaging(const Point &from, const Point &dest,
                              const shared_ptr<Entity> &attacker,
                              const shared_ptr<EntityWithHealth> &receiver, int &damage) {
-    PLOG(plog::info) << "Entity damaged!";
+    PLOG(plog::info) << "[World] Entity damaged!";
+    auto t = new EEntityDamaging(receiver, attacker, damage);
+    shared_ptr<GameEvent> event(t);
+    dispatcher.publish(event);
+    damage = t->getDamage();
 }
 
 
 void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
     PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] removed";
+    shared_ptr<GameEvent> event(new EntityEvent(entity, EntityEventType::EntityRemoved));
+    dispatcher.publish(event);
+
     int playerId = entity->getOwnerId();
     updateVisibility(playerId);
-    if(checkPlayerLostAllUnit(playerId)){
+    if (checkPlayerLostAllUnit(playerId)) {
         onPlayerDefeated(playerId);
     }
 }
 
 void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
     PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] performed!";
+    shared_ptr<GameEvent> event(new EntityEvent(entity, EntityEventType::EntityPerformed));
+    dispatcher.publish(event);
 }
 
 
 void World::onPlayerTurnStart() {
-    PLOG(plog::info) << "Player turn started: "<< currentPlayer;
+    PLOG(plog::info) << "Player turn started: " << currentPlayer;
     updateVisibility(currentPlayer);
     refreshMoves(currentPlayer);
+    shared_ptr<GameEvent> event(new PlayerEvent(StateEventType::PlayerTurnStarted, currentPlayer));
+    dispatcher.publish(event);
 }
 
 void World::onPlayerTurnStart(int playerId) {
@@ -391,12 +420,15 @@ void World::onPlayerTurnStart(int playerId) {
 
 void World::onPlayerTurnFinish() {
     PLOG(plog::info) << "Player turn finished.";
-    //TODO: update visibility
+    shared_ptr<GameEvent> event(new PlayerEvent(StateEventType::PlayerTurnEnded, currentPlayer));
+    dispatcher.publish(event);
 }
 
 void World::onPlayerDefeated(int playerId) {
     players[playerId].setDead(true);
     PLOG(plog::info) << "Player" << playerId << " is defeated";
+    shared_ptr<GameEvent> event(new PlayerEvent(StateEventType::PlayerDefeated, playerId));
+    dispatcher.publish(event);
     checkPlayerGroupWin();
 }
 
@@ -404,6 +436,7 @@ void World::onPlayerGroupWon(int groupId) {
     PLOG(plog::info) << "Player group " << groupId << " won!";
 }
 
+/* ------------------------------- End of on... -------------------------------------- */
 
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
@@ -471,7 +504,7 @@ void World::resetVisibility(int playerId) {
     }
 }
 
-void World::forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>&)> &f) {
+void World::forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity> &)> &f) {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             Tile &t = data[i][j];
@@ -530,9 +563,35 @@ bool World::checkReady() {
     return true;
 }
 
-int World::pathLength(const Point &start, const Point &dest) const {
+int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
 //    int** length
-    return start.girdDistance(dest);
+    int **distanceMap = initMatrix(width, height, INT32_MAX);
+    distanceMap[start.x][start.y] = 0;
+    stack<Point> s;
+    s.push(start);
+    while (!s.empty()) {
+        Point p = s.top();
+        s.pop();
+        int nDistance = distanceMap[p.x][p.y] + 1;
+        for (const Point &d : Point::directions()) {
+            Point next = p + d;
+            if (!isInside(next)) {
+                continue;
+            }
+            auto &t = getTile(next);
+            if (!t.canPassThrough(unit)) {
+                continue;
+            }
+            if (nDistance >= distanceMap[next.x][next.y]) {
+                continue;
+            }
+            distanceMap[next.x][next.y] = nDistance;
+            s.push(next);
+        }
+    }
+    int distance = distanceMap[dest.x][dest.y];
+    deleteMatrix(distanceMap, width);
+    return distance;
 }
 
 void World::serializeTo(ostream &output) {
@@ -638,8 +697,8 @@ Point World::searchFor(int playerId, const string &entityName) {
                 continue;
             }
             const shared_ptr<Entity> &en = data[i][j].getEntity();
-            if (en->getEntityName() == entityName) {
-                return Point(i, j);
+            if (en->getOwnerId() == playerId && en->getEntityName() == entityName) {
+                return {i, j};
             }
         }
     }
@@ -660,14 +719,14 @@ bool World::isOfSameGroup(const shared_ptr<Entity> &e1, const shared_ptr<Entity>
 bool World::checkPlayerLostAllUnit(int playerId) {
     bool lostAll = true;
     forEachEntitiesOf(playerId,
-            [&lostAll](int, int, shared_ptr<Entity> &) { lostAll = false; });
+                      [&lostAll](int, int, shared_ptr<Entity> &) { lostAll = false; });
     return lostAll;
 }
 
 void World::checkPlayerGroupWin() {
     int group = Player::NO_GROUP;
-    for(Player& p : players){
-        if(p.isDead()){
+    for (Player &p : players) {
+        if (p.isDead()) {
             continue;
         }
         if (group == -1) {
@@ -679,7 +738,9 @@ void World::checkPlayerGroupWin() {
     onPlayerGroupWon(group);
 }
 
-
+void World::addEventListener(const EventListener &listener) {
+    dispatcher.addListener(listener);
+}
 
 
 }

@@ -21,11 +21,18 @@ set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLin
 add_executable(z2
         src/main.cpp ${Z2_Sources}
         )
-add_executable(Client
-        src/ClientMain.cpp
-        ${Z2_Sources}
-        )
-add_executable(Server
-        src/ServerMain.cpp
-        ${Z2_Sources}
-        )
+#add_executable(Client
+#        src/ClientMain.cpp
+#        ${Z2_Sources}
+#        )
+#add_executable(Server
+#        src/ServerMain.cpp
+#        ${Z2_Sources}
+#        )
+add_library(Z2Core ${Z2_Sources})
+install(TARGETS Z2Core DESTINATION F:/liyicheng/document/cpp/api/z2Core)
+install(DIRECTORY src/ DESTINATION F:/liyicheng/document/cpp/api/z2Core/include
+        FILES_MATCHING PATTERN "*.h")
+
+
+

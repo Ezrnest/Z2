@@ -8,14 +8,24 @@
 #include "config/SerializableRegistry.h"
 #include "plog/Log.h"
 #include "plog/Appenders/ConsoleAppender.h"
-
+#include "MapRepository.h"
 using namespace z2;
 
 void GameConfiguration::initRegistration() {
-    EntityRepository::initDefaultEntities();
-    //TODO load from file
+    File curDir = File::currentDirectory();
+    File resDir = curDir.parent().subFile("resources");
+    LOG_INFO << "Loading resources from: " << resDir.getPath();
 
     SerializableRegistry::initSerializableClasses();
+
+    EntityRepository::initEntityClasses();
+    EntityRepository::initFromFolder(resDir.subFile("entity"));
+
+    MapRepository::initFromFolder(resDir.subFile("map"));
+
+
+
+    //TODO load from file
 }
 
 

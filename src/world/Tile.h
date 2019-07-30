@@ -16,6 +16,7 @@ class Point;
 
 namespace z2 {
 class Entity;
+class GameUnit;
 
 /**
 * Describes the terrain of a single tile.
@@ -67,6 +68,11 @@ public:
     bool hasEntity();
 
     bool isOccupied();
+
+    /**
+     * Determines whether an unit of the player can pass through this tile.
+     */
+    bool canPassThrough(const shared_ptr<GameUnit>& unit);
 
     std::shared_ptr<Entity> getEntity();
 

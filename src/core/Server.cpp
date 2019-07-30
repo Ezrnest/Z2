@@ -8,7 +8,7 @@
 #include "messages/PlayerMessage.h"
 #include "messages/ControlMessage.h"
 #include "plog/Log.h"
-
+#include "event/StateEvent.h"
 using namespace z2;
 
 void Server::acceptMessage(const shared_ptr<Message> &command) {
@@ -55,13 +55,8 @@ void z2::Server::startGame() {
     PLOG(plog::info) << "Game Started!";
     shared_ptr<Message> startGame(new ControlMessage(ControlMessageType ::StartGame));
     broadcastMessage(startGame);
-
-    int playerId = world->nextPlayer();
+    int playerId = world->nextPlayerFromCurrent();
     callPlayer(playerId);
-}
-
-void z2::Server::pauseGame() {
-    //TODO
 }
 
 void Server::sendMessage(const shared_ptr<Message> &message, int clientId) {
@@ -104,6 +99,17 @@ Server::GameState Server::getGameState() const {
     return gameState;
 }
 
+void Server::attackListeners(const shared_ptr<World> &world){
+    auto listener = [this](const GameEventPtr& event){
+        shared_ptr<GroupWonEvent> gw = dynamic_pointer_cast<GroupWonEvent>(event);
+        if(!gw){
+            return;
+        }
+        endGame(gw->getGroupId());
+    };
+    world->addEventListener(listener);
+}
+
 void Server::setWorld(const shared_ptr<World> &world) {
     Server::world = world;
 }
@@ -111,6 +117,10 @@ void Server::setWorld(const shared_ptr<World> &world) {
 bool Server::checkGameReady() {
     if(gameState == GameState::RUNNING){
         PLOG_WARNING << "Already started!";
+        return false;
+    }
+    if(!world){
+        PLOG_WARNING <<"The world is not set!";
         return false;
     }
     if(clients.size() != world->getPlayerCount()){
@@ -140,6 +150,7 @@ void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage>& messag
         case ControlMessageType::StartGame:break;
         case ControlMessageType::RegisterPlayer:break;
         case ControlMessageType::SyncWorld:break;
+        case ControlMessageType::Signal:break;
     }
 }
 

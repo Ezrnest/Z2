@@ -13,7 +13,7 @@
 #include <functional>
 #include "util/Properties.h"
 #include "entity/Entity.h"
-
+#include "util/File.h"
 using namespace std;
 
 namespace z2 {
@@ -86,6 +86,8 @@ class EntityRepository {
 
     EntityRepository();
 
+    void registerFromProp(const string &name, const Properties &properties);
+
 public:
     EntityRepository(const EntityRepository &entityRepository) = delete;
 
@@ -132,7 +134,7 @@ public:
 
     static void initDefaultEntities();
 
-    static void initFromFolder(const string &path);
+    static void initFromFolder(const ancono::File& dir);
 };
 
 }

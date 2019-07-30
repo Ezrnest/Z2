@@ -12,7 +12,7 @@
 
 namespace z2 {
 enum class Resource{
-    NONE,MINE,
+    NONE,MINE,GEM
 };
 
 }

@@ -17,8 +17,5 @@ z2::GameEvent::GameEvent(z2::EventType type) : type(type) {}
 
 z2::GameEvent::~GameEvent() = default;
 
-z2::InGameEvent::InGameEvent() : GameEvent(EventType::InGameEvent) {}
+z2::InGameEvent::InGameEvent() : GameEvent(EventType::IN_GAME_EVENT) {}
 
-z2::StateEvent::StateEvent() : GameEvent(EventType::StateEvent){
-
-}

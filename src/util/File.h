@@ -8,10 +8,12 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <io.h>
 #include <functional>
 using namespace std;
 
 namespace ancono {
+
 class File {
 
 public:
@@ -22,7 +24,11 @@ public:
 
     File(const File& file);
 
-    File& operator=(const File& file);
+    ~File();
+
+    File& operator=(const File&);
+    
+    long getHandle() const;
 
     /**
      * Gets the path of this file as a string.
@@ -35,10 +41,13 @@ public:
      */
     string getFileName() const;
 
+    string getFileNameWithoutExtension() const;
+
     File parent() const;
 
-    File subfile(const string&) const;
+    File subFile(const string&) const;
 
+    bool exists() const;
 
 
     /**
@@ -49,7 +58,7 @@ public:
     /**
      * Applies the given function to each sub-file.
      */
-    void forEachSubfile(const function<File&>& f) const;
+    void forEachSubfile(const function<void(File&)>& f) const;
 
     bool isDirectory() const;
 
@@ -69,6 +78,13 @@ public:
      * parent directories.
      */
     void mkdir() const;
+
+    static File currentDirectory();
+
+private:
+	string path;
+    long handle{};
+    struct _finddata_t fileinfo{};
 };
 
 };

@@ -11,17 +11,13 @@
 #include <mutex>
 #include "GameGui.h"
 #include "MessageConductor.h"
-
+#include "world/GameInitSetting.h"
 using namespace std;
 namespace z2 {
 class Server;
 
 
-enum class PlayerType {
-    LOCAL_PLAYER,
-    BOT_PLAYER,
-    REMOTE_PLAYER
-};
+
 
 class Lobby {
 private:

@@ -53,7 +53,8 @@ const Properties &EntityInfo::getProperties() const {
 EntityInfo::EntityInfo(const string &identifier, const shared_ptr<EntityClassInfo> &entityClassInfo,
                        const Properties &prop) : identifier(identifier), entityClassInfo(entityClassInfo),
                                                        properties(prop) {
-    properties.set("entityName", identifier);
+    properties.set("name", identifier);
+    properties.set("className", entityClassInfo->getClassName());
 }
 
 const shared_ptr<EntityClassInfo> &EntityInfo::getEntityClassInfo() const {
@@ -166,10 +167,38 @@ bool EntityRepository::hasEntity(const string &entityName) const {
     return entities.find(entityName) != entities.end();
 }
 
-void EntityRepository::initFromFolder(const string &path) {
+
+void EntityRepository::initFromFolder(const ancono::File &dir) {
+    if(!dir.exists()){
+        LOG_WARNING << "Unable to load entities from: " << dir.getPath();
+        return;
+    }
+
     auto& repo = instance();
-//    File f;
-    //TODO
+    auto entityFiles = dir.listSubfiles();
+    for(File& f : entityFiles){
+        string eName;
+        Properties p;
+        ifstream in;
+        f.inStream(in);
+        p.loadFrom(in);
+        eName = p.get("name", f.getFileNameWithoutExtension());
+        repo.registerFromProp(eName, p);
+        in.close();
+    }
+//    dir.
 }
+
+void EntityRepository::registerFromProp(const string &name, const Properties &properties) {
+    auto className = properties.get("className", "");
+    auto it = entityClasses.find(className);
+    if (it == entityClasses.end()) {
+        LOG_WARNING << "Unable to find entity class: [" << className << ']';
+        return;
+    }
+    EntityInfo info(name, (*it).second, properties);
+    registerEntity(info);
+}
+
 
 

@@ -76,8 +76,9 @@ bool Entity::requireMoves(int count) {
 void Entity::serializeDataPart(ostream &output) {
     output << entityName << ' '
            << objectId << ' '
-           << ownerId_ << ' '
-           << visibility << ' '
+           << ownerId_ << ' ';
+    pos.serializeData(output);
+    output << visibility << ' '
            << movesPerTurn << ' '
            << remainingMoves << ' ';
 
@@ -86,8 +87,9 @@ void Entity::serializeDataPart(ostream &output) {
 void Entity::deserializeDataPart(istream &input, Entity *en) {
     input >> en->entityName
           >> en->objectId
-          >> en->ownerId_
-          >> en->visibility
+          >> en->ownerId_;
+    en->pos.deserializeData(input);
+    input >> en->visibility
           >> en->movesPerTurn
           >> en->remainingMoves;
 }
@@ -103,4 +105,12 @@ bool Entity::requireRestMoves() {
     } else {
         return false;
     }
+}
+
+const Point &Entity::getPos() const {
+    return pos;
+}
+
+void Entity::setPos(const Point &pos) {
+    Entity::pos = pos;
 }

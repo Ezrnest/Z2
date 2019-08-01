@@ -16,6 +16,7 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
         PLOG(plog::info) <<"Reject message: Game Paused";
         return;
     }
+    PLOG_INFO << "[Server] Accepted message: " << command->getClassName();
 //    ancono::info"Accepted message!";
     switch (command->getGeneralType()) {
         case GeneralMessageType::ControlMessage: {
@@ -101,7 +102,7 @@ Server::GameState Server::getGameState() const {
 
 void Server::attackListeners(const shared_ptr<World> &world){
     auto listener = [this](const GameEventPtr& event){
-        shared_ptr<GroupWonEvent> gw = dynamic_pointer_cast<GroupWonEvent>(event);
+        shared_ptr<GroupEvent> gw = dynamic_pointer_cast<GroupEvent>(event);
         if(!gw){
             return;
         }

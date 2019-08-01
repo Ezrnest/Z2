@@ -133,6 +133,8 @@ public:
 
     Player &getPlayer(int playerId);
 
+    Player& getCurrentAsPlayer();
+
     bool checkReady();
 
     int getPlayerCount() const;
@@ -149,7 +151,7 @@ public:
      */
     Tile &getTile(const Point &pos) const;
 
-    const shared_ptr<Entity> getEntity(const Point &point);
+    shared_ptr<Entity> getEntity(const Point &point);
 
     /**
      * Determines whether the given coordinate is inside the map.
@@ -241,6 +243,20 @@ public:
      */
     void dealWithMessage(const shared_ptr<GameMessage> &message);
 
+    void publishEvent(shared_ptr<GameEvent> &event);
+
+
+    bool canMove(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
+
+    /**
+     * Gets the entities that the player can choose to buy, not considering the price.
+     */
+    vector<string> getAvailableEntitiesFor(int playerId);
+
+    bool canAttack(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
+
+    bool canPerform(const Point& target, int playerId = Player::NO_PLAYER);
+
     /**
      * Moves the entity at the tile of the point `from` to `dest`, if `dest` is not occupied.
      * Otherwise, returns `false`
@@ -248,6 +264,8 @@ public:
     bool moveEntity(const Point &from, const Point &dest);
 
     void buyEntity(int playerId, const Point &pos, const string &entityName);
+
+
 
     void attackEntity(const Point &from, const Point &dest);
 

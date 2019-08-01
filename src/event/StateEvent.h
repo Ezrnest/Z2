@@ -42,11 +42,11 @@ public:
     int getPlayerId() const;
 };
 
-class GroupWonEvent : public StateEvent{
+class GroupEvent : public StateEvent{
 private:
     int groupId;
 public:
-    GroupWonEvent(StateEventType sType, int groupId);
+    GroupEvent(StateEventType sType, int groupId);
 
     int getGroupId() const;
 };

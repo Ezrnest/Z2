@@ -41,7 +41,7 @@ public:
 
     virtual void onGameStopped() = 0;
 
-    virtual void onEvent(shared_ptr<GameEvent> &event) = 0;
+    virtual void onEvent(const shared_ptr<GameEvent> &event) = 0;
 };
 
 }

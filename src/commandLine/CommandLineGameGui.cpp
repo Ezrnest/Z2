@@ -209,6 +209,6 @@ void CommandLineGameGui::onGameStopped() {
 
 }
 
-void CommandLineGameGui::onEvent(shared_ptr<GameEvent> &event) {
-
+void CommandLineGameGui::onEvent(const shared_ptr<GameEvent> &event) {
+    printWorld();
 }

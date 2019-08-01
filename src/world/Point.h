@@ -26,6 +26,8 @@ public:
      */
     int girdDistance(const Point &p) const;
 
+    int distanceSq(const Point& p) const;
+
     bool isAdjacentTo(const Point& p) const;
 
     static const array<Point, 4> &directions() {

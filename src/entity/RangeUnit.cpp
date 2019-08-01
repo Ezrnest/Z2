@@ -2,6 +2,7 @@
  * Created by liyicheng on 2019/7/11.
  */
 
+#include "world/World.h"
 #include "RangeUnit.h"
 
 
@@ -12,7 +13,7 @@ z2::RangeUnit::RangeUnit(unsigned int objectId) : GameUnit(objectId) {
 void z2::RangeUnit::initialize(const Properties &prop) {
     GameUnit::initialize(prop);
     attackStrength = prop.getInt("attackStrength", attackStrength);
-    range = prop.getInt("range", range);
+    range = prop.getDouble("range", range);
 }
 
 void z2::RangeUnit::serializeDataPart(ostream &output) {
@@ -35,16 +36,17 @@ void z2::RangeUnit::setAttackStrength(int attackStrength) {
     RangeUnit::attackStrength = attackStrength;
 }
 
-int z2::RangeUnit::getRange() const {
+double z2::RangeUnit::getRange() const {
     return range;
 }
 
-void z2::RangeUnit::setRange(int range) {
+void z2::RangeUnit::setRange(double range) {
     RangeUnit::range = range;
 }
 
 void z2::RangeUnit::serializeTo(ostream &output) {
-
+    output << className() << ' ';
+    serializeDataPart(output);
 }
 
 const string &z2::RangeUnit::getClassName() const {
@@ -66,4 +68,12 @@ z2::Entity *z2::RangeUnit::create(int objectId, const Properties &initializer) {
     auto* en = new RangeUnit(objectId);
     en->initialize(initializer);
     return en;
+}
+
+double z2::RangeUnit::computeRangeAt(const z2::Point &pos, z2::World &w) {
+    Tile &t = w.getTile(pos);
+    if(t.getTerrain() == Terrain::HILL){
+        return range+1;
+    }
+    return range;
 }

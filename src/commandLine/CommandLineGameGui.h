@@ -42,7 +42,7 @@ public:
 
     void onGameStopped() override;
 
-    void onEvent(shared_ptr<GameEvent> &event) override;
+    void onEvent(const shared_ptr<GameEvent> &event) override;
 
     void mainLoop();
 

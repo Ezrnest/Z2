@@ -27,6 +27,7 @@ void m1(){
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
     w->createEntity(Point(1, 1), Farmer::className(), 0);
     w->createEntity(Point(3, 3), Farmer::className(), 1);
+    w->createEntity(Point(0, 1), "Archer", 0);
     w->getTile(0, 3).setResource(Resource::MINE);
     w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
     w->getTile(2,1).setTerrain(Terrain::MOUNTAIN);
@@ -69,11 +70,11 @@ void m2(){
                                   PlayerSetting(2,2,2,PlayerType::LOCAL_PLAYER)};
     auto map = MapRepository::instance().getMaps()[0];
     GameInitSetting setting(players,map);
-    auto world =setting.buildGame();
+    auto world = setting.buildWorld();
     CommandLineGameGui::printWorld(*world);
 }
 
 int main() {
     init();
-    m2();
+    m1();
 }

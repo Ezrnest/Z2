@@ -116,7 +116,7 @@ Tile &World::getTile(const Point &pos) const {
     return getTile(pos.x, pos.y);
 }
 
-const shared_ptr<Entity> World::getEntity(const Point &point) {
+shared_ptr<Entity> World::getEntity(const Point &point) {
     if (!isInside(point)) {
         return shared_ptr<Entity>();
     }
@@ -207,6 +207,30 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
     }
 }
 
+bool playerCanControl(int playerId, Entity& en){
+    return playerId == Player::NO_PLAYER || en.getOwnerId() == playerId;
+}
+
+bool World::canMove(const Point &from, const Point &dest, int playerId) {
+    if (!isInside(from) || !isInside(dest)) {
+        return false;
+    }
+    Tile &destTile = getTile(dest);
+    if (destTile.isOccupied()) {
+        return false;
+    }
+    Tile &fromTile = getTile(from);
+    shared_ptr<GameUnit> entity = dynamic_pointer_cast<GameUnit>(fromTile.getEntity());
+    if (!entity) {
+        return false;
+    }
+    if(!playerCanControl(playerId,*entity)){
+        return false;
+    }
+    int requiredMoves = pathLength(from, dest, entity);
+    return entity->getRemainingMoves() >= requiredMoves;
+}
+
 bool World::moveEntity(const Point &from, const Point &dest) {
     if (!isInside(from) || !isInside(dest)) {
         PLOG_WARNING << "Attempting to move outside the map!";
@@ -214,7 +238,6 @@ bool World::moveEntity(const Point &from, const Point &dest) {
     }
     Tile &destTile = getTile(dest);
     if (destTile.isOccupied()) {
-        //TODO add log info
         PLOG_WARNING << "Attempting to move to an occupied tile!";
         return false;
     }
@@ -264,12 +287,43 @@ void World::buyEntity(int playerId, const Point &pos, const string &entityName) 
 
 bool World::performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                                const shared_ptr<EntityWithHealth> &victim) {
+
     int damage = melee->getAttackStrength();
     onEntityDamaging(from, dest, melee, victim, damage);
     victim->dealDamage(damage);
     if (victim->isDead()) {
         removeEntity(dest);
         return true;
+    }
+    return false;
+}
+bool World::canAttack(const Point &from, const Point &dest, int playerId) {
+    const EntityPtr &attacker = getEntity(from);
+    const EntityPtr &receiver = getEntity(dest);
+    if (!bool(attacker) || !bool(receiver)) {
+        return false;
+    }
+    if (attacker->getRemainingMoves() < 1) {
+        return false;
+    }
+    if(!playerCanControl(playerId,*attacker)){
+        return false;
+    }
+    if (isOfSameGroup(attacker, receiver)) {
+        return false;
+    }
+    const shared_ptr<EntityWithHealth> victim = dynamic_pointer_cast<EntityWithHealth>(receiver);
+    if (!victim) {
+        return false;
+    }
+    const shared_ptr<MeleeUnit> melee = dynamic_pointer_cast<MeleeUnit>(attacker);
+    if (melee) {
+        return from.isAdjacentTo(dest);
+    }
+    const shared_ptr<RangeUnit> range = dynamic_pointer_cast<RangeUnit>(attacker);
+    if (range) {
+        double r = range->computeRangeAt(from, *this);
+        return r * r >= from.distanceSq(dest); // Required in range
     }
     return false;
 }
@@ -281,7 +335,7 @@ void World::attackEntityMelee(const Point &from, const Point &dest, const shared
         PLOG_WARNING << "Not adjacent for melee attack!";
         return;
     }
-
+    melee->requireRestMoves();
     if (performMeleeAttack(from, dest, melee, victim)) {
         //occupy the position
         Tile &fromTile = getTile(from);
@@ -299,6 +353,12 @@ void World::attackEntityMelee(const Point &from, const Point &dest, const shared
 
 void World::attackEntityRange(const Point &from, const Point &dest, const shared_ptr<RangeUnit> &range,
                               const shared_ptr<EntityWithHealth> &victim) {
+    double r = range->computeRangeAt(from, *this);
+    if (r * r < from.distanceSq(dest)) {
+        PLOG_WARNING << "Out of range for range attack!";
+        return;
+    }
+    range->requireRestMoves();
     int damage = range->getAttackStrength();
     onEntityDamaging(from, dest, range, victim, damage);
     victim->dealDamage(damage);
@@ -307,6 +367,8 @@ void World::attackEntityRange(const Point &from, const Point &dest, const shared
     }
 }
 
+
+
 void World::attackEntity(const Point &from, const Point &dest) {
     const EntityPtr &attacker = getEntity(from);
     const EntityPtr &receiver = getEntity(dest);
@@ -314,7 +376,7 @@ void World::attackEntity(const Point &from, const Point &dest) {
         PLOG_WARNING << "No unit to make attack!";
         return;
     }
-    if (!attacker->requireRestMoves()) {
+    if (attacker->getRemainingMoves() < 1) {
         PLOG_WARNING << "No sufficient move to perform attack!";
         return;
     }
@@ -339,7 +401,19 @@ void World::attackEntity(const Point &from, const Point &dest) {
     }
     PLOG_WARNING << "The unit can't attack!";
 }
-
+bool World::canPerform(const z2::Point & target, int playerId) {
+    auto en = getEntity(target);
+    if (!en) {
+        return false;
+    }
+    if(!playerCanControl(playerId,*en)){
+        return false;
+    }
+    if(en->getRemainingMoves() < 1){
+        return false;
+    }
+    return en->canPerformAbility(target, *this);
+}
 
 void World::performEntity(const Point &target) {
     const EntityPtr &entity = getEntity(target);
@@ -367,11 +441,11 @@ World::onEntityCreated(const Point &pos, const shared_ptr<Entity> &entity, const
 }
 
 void World::onEntityMoved(const Point &from, const Point &dest, const shared_ptr<GameUnit> &entity) {
-    entity->setPos(dest);
     PLOG(plog::info) << "[World] Entity moved!";
+    entity->setPos(dest);
 
-    shared_ptr<GameEvent> event(new EEntityMoved(entity, from, dest));
     updateVisibility(entity->getOwnerId());
+    shared_ptr<GameEvent> event(new EEntityMoved(entity, from, dest));
     dispatcher.publish(event);
 }
 
@@ -387,7 +461,7 @@ void World::onEntityDamaging(const Point &from, const Point &dest,
 
 
 void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) {
-    PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] removed";
+    PLOG(plog::info) << "[World] Entity [" + entity->getEntityName() + "] removed";
     shared_ptr<GameEvent> event(new EntityEvent(entity, EntityEventType::EntityRemoved));
     dispatcher.publish(event);
 
@@ -399,7 +473,7 @@ void World::onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity) 
 }
 
 void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
-    PLOG(plog::info) << "Entity [" + entity->getEntityName() + "] performed!";
+    PLOG(plog::info) << "[World] Entity [" + entity->getEntityName() + "] performed!";
     shared_ptr<GameEvent> event(new EntityEvent(entity, EntityEventType::EntityPerformed));
     dispatcher.publish(event);
 }
@@ -434,6 +508,8 @@ void World::onPlayerDefeated(int playerId) {
 
 void World::onPlayerGroupWon(int groupId) {
     PLOG(plog::info) << "Player group " << groupId << " won!";
+    shared_ptr<GameEvent> event(new GroupEvent(StateEventType::GroupWon,groupId));
+    dispatcher.publish(event);
 }
 
 /* ------------------------------- End of on... -------------------------------------- */
@@ -466,6 +542,10 @@ void World::removeEntity(const Point &pos) {
 Player &World::getPlayer(int playerId) {
     return players[playerId];
 }
+Player &World::getCurrentAsPlayer() {
+    return players[currentPlayer];
+}
+
 
 Tile *World::getAdjacentEmptyTile(const Point &pos) const {
     for (const Point &dir : Point::directions()) {
@@ -741,6 +821,15 @@ void World::checkPlayerGroupWin() {
 void World::addEventListener(const EventListener &listener) {
     dispatcher.addListener(listener);
 }
+
+void World::publishEvent(shared_ptr<GameEvent> &event) {
+    dispatcher.publish(event);
+}
+
+vector<string> World::getAvailableEntitiesFor(int playerId) {
+    return EntityRepository::instance().getAllLoadedEntityNames();
+}
+
 
 
 }

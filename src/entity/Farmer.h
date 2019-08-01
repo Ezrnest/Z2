@@ -29,6 +29,8 @@ public:
 
     void performAbility(const Point &pos, World &world) override;
 
+    bool canPerformAbility(const Point &pos, World &world) override;
+
     void initialize(const Properties &prop) override;
 
 protected:

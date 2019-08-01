@@ -109,9 +109,10 @@ public:
 
     EntityInfo &getEntityInfo(const string &identifier);
 
+
     bool hasEntity(const string &entityName) const;
 
-    const vector<string> getAllLoadedEntityNames() const;
+    vector<string> getAllLoadedEntityNames() const;
 
     const map<string, shared_ptr<EntityClassInfo>> &getAllLoadedEntityClasses() const;
 

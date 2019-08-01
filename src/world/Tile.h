@@ -22,7 +22,7 @@ class GameUnit;
 * Describes the terrain of a single tile.
 */
 enum class Terrain {
-    PLAIN = 0, MOUNTAIN = 1
+    PLAIN = 0, MOUNTAIN = 1, HILL = 2
 };
 
 /**

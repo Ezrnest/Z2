@@ -49,4 +49,10 @@ bool Point::isAdjacentTo(const Point &p) const {
            (dy == 0 && (dx == -1 || dx == 1));
 }
 
+int Point::distanceSq(const Point &p) const {
+    int dx = x - p.x;
+    int dy = y - p.y;
+    return dx*dx + dy * dy;
+}
+
 

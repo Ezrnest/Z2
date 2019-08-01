@@ -65,7 +65,7 @@ void Entity::refreshMoves() {
 }
 
 bool Entity::requireMoves(int count) {
-    if (remainingMoves > count) {
+    if (remainingMoves >= count) {
         remainingMoves -= count;
         return true;
     } else {
@@ -113,4 +113,8 @@ const Point &Entity::getPos() const {
 
 void Entity::setPos(const Point &pos) {
     Entity::pos = pos;
+}
+
+bool Entity::canPerformAbility(const Point &pos, World &world) {
+    return false;
 }

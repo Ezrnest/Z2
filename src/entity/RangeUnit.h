@@ -13,19 +13,21 @@ class RangeUnit : public GameUnit{
 protected:
     int attackStrength = 100;
 
-    int range = 2;
+    double range = 2.0;
 public:
     int getAttackStrength() const;
 
     void setAttackStrength(int attackStrength);
 
-    int getRange() const;
+    double getRange() const;
 
-    void setRange(int range);
+    void setRange(double range);
 
     explicit RangeUnit(unsigned int objectId);
 
     void initialize(const Properties &prop) override;
+
+    double computeRangeAt(const Point& pos, World& w);
 
 public:
     const string &getClassName() const override;

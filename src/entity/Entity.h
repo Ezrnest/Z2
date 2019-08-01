@@ -113,6 +113,8 @@ public:
 
     virtual void performAbility(const Point &pos, World &world);
 
+    virtual bool canPerformAbility(const Point &pos, World &world);
+
     virtual ~Entity();
 
     int getMovesPerTurn() const;

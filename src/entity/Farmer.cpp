@@ -23,6 +23,19 @@ const string &Farmer::getClassName() const {
     return Farmer::className();
 }
 
+bool Farmer::canPerformAbility(const Point &pos, World &world) {
+    Tile& tile = world.getTile(pos);
+    switch (tile.getResource()) {
+        case Resource::MINE:
+        case Resource::GEM:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+
 void Farmer::doFarm(const Point &pos, World &world) {
     Player& player = world.getPlayer(ownerId_);
     Tile& tile = world.getTile(pos);

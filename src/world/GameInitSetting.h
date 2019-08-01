@@ -11,6 +11,8 @@ using namespace std;
 namespace z2 {
 class GameMap;
 class World;
+class Server;
+class LocalClient;
 enum class PlayerType {
     LOCAL_PLAYER,
     BOT_PLAYER,
@@ -39,7 +41,12 @@ public:
 
     bool isValidLocalSetting(bool isLocalGame);
 
-    shared_ptr<World> buildGame();
+    shared_ptr<World> buildWorld();
+
+    /**
+     * Builds a server for local game. The GameGui for the LocalClient is not set yet.
+     */
+    pair<shared_ptr<Server>,shared_ptr<LocalClient>> buildLocalGame();
 
 };
 

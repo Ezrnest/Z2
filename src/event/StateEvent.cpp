@@ -21,9 +21,9 @@ int PlayerEvent::getPlayerId() const {
     return playerId;
 }
 
-GroupWonEvent::GroupWonEvent(StateEventType sType, int groupId) : StateEvent(sType), groupId(groupId) {}
+GroupEvent::GroupEvent(StateEventType sType, int groupId) : StateEvent(sType), groupId(groupId) {}
 
-int GroupWonEvent::getGroupId() const {
+int GroupEvent::getGroupId() const {
     return groupId;
 }
 }

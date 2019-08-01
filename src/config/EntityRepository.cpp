@@ -76,8 +76,8 @@ EntityInfo &EntityRepository::getEntityInfo(const string &identifier) {
     return entities.at(identifier);
 }
 
-const vector<string> EntityRepository::getAllLoadedEntityNames() const {
-    vector<string> result(entities.size());
+vector<string> EntityRepository::getAllLoadedEntityNames() const {
+    vector<string> result;
     for (auto &en : entities) {
         result.push_back(en.first);
     }

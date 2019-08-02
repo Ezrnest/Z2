@@ -53,6 +53,7 @@ public:
     void makeAttack();
 
     void makePerform();
+
 };
 }
 

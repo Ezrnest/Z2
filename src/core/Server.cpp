@@ -34,8 +34,8 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
 }
 
 bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
-    client->setClientId(clients.size());
-
+    int cid = clients.size();
+    client->setClientId(cid);
     clients.push_back(client);
 
     bool re =  client->syncWorld(world);

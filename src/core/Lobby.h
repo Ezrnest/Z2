@@ -31,6 +31,7 @@ private:
 
     int connectionCount = 0;
 
+    int port;
 
     shared_ptr<CountDownLatch> latch;
 
@@ -44,10 +45,16 @@ public:
      */
     explicit Lobby(const vector<PlayerType> &players, int port, shared_ptr<World>  world);
 
+    virtual ~Lobby();
+
+    string getAddressInfo();
+
     /**
      * A blocking method, waiting all the players to join in.
      */
     shared_ptr<Server> startGame(const weak_ptr<GameGui> &gui, int timeOut);
+
+    bool isGameReady();
 
     const vector<PlayerType> &getPlayers() const;
 

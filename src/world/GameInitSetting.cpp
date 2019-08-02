@@ -79,18 +79,25 @@ pair<shared_ptr<Server>, shared_ptr<LocalClient>> GameInitSetting::buildLocalGam
     shared_ptr<Server> server(new Server());
     server->setWorld(w);
     shared_ptr<LocalClient> lc;
-    for (auto & ps : players) {
+    int botCount = 0;
+    for (int i=0;i<players.size();i++) {
+        auto& ps = players[i];
         switch (ps.type) {
             case PlayerType::LOCAL_PLAYER: {
                 lc.reset(new LocalClient());
                 lc->setRealServer(server);
                 server->registerClient(lc);
+                w->getPlayer(i).setName("LocalPlayer");
                 break;
             }
             case PlayerType::BOT_PLAYER: {
                 shared_ptr<BotClientPort> bc(new BotClientPort());
                 bc->setServer(server);
                 server->registerClient(bc);
+                stringstream ss;
+                botCount++;
+                ss << "Bot" << botCount;
+                w->getPlayer(i).setName(ss.str());
                 break;
             }
             case PlayerType::REMOTE_PLAYER: {
@@ -100,5 +107,13 @@ pair<shared_ptr<Server>, shared_ptr<LocalClient>> GameInitSetting::buildLocalGam
     }
     return make_pair(server, lc);
 
+}
+
+const vector<PlayerSetting> &GameInitSetting::getPlayers() const {
+    return players;
+}
+
+const shared_ptr<GameMap> &GameInitSetting::getMap() const {
+    return map;
 }
 }

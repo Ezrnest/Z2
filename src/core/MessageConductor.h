@@ -13,9 +13,10 @@
 #include <vector>
 #include <mutex>
 #include "Message.h"
-
+#include <thread>
 using namespace std;
 using namespace asio;
+
 namespace z2 {
 typedef ip::tcp::socket *socket_ptr;
 
@@ -38,7 +39,7 @@ private:
     vector<asio::streambuf> buffers;
     mutex processorMutex;
 //    socket_ptr server;
-    io_service service;
+    shared_ptr<io_service> service;
 
     void handleAccept(const error_code &error, int id);
 

@@ -7,9 +7,11 @@
 using namespace std;
 
 #define ASIO_STANDALONE
+
 #include <iostream>
 #include <string>
 #include <core/Lobby.h>
+#include <plog/Log.h>
 #include "world/World.h"
 #include "core/Server.h"
 #include "config/EntityRepository.h"
@@ -20,7 +22,6 @@ using namespace std;
 #include "bot/BotClientPort.h"
 #include "config/GameConfiguration.h"
 #include "config/SerializableRegistry.h"
-
 
 
 using namespace std;
@@ -36,20 +37,34 @@ shared_ptr<World> buildWorld() {
     return w;
 }
 
-const int port = 12351;
+//    std::thread t([lobby](){
+//        try{
+//            lobby->closeLobby();
+//        }catch (...){
+//            PLOG_INFO << "!"<<endl;
+//        }
+//    });
+//    try{
+//        t.detach();
+//    }catch (...){
+//        PLOG_INFO << "!!"<<endl;
+//    }
+//    return 0;
+const int port = 23456;
 
 int main() {
     cout << "Starting..." << endl;
     GameConfiguration::initAll();
     auto w = buildWorld();
     vector<PlayerType> players{PlayerType::LOCAL_PLAYER, PlayerType::BOT_PLAYER, PlayerType::REMOTE_PLAYER};
-    Lobby lobby(players,port,w);
+    shared_ptr<Lobby> lobby(new Lobby(players, port, w));
+
 
     shared_ptr<CommandLineGameGui> gui(new CommandLineGameGui());
 //    local->setView(static_pointer_cast<GameGui>(gui));
 //    gui->setControllerAndView(static_pointer_cast<Client>(local));
 
-    auto server = lobby.startGame(gui, 1000000);
+    auto server = lobby->startGame(gui, 1000000);
     if(!server){
         return 0;
     }

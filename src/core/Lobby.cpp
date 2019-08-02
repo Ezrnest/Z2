@@ -63,9 +63,10 @@ void Lobby::openLobby(int port) {
 }
 
 Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> world)
-        : players(players), clients(players.size()), world(std::move(world)) {
+        : players(players), clients(players.size()), world(std::move(world)), port(port) {
     openLobby(port);
 }
+
 
 
 shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
@@ -76,6 +77,7 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     }
     auto server = make_shared<Server>();
     server->setWorld(world);
+    int botCount  = 0;
     for (int i = 0; i < players.size(); i++) {
         switch (players[i]) {
             case PlayerType::LOCAL_PLAYER: {
@@ -85,12 +87,19 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
                 auto view = gui.lock();
                 cl->setView(view);
                 view->setControllerAndView(cl);
+                world->getPlayer(i).setName("LocalPlayer");
                 break;
             }
             case PlayerType::BOT_PLAYER: {
                 auto cl = std::make_shared<BotClientPort>();
                 cl->setServer(server);
                 server->registerClient(cl);
+
+                stringstream ss;
+                botCount++;
+                ss << "Bot" << botCount;
+                world->getPlayer(i).setName(ss.str());
+
                 break;
             }
             case PlayerType::REMOTE_PLAYER: {
@@ -120,6 +129,7 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
 void Lobby::closeLobby() {
     if(conductor){
         conductor->stop();
+        conductor.reset();
     }
 }
 
@@ -137,6 +147,21 @@ const function<void(Lobby &, int)> &Lobby::getOnPlayerConnected() const {
 
 void Lobby::setOnPlayerConnected(const function<void(Lobby &, int)> &onPlayerConnected) {
     Lobby::onPlayerConnected = onPlayerConnected;
+}
+
+string Lobby::getAddressInfo() {
+    auto s = ip::address_v4::loopback();
+    stringstream ss;
+    ss << s.to_string() << ':' << port;
+    return ss.str();
+}
+
+bool Lobby::isGameReady() {
+    return latch->getCount() == 0;
+}
+
+Lobby::~Lobby() {
+    closeLobby();
 }
 
 }

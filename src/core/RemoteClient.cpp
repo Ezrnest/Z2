@@ -104,6 +104,10 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
 
 void RemoteClient::dealWithSyncWorld(const shared_ptr<SyncWorld> &msg) {
     world = msg->getWorld();
+    auto view = gui.lock();
+    if(view){
+        view->onWorldLoaded(world);
+    }
 }
 
 void RemoteClient::onConnectionLost() {

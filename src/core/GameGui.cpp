@@ -7,11 +7,23 @@
 z2::GameGui::~GameGui() = default;
 
 
+
 void z2::GameGui::setControllerAndView(const shared_ptr<z2::Client> &c) {
     client = c;
     auto w = client->getWorld();
+    attachListener(w);
+}
+
+void z2::GameGui::onWorldLoaded(const shared_ptr<World> &w) {
+    attachListener(w);
+}
+
+void z2::GameGui::attachListener(const shared_ptr<World> &w) {
     auto listener = [this](const GameEventPtr& event){
         this->onEvent(event);
     };
-    w->addEventListener(listener);
+    if(w) {
+        w->addEventListener(listener);
+    }
 }
+

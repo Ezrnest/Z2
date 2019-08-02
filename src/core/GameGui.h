@@ -19,6 +19,8 @@ class GameGui {
 protected:
     shared_ptr<Client> client;
 
+    void attachListener(const shared_ptr<World>& w);
+
 public:
     virtual ~GameGui();
 
@@ -27,6 +29,8 @@ public:
      * client(as controller).
      */
     void setControllerAndView(const shared_ptr<Client> &c);
+
+    virtual void onWorldLoaded(const shared_ptr<World>& w);
 
     /**
      * Calls the game gui to update.

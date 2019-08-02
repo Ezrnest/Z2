@@ -26,7 +26,7 @@ using namespace std;
 using namespace std;
 using namespace z2;
 
-const int port = 12351;
+const int port = 23456;
 int main(){
     GameConfiguration::initAll();
     shared_ptr<RemoteClient> rc(new RemoteClient(2));
@@ -36,10 +36,10 @@ int main(){
 
     shared_ptr<CommandLineGameGui> gui(new CommandLineGameGui());
     rc->setView(gui);
-    gui->setControllerAndView(rc);
     if(!RemoteServerProxy::tryConnect(proxy,"127.0.0.1", port)){
         cout << "failure, return";
         return 0;
     }
+    gui->setControllerAndView(rc);
     gui->mainLoop();
 }

@@ -48,6 +48,9 @@ public:
      */
     pair<shared_ptr<Server>,shared_ptr<LocalClient>> buildLocalGame();
 
+    const vector<PlayerSetting> &getPlayers() const;
+
+    const shared_ptr<GameMap> &getMap() const;
 };
 
 }

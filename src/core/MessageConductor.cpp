@@ -19,7 +19,7 @@ const MessageProcessor &z2::MessageConductor::getProcessor() const {
 }
 
 void z2::MessageConductor::setProcessor(const MessageProcessor &processor) {
-    std::lock_guard<mutex> guard(processorMutex);
+//    std::lock_guard<mutex> guard(processorMutex);
     MessageConductor::processor = processor;
 }
 
@@ -45,10 +45,7 @@ void z2::MessageConductor::sendMessage(const MessagePtr &msg, int id) {
 }
 
 
-z2::MessageConductor::~MessageConductor() {
-    stopped = true;
-    service.stop();
-}
+z2::MessageConductor::~MessageConductor() = default;
 
 z2::MessageConductor::MessageConductor(MessageProcessor processor) : processor(std::move(processor)) {
 }
@@ -56,23 +53,26 @@ z2::MessageConductor::MessageConductor(MessageProcessor processor) : processor(s
 
 void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageConductor> &self) {
     // creates the socket
+    service.reset(new io_service);
     ip::tcp::endpoint ep(ip::tcp::v4(), port);
-    acceptor.reset(new ip::tcp::acceptor(service, ep));
+    acceptor.reset(new ip::tcp::acceptor(*service, ep));
 //    server = std::make_shared<ip::tcp::socket>(service); // the
     connections = vector<socket_ptr>(count);
     buffers = vector<asio::streambuf>(count);
     for (int i = 0; i < count; i++) {
-        auto sock = new ip::tcp::socket(service);
+        auto sock = new ip::tcp::socket(*service);
         connections[i] = sock;
-        acceptor->async_accept(*sock, [this, i](const error_code &error) {
-            handleAccept(error, i);
+        acceptor->async_accept(*sock, [&self, i](const error_code &error) {
+            if(self){
+                self->handleAccept(error, i);
+            }
             return;
         });
     }
 
     // start the thread
-    auto f = [this, self]() {
-        service.run();
+    auto f = [this, &self]() {
+        service->run();
         PLOG(plog::info) << "[Conductor] Ended!";
         stopped = true;
     };
@@ -82,7 +82,10 @@ void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageCo
 
 
 void MessageConductor::stop() {
-    service.stop();
+    acceptor->cancel();
+    service->stop();
+    acceptor.reset();
+    service.reset();
 }
 
 

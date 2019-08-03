@@ -1,4 +1,7 @@
 cmake-build-debug/
 bin/
 .idea/
-
+/qt/Z2/Z2.pro.user*
+/cmake-build-debug/
+/qt/build-Z2-Qt_5_9_0_mingw53_32_temporary-Debug/debug/
+/qt/build-Z2-Qt_5_9_0_mingw53_32_temporary-Debug/release/

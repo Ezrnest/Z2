@@ -13,11 +13,9 @@ protected:
     int health;
     int maxHealth;
 
-
 public:
 
     explicit EntityWithHealth(unsigned int objectId);
-
 
 
     ~EntityWithHealth() override;

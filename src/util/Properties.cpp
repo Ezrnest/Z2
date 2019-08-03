@@ -1,5 +1,6 @@
 /*
  * Created by liyicheng on 2019/7/5.
+ * Completed by chenzc18 on 2019/7/10.
  */
 
 #include "Properties.h"
@@ -49,7 +50,6 @@ void Properties::loadFrom(istream &input) {
             }
         }
     }
-    return;
 }
 
 void Properties::loadFromFile(const string &path) {
@@ -57,7 +57,6 @@ void Properties::loadFromFile(const string &path) {
     ifstream fin(file);
     this->loadFrom(fin);
     fin.close();
-    return;
 }
 
 const string &Properties::get(const string &key, const string &defaultValue) const {

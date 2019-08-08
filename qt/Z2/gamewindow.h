@@ -36,7 +36,6 @@ public:
 
     friend class GameWindow;
     friend class GameFrame;
-
 };
 
 class GameWindow : public QMainWindow
@@ -53,7 +52,11 @@ public:
     friend class QtGui;
     friend class GameFrame;
 
-
+    /**
+     * Refreshes the game gui;
+     * @brief refreshAll
+     */
+    void refreshAll();
     void refreshSelection();
 
     void refreshPlayerInfo();
@@ -66,13 +69,6 @@ private slots:
     void on_btnEndTurn_clicked();
 
     void on_btnBuy_clicked();
-public slots:
-    /**
-     * Refreshes the game gui;
-     * @brief refreshAll
-     */
-    void refreshAll();
-
 
 private:
     Ui::GameWindow *ui;
@@ -96,9 +92,6 @@ private:
 
 public:
     shared_ptr<QtGui> getGui();
-
-signals:
-    void askRefresh();
 };
 
 

@@ -8,6 +8,13 @@
 #include "core/messages/UnitBuy.h"
 #include "core/messages/EntityPerform.h"
 #include "event/StateEvent.h"
+
+
+void setupTable(QTableWidget* table){
+    table->horizontalHeader()->setStretchLastSection(true);
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+}
+
 GameWindow::GameWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::GameWindow)
@@ -21,7 +28,9 @@ GameWindow::GameWindow(QWidget *parent) :
     pal.setColor(QPalette::Background, Qt::white);
 
     ui->gameFrame->setWindow(this);
-    connect(this,SIGNAL(askRefresh()),this,SLOT(refreshAll()),Qt::AutoConnection);
+
+    setupTable(ui->tableBuy);
+    setupTable(ui->tableResearch);
 }
 
 GameWindow::~GameWindow()
@@ -79,14 +88,14 @@ void GameWindow::refreshSelection()
     auto world = getWorld();
     if(!world->isInside(pos)){
         ui->tabWidget->hide();
-        ui->frBuy->hide();
+        ui->tabWidget2->hide();
         return;
     }
     ui->tabWidget->show();
     auto en = world->getEntity(pos);
     if(!en){
         refreshTileInfo(false,*world,pos);
-        ui->frBuy->hide();
+        ui->tabWidget2->hide();
         return;
     }
     refreshTileInfo(true,*world,pos);
@@ -150,10 +159,10 @@ void GameWindow::refreshContruction(shared_ptr<Entity> &en, World &w, Point &p)
 {
     auto cons = dynamic_pointer_cast<ConstructionBase>(en);
     if(!cons){
-        ui->frBuy->hide();
+        ui->tabWidget2->hide();
         return;
     }
-    ui->frBuy->show();
+    ui->tabWidget2->show();
     auto client = getClient();
     vector<string> availables = w.getAvailableEntitiesFor(client->getPlayerId());
     int count = availables.size();
@@ -232,7 +241,7 @@ QtGui::QtGui(GameWindow *gw) : window(gw)
 
 void QtGui::update()
 {
-    emit window->askRefresh();
+    window->refreshAll();
 }
 
 void QtGui::onPlayerTurnStarted(int playerId)

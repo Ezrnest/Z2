@@ -36,7 +36,7 @@ private:
     QTransform trans;
 
     QPoint clickedPos;
-    bool dragging = false;
+    int dragState = 0;
     QPoint gameCordToViewCord(const z2::Point& p);
 
     z2::Point viewCordToGameCord(const QPoint& p);

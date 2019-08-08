@@ -138,6 +138,7 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
     case Qt::MouseButton::LeftButton:{
         auto pos = event->pos();
         clickedPos = pos;
+        dragState = 1;
         break;
     }
     case Qt::MouseButton::RightButton:{
@@ -153,10 +154,13 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
 
 void GameFrame::mouseMoveEvent(QMouseEvent *event)
 {
-    dragging = true;
+    if(dragState == 0){
+        return;
+    }
+    dragState = 2;
     auto pos = event->pos();
-    qreal dx = pos.x() - clickedPos.x();
-    qreal dy = pos.y() - clickedPos.y();
+    int dx = pos.x() - clickedPos.x();
+    int dy = pos.y() - clickedPos.y();
     clickedPos = pos;
     trans.translate(dx,dy);
     update();
@@ -166,9 +170,7 @@ void GameFrame::mouseReleaseEvent(QMouseEvent *event)
 {
     switch(event->button()){
     case Qt::MouseButton::LeftButton:{
-        if(dragging){
-            dragging = false;
-        }else{
+        if(dragState != 2){
             auto pos = event->pos();
             selPos = viewCordToGameCord(pos);
             cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
@@ -178,6 +180,7 @@ void GameFrame::mouseReleaseEvent(QMouseEvent *event)
         break;
     }
     }
+    dragState = 0;
 }
 
 void GameFrame::rightClickedOn(Point &p)

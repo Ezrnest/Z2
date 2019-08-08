@@ -2,8 +2,9 @@
  * Created by liyicheng on 2019/7/4.
  */
 
+#include <core/Serializable.h>
 #include "Player.h"
-
+using namespace z2;
 int z2::Player::getPlayerId() const {
     return playerId_;
 }
@@ -33,10 +34,12 @@ void z2::Player::saveDataTo(ostream &output) {
            << playerId_ << ' '
            << groupId_ << ' '
            << gold_ << ' ';
+    Serializable::serializeCollection(technologies, output);
 }
 
 void z2::Player::loadDataFrom(istream &input) {
     input >> name >> playerId_ >> groupId_ >> gold_;
+    Serializable::deserializeCollection<int,set<int>>(technologies, input);
 }
 
 bool z2::Player::requireGold(int amount) {
@@ -67,3 +70,38 @@ const string &z2::Player::getName() const {
 void z2::Player::setName(const string &name) {
     Player::name = name;
 }
+
+const set<int> &z2::Player::getTechnologies() const {
+    return technologies;
+}
+
+void z2::Player::addTech(int tech) {
+    technologies.insert(tech);
+}
+
+int Player::getTechPoints() const {
+    return techPoints;
+}
+
+void Player::setTechPoints(int techPoints) {
+    Player::techPoints = techPoints;
+}
+
+int Player::getMaxTechPoints() const {
+    return maxTechPoints;
+}
+
+void Player::setMaxTechPoints(int maxTechPoints) {
+    Player::maxTechPoints = maxTechPoints;
+}
+
+void Player::refreshTechPoints() {
+    techPoints = maxTechPoints;
+}
+
+void Player::consumeTechPoint() {
+    if(techPoints>0){
+        techPoints--;
+    }
+}
+

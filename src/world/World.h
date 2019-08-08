@@ -67,6 +67,8 @@ private:
 
     void initPlainDataFrom(const World &world);
 
+
+
     void resetVisibility(int playerId);
 
     void setEntityVisibility(int x, int y, const shared_ptr<Entity> &en, int playerId);
@@ -86,6 +88,8 @@ private:
 
     void removeEntity(const Point &pos);
 
+
+
     void onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity);
 //    void removeEntity(int entityId);
 
@@ -98,6 +102,9 @@ private:
     bool performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                             const shared_ptr<EntityWithHealth> &victim);
 
+    void onPlayerResearchedTech(int playerId, int techId);
+
+
     bool checkPlayerLostAllUnit(int playerId);
 
     /**
@@ -108,6 +115,7 @@ private:
     void onPlayerDefeated(int playerId);
 
     void onPlayerGroupWon(int groupId);
+
 
 public:
     World(int width_, int height_, int playerCount);
@@ -132,6 +140,11 @@ public:
     const vector<Player> &getPlayers() const;
 
     Player &getPlayer(int playerId);
+
+    /**
+     * Determines whether the given playerId is valid and the corresponding player is alive.
+     */
+    bool isValidLivingPlayer(int playerId);
 
     Player& getCurrentAsPlayer();
 
@@ -253,6 +266,8 @@ public:
      */
     vector<string> getAvailableEntitiesFor(int playerId);
 
+    vector<int> getResearchableTechFor(int playerId);
+
     bool canAttack(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
 
     bool canPerform(const Point& target, int playerId = Player::NO_PLAYER);
@@ -264,7 +279,6 @@ public:
     bool moveEntity(const Point &from, const Point &dest);
 
     void buyEntity(int playerId, const Point &pos, const string &entityName);
-
 
 
     void attackEntity(const Point &from, const Point &dest);
@@ -295,6 +309,10 @@ public:
      * Creates an entity at the given tile with no properties.
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
+
+    bool canResearchTechnology(int playerId, int techId);
+
+    bool researchTechnology(int playerId, int techId);
 
     void addEventListener(const EventListener &listener);
 

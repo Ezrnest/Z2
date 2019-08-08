@@ -18,17 +18,17 @@ file(GLOB Util src/util/*.cpp src/util/*.h)
 file(GLOB_RECURSE Lib lib lib/*.hpp lib/*.cc lib/*.h lib/*.ipp)
 #aux_source_directory(lib Lib)
 set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLine} ${Util} ${Lib})
-add_executable(z2
-        src/main.cpp ${Z2_Sources}
-        )
+#add_executable(z2
+#        src/main.cpp ${Z2_Sources}
+#        )
 #add_executable(Client
 #        src/ClientMain.cpp
 #        ${Z2_Sources}
 #        )
-add_executable(Server
-        src/ServerMain.cpp
-        ${Z2_Sources}
-        )
+#add_executable(Server
+#        src/ServerMain.cpp
+#        ${Z2_Sources}
+#        )
 add_library(Z2Core ${Z2_Sources})
 install(TARGETS Z2Core DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core)
 install(DIRECTORY src/ lib/ DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core/include

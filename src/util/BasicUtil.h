@@ -41,4 +41,6 @@ template <typename T> void requireNotNull(const shared_ptr<T>& ptr) {
 }
 
 
+
+
 #endif //HOMEWORK_BASICUTIL_H

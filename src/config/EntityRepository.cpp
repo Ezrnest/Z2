@@ -55,6 +55,7 @@ EntityInfo::EntityInfo(const string &identifier, const shared_ptr<EntityClassInf
                                                        properties(prop) {
     properties.set("name", identifier);
     properties.set("className", entityClassInfo->getClassName());
+    initEntityTypeInfo();
 }
 
 const shared_ptr<EntityClassInfo> &EntityInfo::getEntityClassInfo() const {
@@ -63,6 +64,37 @@ const shared_ptr<EntityClassInfo> &EntityInfo::getEntityClassInfo() const {
 
 Properties &EntityInfo::getProperties() {
     return properties;
+}
+
+void EntityInfo::initEntityTypeInfo() {
+    buyable = properties.getBool("buyable");
+    price = properties.getInt("price", 0);
+    requiredTech = properties.getIntSet("requiredTech");
+}
+
+int EntityInfo::getPrice() const {
+    return price;
+}
+
+bool EntityInfo::isBuyable() const {
+    return buyable;
+}
+
+const set<int> &EntityInfo::getRequiredTech() const {
+    return requiredTech;
+}
+
+bool EntityInfo::isBuyableByPlayer(const Player &p) const {
+    if(!isBuyable()){
+        return false;
+    }
+    auto& tech = p.getTechnologies();
+    for(int t : requiredTech){
+        if (tech.find(t) == tech.end()) { // no contains
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -198,6 +230,10 @@ void EntityRepository::registerFromProp(const string &name, const Properties &pr
     }
     EntityInfo info(name, (*it).second, properties);
     registerEntity(info);
+}
+
+const map<string,EntityInfo> &EntityRepository::getEntityMap() const {
+    return entities;
 }
 
 

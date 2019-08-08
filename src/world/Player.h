@@ -6,7 +6,7 @@
 #define Z2_PLAYER_H
 
 #include <iostream>
-
+#include <set>
 using namespace std;
 namespace z2 {
 
@@ -31,6 +31,14 @@ private:
 
     bool dead = false;
 
+    set<int> technologies;
+
+    /**
+     * The remaining number of technologies that this player can research this turn.
+     */
+    int techPoints = 0;
+
+    int maxTechPoints = 1;
 
 public:
     int getPlayerId() const;
@@ -45,6 +53,11 @@ public:
 
     void setGold(int gold);
 
+    /**
+     * Requires the amount of gold of this player. Returns `true` if the player has the
+     * required amount of gold, and the gold will be minused, otherwise `false` will be
+     * returned and no change will happen.
+     */
     bool requireGold(int amount);
 
     void addGold(int delta);
@@ -56,6 +69,25 @@ public:
     const string &getName() const;
 
     void setName(const string &name);
+
+    int getTechPoints() const;
+
+    void setTechPoints(int techPoints);
+
+    /**
+     *
+     */
+    void consumeTechPoint();
+
+    int getMaxTechPoints() const;
+
+    void setMaxTechPoints(int maxTechPoints);
+
+    void refreshTechPoints();
+
+    const set<int> &getTechnologies() const;
+
+    void addTech(int tech);
 
     /**
      * The player id indicating null player.

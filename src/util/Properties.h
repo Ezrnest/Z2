@@ -4,42 +4,61 @@
 
 #ifndef Z2_PROPERTIES_H
 #define Z2_PROPERTIES_H
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstring>
 #include <string>
 #include <map>
+#include <c++/set>
+
 using namespace std;
 
 namespace ancono {
-    bool isNumber(const string &);
+//bool isNumber(const string &);
 
-    class Properties {
-    public:
-        void loadFrom(istream &);
+int parseInt(const string& str, int defaultValue = 0);
 
-        void loadFromFile(const string &);
+int parseInt(const string &str, bool *ok = nullptr);
 
-        const string & get(const string &, const string &) const;
+double parseDouble(const string& str, double defaultValue = 0.0);
 
-        double getDouble(const string &, const double &) const;
+double parseDouble(const string &str, bool *ok = nullptr);
 
-        int getInt(const string &, const int &) const;
+bool parseBool(const string& str, bool defaultValue = false);
 
-        void set(const string &, const string &);
+bool parseBool(const string &str, bool *ok = nullptr);
 
-        void setDouble(const string &, const double &);
+class Properties {
+public:
+    void loadFrom(istream &);
 
-        void setInt(const string &, const int &);
+    void loadFromFile(const string &);
 
-        void saveTo(ostream &output) const;
+    const string &get(const string &, const string &) const;
 
-        void saveToFile(const string &) const;
+    double getDouble(const string &, const double &) const;
 
-    private:
-        map<string, string> m;
-    };
+    int getInt(const string &, const int &) const;
+
+    bool getBool(const string&, bool defaultValue = false) const;
+
+    set<int> getIntSet(const string &) const;
+
+    void set(const string &, const string &);
+
+    void setDouble(const string &, const double &);
+
+    void setInt(const string &, const int &);
+
+    void saveTo(ostream &output) const;
+
+    void saveToFile(const string &) const;
+
+private:
+    map<string, string> m;
+};
 
 }
 #endif //Z2_PROPERTIES_H

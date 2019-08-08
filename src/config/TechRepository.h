@@ -12,20 +12,20 @@
 namespace z2{
 class TechRepository : public RepositoryTemplate<TechRepository> {
 private:
-    map<int,Technology> technologies;
+    map<string,Technology> technologies;
 public:
 
     void addTech(const Technology& tech);
 
     void initFromFolder(const ancono::File &dir) override;
 
-    const map<int, Technology>& getTechnologies() const;
+    const map<string,Technology> &getTechnologies() const;
 
-    const Technology& getTechnology(int id) const;
+    const Technology& getTechnology(const string& id) const;
 
-    vector<int> getResearchableTech(const Player& player);
+    vector<string> getResearchableTech(const Player& player);
 
-    bool containsTech(int techId) const;
+    bool containsTech(const string& techId) const;
 
 };
 

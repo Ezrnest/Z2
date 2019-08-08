@@ -39,7 +39,7 @@ void z2::Player::saveDataTo(ostream &output) {
 
 void z2::Player::loadDataFrom(istream &input) {
     input >> name >> playerId_ >> groupId_ >> gold_;
-    Serializable::deserializeCollection<int,set<int>>(technologies, input);
+    Serializable::deserializeCollection<string,set<string>>(technologies, input);
 }
 
 bool z2::Player::requireGold(int amount) {
@@ -71,11 +71,8 @@ void z2::Player::setName(const string &name) {
     Player::name = name;
 }
 
-const set<int> &z2::Player::getTechnologies() const {
-    return technologies;
-}
 
-void z2::Player::addTech(int tech) {
+void z2::Player::addTech(const string& tech) {
     technologies.insert(tech);
 }
 
@@ -104,4 +101,9 @@ void Player::consumeTechPoint() {
         techPoints--;
     }
 }
+
+const set<string> &Player::getTechnologies() const {
+    return technologies;
+}
+
 

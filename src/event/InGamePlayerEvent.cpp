@@ -15,9 +15,10 @@ int z2::InGamePlayerEvent::getPlayerId() const {
     return playerId;
 }
 
-z2::TechResearchedEvent::TechResearchedEvent(int playerId, int techId)
+z2::TechResearchedEvent::TechResearchedEvent(int playerId, const string& techId)
         : InGamePlayerEvent(InGamePlayerEventType ::TECH_RESEARCHED, playerId), techId(techId) {}
 
-int z2::TechResearchedEvent::getTechId() const {
+
+const string &z2::TechResearchedEvent::getTechId() const {
     return techId;
 }

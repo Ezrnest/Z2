@@ -105,6 +105,23 @@ void Properties::saveToFile(const string &path) const {
     fout.close();
 }
 
+set<string> Properties::getStrSet(const string &key) const{
+    std::set<string> s;
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        return s;
+    }
+    const string &val = iter->second;
+    stringstream ss(val);
+    while (ss.good()) {
+        string t;
+        ss >> t;
+        s.insert(t);
+    }
+    return s;
+}
+
+
 set<int> Properties::getIntSet(const string &key) const {
     std::set<int> s;
     auto iter = m.find(key);
@@ -129,6 +146,7 @@ bool Properties::getBool(const string &key, bool defaultValue) const {
     const string &k = iter->second;
     return parseBool(k, defaultValue);
 }
+
 
 
 int parseInt(const string &str, int defaultValue) {

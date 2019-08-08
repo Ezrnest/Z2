@@ -46,6 +46,8 @@ public:
 
     set<int> getIntSet(const string &) const;
 
+    set<string> getStrSet(const string&)const;
+
     void set(const string &, const string &);
 
     void setDouble(const string &, const double &);

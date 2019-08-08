@@ -102,7 +102,7 @@ private:
     bool performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                             const shared_ptr<EntityWithHealth> &victim);
 
-    void onPlayerResearchedTech(int playerId, int techId);
+    void onPlayerResearchedTech(int playerId, const string& techId);
 
 
     bool checkPlayerLostAllUnit(int playerId);
@@ -266,7 +266,7 @@ public:
      */
     vector<string> getAvailableEntitiesFor(int playerId);
 
-    vector<int> getResearchableTechFor(int playerId);
+    vector<string> getResearchableTechFor(int playerId);
 
     bool canAttack(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
 
@@ -310,9 +310,9 @@ public:
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
 
-    bool canResearchTechnology(int playerId, int techId);
+    bool canResearchTechnology(int playerId, const string& techId);
 
-    bool researchTechnology(int playerId, int techId);
+    bool researchTechnology(int playerId, const string& techId);
 
     void addEventListener(const EventListener &listener);
 

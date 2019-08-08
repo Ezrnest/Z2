@@ -14,18 +14,19 @@ using namespace ancono;
 namespace z2 {
 class Technology {
 private:
-    int id;
-    set<int> requires;
+    string id;
+    set<string> requires;
     Properties prop;
     int price;
 public:
-    Technology(int id, set<int> requires, int price, Properties prop);
+
+    Technology(string id, set<string> requires, int price, Properties prop);
 
     explicit Technology(const Properties &prop);
 
-    int getId() const;
+    const string &getId() const;
 
-    const set<int> &getRequires() const;
+    const set<string> &getRequires() const;
 
     int getPrice() const;
 

@@ -67,9 +67,9 @@ Properties &EntityInfo::getProperties() {
 }
 
 void EntityInfo::initEntityTypeInfo() {
-    buyable = properties.getBool("buyable");
+    buyable = properties.getBool("buyable", true);
     price = properties.getInt("price", 0);
-    requiredTech = properties.getIntSet("requiredTech");
+    requiredTech = properties.getStrSet("requiredTech");
 }
 
 int EntityInfo::getPrice() const {
@@ -80,21 +80,22 @@ bool EntityInfo::isBuyable() const {
     return buyable;
 }
 
-const set<int> &EntityInfo::getRequiredTech() const {
-    return requiredTech;
-}
 
 bool EntityInfo::isBuyableByPlayer(const Player &p) const {
     if(!isBuyable()){
         return false;
     }
     auto& tech = p.getTechnologies();
-    for(int t : requiredTech){
+    for(auto& t : requiredTech){
         if (tech.find(t) == tech.end()) { // no contains
             return false;
         }
     }
     return true;
+}
+
+const set<string> &EntityInfo::getRequiredTech() const {
+    return requiredTech;
 }
 
 

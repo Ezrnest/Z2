@@ -7,17 +7,19 @@
 using namespace z2;
 void z2::TechRepository::initFromFolder(const ancono::File &dir) {
     if(!dir.exists()){
-        LOG_WARNING << "Unable to load entities from: " << dir.getPath();
+        LOG_WARNING << "Unable to load tech from: " << dir.getPath();
         return;
     }
     auto& repo = instance();
     auto entityFiles = dir.listSubfiles();
     for(File& f : entityFiles){
-        Properties p;
         ifstream in;
         f.inStream(in);
-        p.loadFrom(in);
-        repo.addTech(Technology(p));
+        while(!in.eof()){
+            Properties p;
+            p.loadFrom(in);
+            repo.addTech(Technology(p));
+        }
         in.close();
     }
 }

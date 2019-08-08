@@ -9,6 +9,14 @@
 #include "../../world/Point.h"
 
 namespace z2 {
+/**
+ * Describes the operation that a player performs one entity.
+ * Fields are listed below:
+ * <ul>
+ * <li><code>pos</code>: The position of the entity.
+ * </ul>
+ *
+ */
 class EntityPerform : public GameMessage{
 private:
     Point pos;

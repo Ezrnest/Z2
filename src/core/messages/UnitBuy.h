@@ -14,6 +14,15 @@ using namespace std;
 using namespace ancono;
 namespace z2 {
 
+/**
+ * Describes the operation of a player buying a unit at a ConstructionBase. Fields are listed below:
+ * <ul>
+ * <li><code>identifier</code>: The identifier (name) of the entity to buy.
+ * <li><code>playerId</code>: The id of the operating player.
+ * <li><code>pos</code>: The position of the building.
+ * </ul>
+ *
+ */
 class UnitBuy : public GameMessage {
 private:
     string identifier;

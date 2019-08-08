@@ -9,6 +9,7 @@
 #include "plog/Log.h"
 #include "plog/Appenders/ConsoleAppender.h"
 #include "MapRepository.h"
+#include "TechRepository.h"
 using namespace z2;
 
 void GameConfiguration::initRegistration() {
@@ -20,6 +21,8 @@ void GameConfiguration::initRegistration() {
 
     EntityRepository::initEntityClasses();
     EntityRepository::initFromFolder(resDir.subFile("entity"));
+
+    TechRepository::instance().initFromFolder(resDir.subFile("tech"));
 
     MapRepository::initFromFolder(resDir.subFile("map"));
 

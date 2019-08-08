@@ -9,7 +9,14 @@
 #include "../../world/Point.h"
 
 namespace z2 {
-
+/**
+ * Describes the operation that the player kills one unit, which usually belongs to the player.
+ * Fields are listed below:
+ * <ul>
+ * <li><code>pos</code>: The position of the entity.
+ * </ul>
+ *
+ */
 class EntityKill : public GameMessage{
 private:
     Point pos;

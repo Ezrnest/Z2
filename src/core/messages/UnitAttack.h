@@ -9,6 +9,15 @@
 #include "../../world/Point.h"
 
 namespace z2 {
+/**
+ * Describes the operation that a player attacks one unit with an unit.
+ * Fields are listed below:
+ * <ul>
+ * <li><code>from</code>: The position of the unit to launch the attack.
+ * <li><code>dest</code>: The position of the unit that will be attacked.
+ * </ul>
+ *
+ */
 class UnitAttack : public GameMessage {
 private:
     Point from;

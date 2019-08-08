@@ -7,6 +7,15 @@
 
 #include "GameMessage.h"
 namespace z2{
+/**
+ * Describes the operation that a player researches a technology..
+ * Fields are listed below:
+ * <ul>
+ * <li><code>playerId</code>: The id of the player.
+ * <li><code>techId</code>: The id of the technology that the player want to research.
+ * </ul>
+ *
+ */
 class TechResearch : public GameMessage {
 private:
     int techId = 0;

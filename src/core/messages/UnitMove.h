@@ -9,6 +9,15 @@
 #include "GameMessage.h"
 
 namespace z2 {
+/**
+ * Describes the operation that a player moves one unit.
+ * Fields are listed below:
+ * <ul>
+ * <li><code>from</code>: The original position of the unit.
+ * <li><code>dest</code>: The destination of the unit.
+ * </ul>
+ *
+ */
 class UnitMove : public GameMessage {
 private:
     Point from;

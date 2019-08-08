@@ -20,21 +20,25 @@ void Properties::loadFrom(istream &input) {
         if (tmp.empty()) {
             continue;
         }
-        if (tmp[0] != '#') {
-            int l = tmp.length();
-            bool valid = false;
-            for (int i = 0; i < l; i++) {
-                if (tmp[i] == '=') {
-                    pos = i;
-                    valid = true;
-                    break;
-                }
+        if (tmp[0] == '#') {
+            continue;
+        }
+        if (tmp[0] == '$') {
+            break;
+        }
+        int l = tmp.length();
+        bool valid = false;
+        for (int i = 0; i < l; i++) {
+            if (tmp[i] == '=') {
+                pos = i;
+                valid = true;
+                break;
             }
-            if (valid) {
-                string tmpKey = tmp.substr(0, pos);
-                string tmpValue = tmp.substr(pos + 1);
-                m[tmpKey] = tmpValue;
-            }
+        }
+        if (valid) {
+            string tmpKey = tmp.substr(0, pos);
+            string tmpValue = tmp.substr(pos + 1);
+            m[tmpKey] = tmpValue;
         }
     }
 }
@@ -118,7 +122,7 @@ set<int> Properties::getIntSet(const string &key) const {
     return s;
 }
 
-bool Properties::getBool(const string &key, bool defaultValue) const{
+bool Properties::getBool(const string &key, bool defaultValue) const {
     auto iter = m.find(key);
     if (iter == m.end()) {
         return defaultValue;

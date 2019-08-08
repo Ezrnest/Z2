@@ -14,6 +14,8 @@ enum class GameMessageType{
 
     //Game Message:
     UnitBuy,
+    ///class: TechResearch
+    TechResearch,
 
     //Entity Message:
     EntityPerform, EntityKill,

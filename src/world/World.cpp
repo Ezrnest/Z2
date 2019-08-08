@@ -5,6 +5,9 @@
 #include <cmath>
 #include <stack>
 #include <event/EntityEvent.h>
+#include <core/messages/TechResearch.h>
+#include <config/TechRepository.h>
+#include <event/InGamePlayerEvent.h>
 #include "event/GameEvent.h"
 #include "event/StateEvent.h"
 #include "World.h"
@@ -204,9 +207,14 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
             removeEntity(msg->getPos());
             break;
         }
+        case GameMessageType::TechResearch:{
+            const shared_ptr<TechResearch> msg = static_pointer_cast<TechResearch>(message);
+
+        }
     }
 }
 
+/* ------------------------------- Start of Game Operation -------------------------------------- */
 bool playerCanControl(int playerId, Entity& en){
     return playerId == Player::NO_PLAYER || en.getOwnerId() == playerId;
 }
@@ -429,6 +437,62 @@ void World::performEntity(const Point &target) {
     onEntityPerformed(target, entity);
 }
 
+bool World::canResearchTechnology(int playerId, int techId){
+    if(!isValidLivingPlayer(playerId)){
+        return false;
+    }
+    auto& repo = TechRepository::instance();
+    if (!repo.containsTech(techId)) {
+        return false;
+    }
+    Player &p = getPlayer(playerId);
+    const Technology &tech = repo.getTechnology(techId);
+    if(!tech.isResearchable(p)){
+        return false;
+    }
+    if (p.getGold()< tech.getPrice()) {
+        return false;
+    }
+    return p.getTechPoints() >= 1;
+}
+
+bool World::researchTechnology(int playerId, int techId) {
+//    if(!isValidLivingPlayer(playerId)){
+//        PLOG_WARNING << "Invalid playerId: " << playerId;
+//        return false;
+//    }
+
+//    if (!repo.containsTech(techId)) {
+//        PLOG_WARNING << "Invalid techId: " << techId;
+//        return false;
+//    }
+
+//    if(!tech.isResearchable(p)){
+//        PLOG_WARNING << "Player " << playerId << " can't research tech "<< techId;
+//        return false;
+//    }
+//    if (!p.requireGold(tech.getPrice())) {
+//        PLOG_WARNING << "No sufficient gold to research!";
+//        return false;
+//    }
+    if (!canResearchTechnology(playerId, techId)) {
+        PLOG_WARNING << "Player " << playerId << " can't research tech "<< techId;
+        return false;
+    }
+    auto &repo = TechRepository::instance();
+    Player &p = getPlayer(playerId);
+    const Technology &tech = repo.getTechnology(techId);
+
+    p.consumeTechPoint();
+    p.requireGold(tech.getPrice());
+
+    p.addTech(tech.getId());
+    onPlayerResearchedTech(playerId, techId);
+    return true;
+}
+
+/* ------------------------------- End of Game Operation -------------------------------------- */
+
 /* -------------------------------------- Start of on... ---------------------------------------------- */
 
 
@@ -478,11 +542,19 @@ void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
     dispatcher.publish(event);
 }
 
+void World::onPlayerResearchedTech(int playerId, int techId) {
+    PLOG_INFO << "[World] Player " << playerId << " reserached tech " << techId;
+    GameEventPtr event(new TechResearchedEvent(playerId, techId));
+    dispatcher.publish(event);
+}
+
+
 
 void World::onPlayerTurnStart() {
     PLOG(plog::info) << "Player turn started: " << currentPlayer;
     updateVisibility(currentPlayer);
     refreshMoves(currentPlayer);
+    getCurrentAsPlayer().refreshTechPoints();
     shared_ptr<GameEvent> event(new PlayerEvent(StateEventType::PlayerTurnStarted, currentPlayer));
     dispatcher.publish(event);
 }
@@ -511,6 +583,7 @@ void World::onPlayerGroupWon(int groupId) {
     shared_ptr<GameEvent> event(new GroupEvent(StateEventType::GroupWon,groupId));
     dispatcher.publish(event);
 }
+
 
 /* ------------------------------- End of on... -------------------------------------- */
 
@@ -542,6 +615,14 @@ void World::removeEntity(const Point &pos) {
 Player &World::getPlayer(int playerId) {
     return players[playerId];
 }
+
+bool World::isValidLivingPlayer(int playerId){
+    if (playerId < 0 || playerId >= playerCount) {
+        return false;
+    }
+    return !getPlayer(playerId).isDead();
+}
+
 Player &World::getCurrentAsPlayer() {
     return players[currentPlayer];
 }
@@ -827,7 +908,29 @@ void World::publishEvent(shared_ptr<GameEvent> &event) {
 }
 
 vector<string> World::getAvailableEntitiesFor(int playerId) {
-    return EntityRepository::instance().getAllLoadedEntityNames();
+    auto& repo = EntityRepository::instance();
+    Player &p = getPlayer(playerId);
+    vector<string> result;
+    for(auto& entry : repo.getEntityMap()){
+        auto& enInfo = entry.second;
+        if(enInfo.isBuyableByPlayer(p)){
+            result.push_back(enInfo.getIdentifier());
+        }
+    }
+    return result;
+}
+
+vector<int> World::getResearchableTechFor(int playerId) {
+    auto& repo = TechRepository::instance();
+    Player &p = getPlayer(playerId);
+    vector<int> result;
+    for(auto& entry : repo.getTechnologies()){
+        auto& enInfo = entry.second;
+        if(enInfo.isResearchable(p)){
+            result.push_back(enInfo.getId());
+        }
+    }
+    return result;
 }
 
 

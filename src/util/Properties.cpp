@@ -10,19 +10,6 @@
 #include <map>
 
 namespace ancono {
-bool isNumber(const string &key) {
-    stringstream ss(key);
-    double t = 0;
-    char p;
-    if (!(ss >> t)) {
-        return false;
-    }
-    if (ss >> p) {
-        return false;
-    } else {
-        return true;
-    }
-}
 
 void Properties::loadFrom(istream &input) {
     int pos = 0;
@@ -49,7 +36,6 @@ void Properties::loadFrom(istream &input) {
             }
         }
     }
-    return;
 }
 
 void Properties::loadFromFile(const string &path) {
@@ -57,7 +43,6 @@ void Properties::loadFromFile(const string &path) {
     ifstream fin(file);
     this->loadFrom(fin);
     fin.close();
-    return;
 }
 
 const string &Properties::get(const string &key, const string &defaultValue) const {
@@ -75,14 +60,7 @@ double Properties::getDouble(const string &key, const double &defaultValue) cons
         return defaultValue;
     }
     const string &k = iter->second;
-    if (!isNumber(k)) {
-        return defaultValue;
-    } else {
-        stringstream ss(k);
-        double a = 0.0;
-        ss >> a;
-        return a;
-    }
+    return parseDouble(k, defaultValue);
 }
 
 int Properties::getInt(const string &key, const int &defaultValue) const {
@@ -91,14 +69,7 @@ int Properties::getInt(const string &key, const int &defaultValue) const {
         return defaultValue;
     }
     const string &k = iter->second;
-    if (!isNumber(k)) {
-        return defaultValue;
-    } else {
-        stringstream ss(k);
-        int a = 0;
-        ss >> a;
-        return a;
-    }
+    return parseInt(k, defaultValue);
 }
 
 void Properties::set(const string &key, const string &value) {
@@ -106,15 +77,16 @@ void Properties::set(const string &key, const string &value) {
 }
 
 void Properties::setDouble(const string &key, const double &value) {
-    stringstream ss("");
+    stringstream ss;
     ss << value;
-    string v;
-    ss >> v;
-    m[key] = v;
+    m[key] = ss.str();
 }
 
 void Properties::setInt(const string &key, const int &value) {
-    setDouble(key, value); }
+    stringstream ss;
+    ss << value;
+    m[key] = ss.str();
+}
 
 void Properties::saveTo(ostream &output) const {
     for (const auto &iter : m) {
@@ -128,4 +100,135 @@ void Properties::saveToFile(const string &path) const {
     this->saveTo(fout);
     fout.close();
 }
+
+set<int> Properties::getIntSet(const string &key) const {
+    std::set<int> s;
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        return s;
+    }
+    const string &val = iter->second;
+    stringstream ss(val);
+    while (ss.good()) {
+        int t;
+        ss >> t;
+        s.insert(t);
+    }
+    return s;
+}
+
+bool Properties::getBool(const string &key, bool defaultValue) const{
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        return defaultValue;
+    }
+    const string &k = iter->second;
+    return parseBool(k, defaultValue);
+}
+
+
+int parseInt(const string &str, int defaultValue) {
+    if (str.empty()) {
+        return defaultValue;
+    }
+    stringstream ss(str);
+    int t;
+    ss >> t;
+    if (ss.eof()) {
+        return t;
+    } else {
+        return defaultValue;
+    }
+}
+
+int parseInt(const string &str, bool *ok) {
+    if (str.empty()) {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+        return 0;
+    }
+    stringstream ss(str);
+    int t;
+    ss >> t;
+    if (ss.eof()) {
+        if (ok != nullptr) {
+            *ok = true;
+        }
+        return t;
+    } else {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+        return 0;
+    }
+}
+
+
+double parseDouble(const string &str, double defaultValue) {
+    if (str.empty()) {
+        return false;
+    }
+    stringstream ss(str);
+    double t;
+    ss >> t;
+    if (ss.eof()) {
+        return t;
+    } else {
+        return defaultValue;
+    }
+}
+
+
+double parseDouble(const string &str, bool *ok) {
+    if (str.empty()) {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+        return 0;
+    }
+    stringstream ss(str);
+    double t;
+    ss >> t;
+    if (ss.eof()) {
+        if (ok != nullptr) {
+            *ok = true;
+        }
+        return t;
+    } else {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+        return 0;
+    }
+}
+
+bool parseBool(const string &str, bool defaultValue) {
+    if (str == "true") {
+        return true;
+    } else if (str == "false") {
+        return false;
+    }
+    return defaultValue;
+}
+
+bool parseBool(const string &str, bool *ok) {
+    if (str == "true") {
+        if (ok != nullptr) {
+            *ok = true;
+        }
+        return true;
+    } else if (str == "false") {
+        if (ok != nullptr) {
+            *ok = true;
+        }
+        return false;
+    }
+    if (ok != nullptr) {
+        *ok = false;
+    }
+    return false;
+}
+
+
 }

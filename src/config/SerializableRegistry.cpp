@@ -4,6 +4,7 @@
 
 #include <core/messages/SignalMessage.h>
 #include <core/messages/PlayerMessage.h>
+
 #include "SerializableRegistry.h"
 #include "world/World.h"
 #include "entity/Farmer.h"
@@ -16,6 +17,7 @@
 #include "core/messages/RegisterPlayer.h"
 #include "core/messages/EntityKill.h"
 #include "core/messages/SyncWorld.h"
+#include "core/messages/TechResearch.h"
 #include "plog/Log.h"
 using namespace z2;
 
@@ -72,6 +74,7 @@ void initMessageClass(SerializableRegistry &sr) {
     registerMessageClass<UnitAttack>(sr);
     registerMessageClass<UnitBuy>(sr);
     registerMessageClass<UnitMove>(sr);
+    registerMessageClass<TechResearch>(sr);
     //TODO add message classes
 }
 }
@@ -97,7 +100,7 @@ void SerializableRegistry::registerClass() {
 template<typename Clazz>
 Clazz *SerializableRegistry::deserializeT(istream &input) {
     static_assert(is_base_of<DataSerializable, Clazz>::value, "The class should be a subclass of Message!");
-    auto *msg = new Clazz();
-    msg->deserializeData(input);
-    return msg;
+    auto *s = new Clazz();
+    s->deserializeData(input);
+    return s;
 }

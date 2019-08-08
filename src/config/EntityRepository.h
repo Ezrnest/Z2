@@ -17,6 +17,7 @@
 using namespace std;
 
 namespace z2 {
+class Player;
 using CreatingFunction = function<Entity *(int, const Properties &)>;
 
 
@@ -46,8 +47,14 @@ public:
 class EntityInfo {
 private:
     const string identifier;
+    int price;
+    bool buyable;
+    set<int> requiredTech;
     const shared_ptr<EntityClassInfo> entityClassInfo;
     Properties properties;
+
+    void initEntityTypeInfo();
+
 public:
 
     EntityInfo(const string &identifier, const shared_ptr<EntityClassInfo> &entityClassInfo,
@@ -61,6 +68,14 @@ public:
     const Properties &getProperties() const;
 
     Properties &getProperties();
+
+    int getPrice() const;
+
+    bool isBuyable() const;
+
+    bool isBuyableByPlayer(const Player& p) const;
+
+    const set<int> &getRequiredTech() const;
 
 };
 
@@ -113,6 +128,8 @@ public:
     bool hasEntity(const string &entityName) const;
 
     vector<string> getAllLoadedEntityNames() const;
+
+    const map<string,EntityInfo> &getEntityMap() const;
 
     const map<string, shared_ptr<EntityClassInfo>> &getAllLoadedEntityClasses() const;
 

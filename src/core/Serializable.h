@@ -6,7 +6,8 @@
 #define Z2_SERIALIZABLE_H
 
 #include <ostream>
-
+#include <functional>
+#include <iostream>
 using namespace std;
 namespace z2 {
 /**
@@ -35,8 +36,49 @@ public:
      */
     virtual const string& getClassName() const = 0;
 
+public:
+    template<typename C>
+    static void serializeCollection(C coll, ostream &output);
 
+    template<typename T,typename C>
+    static C deserializeCollection(function<C(int)> provider, istream &input);
+
+    template<typename T,typename C>
+    static void deserializeCollection(C& coll, istream &input);
 };
+
+
+template<typename C>
+void z2::Serializable::serializeCollection(C coll, ostream &output) {
+    output << coll.size() << ' ';
+    for(auto& it : coll){
+        output << it << ' ';
+    }
+}
+
+template<typename T,typename C>
+C z2::Serializable::deserializeCollection(function<C(int)> provider, istream &input){
+    int size;
+    input >> size;
+    C coll = provider(size);
+    for (int i = 0; i < size; ++i) {
+        T t;
+        input >> t;
+        coll.insert(t);
+    }
+    return coll;
+}
+
+template<typename T, typename C>
+void z2::Serializable::deserializeCollection(C &coll, istream &input) {
+    int size;
+    input >> size;
+    for (int i = 0; i < size; ++i) {
+        T t;
+        input >> t;
+        coll.insert(t);
+    }
+}
 
 class DataSerializable : public Serializable{
 public:

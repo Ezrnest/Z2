@@ -18,14 +18,14 @@ namespace z2{
  */
 class TechResearch : public GameMessage {
 private:
-    int techId = 0;
+    string techId;
     int playerId = 0;
 public:
     TechResearch();
 
-    TechResearch(int techId, int playerId);
+    TechResearch(const string& techId, int playerId);
 
-    int getTechId() const;
+    const string& getTechId() const;
 
     int getPlayerId() const;
     const string &getClassName() const override;

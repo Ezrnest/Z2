@@ -4,10 +4,10 @@
 
 #include "TechResearch.h"
 #include <iostream>
-z2::TechResearch::TechResearch(int techId, int playerId) : GameMessage(GameMessageType::TechResearch), techId(techId),
+z2::TechResearch::TechResearch(const string& techId, int playerId) : GameMessage(GameMessageType::TechResearch), techId(techId),
                                                            playerId(playerId) {}
 
-int z2::TechResearch::getTechId() const {
+const string& z2::TechResearch::getTechId() const {
     return techId;
 }
 

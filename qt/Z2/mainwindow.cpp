@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
 //    ui->tableWidget->setC
-    connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::BlockingQueuedConnection);
 }
 
 MainWindow::~MainWindow()

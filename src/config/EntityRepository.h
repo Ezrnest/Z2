@@ -49,7 +49,7 @@ private:
     const string identifier;
     int price;
     bool buyable;
-    set<int> requiredTech;
+    set<string> requiredTech;
     const shared_ptr<EntityClassInfo> entityClassInfo;
     Properties properties;
 
@@ -75,8 +75,7 @@ public:
 
     bool isBuyableByPlayer(const Player& p) const;
 
-    const set<int> &getRequiredTech() const;
-
+    const set<string> &getRequiredTech() const;
 };
 
 /**

@@ -27,12 +27,13 @@ public:
 };
 class TechResearchedEvent : public InGamePlayerEvent{
 private:
-    int techId;
+    string techId;
 public:
-    TechResearchedEvent(int playerId, int techId);
+    TechResearchedEvent(int playerId, const string& techId);
 
-    int getTechId() const;
+    const string &getTechId() const;
 };
+
 
 
 }

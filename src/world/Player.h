@@ -31,7 +31,7 @@ private:
 
     bool dead = false;
 
-    set<int> technologies;
+    set<string> technologies;
 
     /**
      * The remaining number of technologies that this player can research this turn.
@@ -85,9 +85,9 @@ public:
 
     void refreshTechPoints();
 
-    const set<int> &getTechnologies() const;
+    const set<string> &getTechnologies() const;
 
-    void addTech(int tech);
+    void addTech(const string& tech);
 
     /**
      * The player id indicating null player.

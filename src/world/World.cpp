@@ -209,7 +209,7 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
         }
         case GameMessageType::TechResearch:{
             const shared_ptr<TechResearch> msg = static_pointer_cast<TechResearch>(message);
-
+            researchTechnology(msg->getPlayerId(), msg->getTechId());
         }
     }
 }
@@ -437,7 +437,7 @@ void World::performEntity(const Point &target) {
     onEntityPerformed(target, entity);
 }
 
-bool World::canResearchTechnology(int playerId, int techId){
+bool World::canResearchTechnology(int playerId, const string& techId){
     if(!isValidLivingPlayer(playerId)){
         return false;
     }
@@ -456,7 +456,7 @@ bool World::canResearchTechnology(int playerId, int techId){
     return p.getTechPoints() >= 1;
 }
 
-bool World::researchTechnology(int playerId, int techId) {
+bool World::researchTechnology(int playerId, const string& techId) {
 //    if(!isValidLivingPlayer(playerId)){
 //        PLOG_WARNING << "Invalid playerId: " << playerId;
 //        return false;
@@ -542,7 +542,7 @@ void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
     dispatcher.publish(event);
 }
 
-void World::onPlayerResearchedTech(int playerId, int techId) {
+void World::onPlayerResearchedTech(int playerId, const string& techId) {
     PLOG_INFO << "[World] Player " << playerId << " reserached tech " << techId;
     GameEventPtr event(new TechResearchedEvent(playerId, techId));
     dispatcher.publish(event);
@@ -920,10 +920,10 @@ vector<string> World::getAvailableEntitiesFor(int playerId) {
     return result;
 }
 
-vector<int> World::getResearchableTechFor(int playerId) {
+vector<string> World::getResearchableTechFor(int playerId) {
     auto& repo = TechRepository::instance();
     Player &p = getPlayer(playerId);
-    vector<int> result;
+    vector<string> result;
     for(auto& entry : repo.getTechnologies()){
         auto& enInfo = entry.second;
         if(enInfo.isResearchable(p)){

@@ -30,9 +30,12 @@ using namespace z2;
 
 shared_ptr<World> buildWorld() {
     shared_ptr<World> w(new World(5, 5, 3));
-    w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
-    w->createEntity(Point(1, 1), Farmer::className(), 0);
-    w->createEntity(Point(3, 3), Farmer::className(), 1);
+    w->getPlayer(0).setGroupId(0);
+    w->getPlayer(1).setDead(true);
+    w->getPlayer(2).setGroupId(2);
+//    w->createEntity(Point(2, 2), ConstructionBase::className(), 0);
+    w->createEntity(Point(1, 1), "Killer", 0);
+    w->createEntity(Point(3, 3), "Killer", 2);
     w->getTile(0, 3).setResource(Resource::MINE);
     return w;
 }

@@ -14,9 +14,15 @@
 #include "bot/BotClientPort.h"
 using namespace z2;
 
+
+void initAboutQT(){
+    z2::ImageRepository::instance().initFromFolder(z2::GameConfiguration::getResourceDir().subFile("image"));
+    qRegisterMetaType<shared_ptr<GameEvent>>("shared_ptr<GameEvent>");
+}
+
 void initAll(){
     z2::GameConfiguration::initAll();
-    z2::ImageRepository::instance().initFromFolder(z2::GameConfiguration::getResourceDir().subFile("image"));
+    initAboutQT();
 }
 
 shared_ptr<z2::World> getWorld(){

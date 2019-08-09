@@ -300,9 +300,7 @@ void GameFrame::rightClickedOn(Point &p)
         operated = true;
     }
     if(operated){
-        if(en){
-            selPos = en->getPos();
-        }
+        selPos = Point(-1,-1);
         win->refreshSelection();
 //        win->refreshAll();
     }

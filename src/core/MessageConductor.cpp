@@ -33,6 +33,7 @@ void z2::MessageConductor::sendMessage(const MessagePtr &msg, int id) {
         return;
     }
     auto sock = connections[id];
+
     if (!sock) {
         PLOG_WARNING << "[Conductor] Connection not available: " << id;
         return;
@@ -127,6 +128,8 @@ void MessageConductor::handleReceive(const error_code &error, size_t length, int
     if (error) {
         PLOG_WARNING << "[Conductor] Failed to receive, error = " << error.value() << ", message = "
                      << error.message();
+//        connections[id]->close();
+        connections[id].reset();
         failureProcessor(error, id);
         return;
     }

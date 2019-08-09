@@ -27,6 +27,7 @@ void m1(){
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
 //    w->createEntity(Point(1, 1), Farmer::className(), 0);
 //    w->createEntity(Point(0, 1), "Archer", 0);
+    w->createEntity(Point(1, 1), "Killer", 0);
     w->createEntity(Point(3, 3), Farmer::className(), 1);
     w->getTile(0, 3).setResource(Resource::MINE);
     w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);

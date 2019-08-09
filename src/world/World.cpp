@@ -892,12 +892,13 @@ void World::checkPlayerGroupWin() {
         if (p.isDead()) {
             continue;
         }
-        if (group == -1) {
+        if (group == Player::NO_GROUP) {
             group = p.getGroupId();
         } else if (group != p.getGroupId()) {
             return;
         }
     }
+
     onPlayerGroupWon(group);
 }
 

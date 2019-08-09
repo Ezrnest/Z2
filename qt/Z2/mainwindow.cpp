@@ -251,7 +251,11 @@ void MainWindow::startServerGame()
     auto server = onlineLobby->startGame(gw->getGui(),1000*60);
 //    cout << "Starting game 2!" << endl;
     gw->setServer(server);
+    gw->setLobby(onlineLobby);
+    onlineLobby.reset();
+    ui->stackedWidget->setCurrentIndex(0);
     gw->show();
+
 //    server->startGame();
 }
 

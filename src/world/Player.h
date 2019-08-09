@@ -31,14 +31,14 @@ private:
 
     bool dead = false;
 
-    set<string> technologies;
-
     /**
      * The remaining number of technologies that this player can research this turn.
      */
     int techPoints = 0;
 
     int maxTechPoints = 1;
+
+    set<string> technologies;
 
 public:
     int getPlayerId() const;

@@ -9,12 +9,15 @@
 #include "../core/messages/UnitAttack.h"
 #include "../core/messages/EntityPerform.h"
 #include <iostream>
+#include <event/StateEvent.h>
 #include "plog/Log.h"
 
 using namespace z2;
 
 void CommandLineGameGui::update() {
-    printWorld();
+    if(client->isGameRunning()){
+        printWorld();
+    }
 }
 
 void CommandLineGameGui::onPlayerTurnStarted(int playerId) {
@@ -68,7 +71,7 @@ void CommandLineGameGui::mainLoop() {
 }
 
 void CommandLineGameGui::doPlayerTurn() {
-    while (true) {
+    while (client->isGameRunning()) {
         printWorld();
         cout << "Please enter the command: Buy, Move, Attack,Perform, End" << endl;
         string cmd;
@@ -226,5 +229,10 @@ void CommandLineGameGui::onGameStopped() {
 }
 
 void CommandLineGameGui::onEvent(const shared_ptr<GameEvent> &event) {
+    shared_ptr<GroupEvent> ge = static_pointer_cast<GroupEvent>(event);
+    if(ge && ge->getSType() == StateEventType::GroupWon){
+        cout << "GROUP " << ge->getGroupId() << " WON !!!" << endl;
+        return;
+    }
     printWorld();
 }

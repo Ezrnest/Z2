@@ -23,7 +23,7 @@ GameWindow::GameWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     gui = shared_ptr<QtGui>(new QtGui(this));
-//    ui->frEntityInfo->
+    //    ui->frEntityInfo->
 
     QPalette pal = palette();
     // set black background
@@ -35,7 +35,7 @@ GameWindow::GameWindow(QWidget *parent) :
     setupTable(ui->tableResearch);
 
     connect(this,SIGNAL(notifyRefreshAll()),this,SLOT(refreshAll()),Qt::AutoConnection);
-    connect(this,SIGNAL(notifyGameWin()),this,SLOT(showGameWin()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
 
 }
@@ -60,6 +60,11 @@ void GameWindow::setServer(const shared_ptr<Server> &s)
     server =s;
 }
 
+void GameWindow::setLobby(const shared_ptr<Lobby> &lb)
+{
+    lobby = lb;
+}
+
 void GameWindow::refreshAll()
 {
     refreshSelection();
@@ -73,18 +78,27 @@ void GameWindow::showGameEnded()
     if(gameState == 1){
         return;
     }
-//    update();
+    //    update();
     QString title= "游戏结束";
     QString detail = "有玩家退出或者失去连接，游戏结束";
     QMessageBox::warning(this,title,detail);
     this->close();
 }
 
+void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
+{
+    auto we = dynamic_pointer_cast<GroupEvent>(event);
+    if(we && we->getSType() == StateEventType::GroupWon){
+        showGameWin(we);
+        return;
+    }
+}
+
 void GameWindow::showGameWin(const shared_ptr<GroupEvent> &event)
 {
     QString title= "游戏结束";
     QString context = "游戏结束，玩家组%1获胜";
-    QMessageBox::warning(this,title,context.arg(event->getGroupId()));
+    QMessageBox::information(this,title,context.arg(event->getGroupId()));
     this->close();
 }
 
@@ -336,10 +350,8 @@ void QtGui::onGameStopped()
 void QtGui::onEvent(const shared_ptr<GameEvent> &event)
 {
     update();
-    auto we = dynamic_pointer_cast<GroupEvent>(event);
-    if(we && we->getSType() == StateEventType::GroupWon){
-        emit window->notifyGameWin(we);
-    }
+    emit window->notifyGameEvent(event);
+
 }
 
 void GameWindow::on_btnPerform_clicked()

@@ -22,6 +22,7 @@ void z2::RemoteClient::acceptMessage(const shared_ptr<z2::Message> &command) {
         case GeneralMessageType::GameMessage: {
             world->dealWithMessage(static_pointer_cast<GameMessage>(command));
             gui.lock()->update();
+            break;
         }
         case GeneralMessageType::ChatMessage: {
             //TODO
@@ -59,7 +60,10 @@ void RemoteClient::setPlayerName(const string &playerName) {
 
 
 void z2::RemoteClient::sendMessageToServer(const z2::MessagePtr &message) {
-    serverProxy->sendMessageToServer(message);
+    if(serverProxy){
+        serverProxy->sendMessageToServer(message);
+    }
+
 }
 
 void z2::RemoteClient::setView(const shared_ptr<z2::GameGui> &gui) {
@@ -78,6 +82,7 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
         }
         case ControlMessageType::StartGame:{
             view->onGameStarted();
+//            world->
             break;
         }
         case ControlMessageType::EndGame:{

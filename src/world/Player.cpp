@@ -33,12 +33,15 @@ void z2::Player::saveDataTo(ostream &output) {
     output << name << ' '
            << playerId_ << ' '
            << groupId_ << ' '
-           << gold_ << ' ';
+           << gold_ << ' '
+           << dead << ' '
+           << techPoints << ' '
+           << maxTechPoints << ' ';
     Serializable::serializeCollection(technologies, output);
 }
 
 void z2::Player::loadDataFrom(istream &input) {
-    input >> name >> playerId_ >> groupId_ >> gold_;
+    input >> name >> playerId_ >> groupId_ >> gold_ >> dead >> techPoints >> maxTechPoints;
     Serializable::deserializeCollection<string,set<string>>(technologies, input);
 }
 

@@ -6,7 +6,7 @@
 #include <event/StateEvent.h>
 #include "world/World.h"
 #include "core/GameGui.h"
-
+#include "core/Lobby.h"
 namespace Ui {
 class GameWindow;
 }
@@ -50,6 +50,8 @@ public:
     void setClient(const shared_ptr<Client>& client);
     void setServer(const shared_ptr<Server>& server);
 
+    void setLobby(const shared_ptr<Lobby>& lobby);
+
     friend class QtGui;
     friend class GameFrame;
 
@@ -69,6 +71,8 @@ public slots:
 
     void showGameEnded();
 
+    void dealWithGameEvent(const shared_ptr<GameEvent> &event);
+
     void showGameWin(const shared_ptr<GroupEvent> &event);
 
 private slots:
@@ -85,12 +89,17 @@ private:
     shared_ptr<QtGui> gui;
     shared_ptr<Entity> selectedEntity;
     shared_ptr<Server> server;
+
+    shared_ptr<Lobby> lobby;
+
+
     QRect viewport;
     int gameState = 0;
 
     shared_ptr<World> getWorld();
 
     shared_ptr<Client> getClient();
+
 
     Point& getSelectedPos();
 
@@ -113,7 +122,7 @@ signals:
 
     void notifyGameEnded();
 
-    void notifyGameWin(const shared_ptr<GroupEvent> &event);
+    void notifyGameEvent(const shared_ptr<GameEvent> &event);
 };
 
 

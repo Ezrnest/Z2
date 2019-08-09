@@ -88,13 +88,13 @@ private:
 
     void onPlayerTurnFinish(const shared_ptr<Message> &message);
 
-    void onEndGame();
+//    void onEndGame();
 
     bool checkGameReady();
 
     void dealWithControlMessage(const shared_ptr<z2::ControlMessage> &message);
 
-    void attackListeners(const shared_ptr<World> &world);
+    void attachListeners(const shared_ptr<World> &world);
 public:
 
     virtual ~Server();
@@ -117,7 +117,7 @@ public:
      */
     void startGame();
 
-    void endGame(int winnerGroupId);
+    void localEndGame(int winnerGroupId);
 
     void exceptionalEndGame(const string& cause);
 

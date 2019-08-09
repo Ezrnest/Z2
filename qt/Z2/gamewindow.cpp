@@ -33,6 +33,11 @@ GameWindow::GameWindow(QWidget *parent) :
 
     setupTable(ui->tableBuy);
     setupTable(ui->tableResearch);
+
+    connect(this,SIGNAL(notifyRefreshAll()),this,SLOT(refreshAll()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameWin()),this,SLOT(showGameWin()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
+
 }
 
 GameWindow::~GameWindow()
@@ -62,6 +67,27 @@ void GameWindow::refreshAll()
     refreshTurnInfo();
     update();
 }
+
+void GameWindow::showGameEnded()
+{
+    if(gameState == 1){
+        return;
+    }
+//    update();
+    QString title= "游戏结束";
+    QString detail = "有玩家退出或者失去连接，游戏结束";
+    QMessageBox::warning(this,title,detail);
+    this->close();
+}
+
+void GameWindow::showGameWin(const shared_ptr<GroupEvent> &event)
+{
+    QString title= "游戏结束";
+    QString context = "游戏结束，玩家组%1获胜";
+    QMessageBox::warning(this,title,context.arg(event->getGroupId()));
+    this->close();
+}
+
 
 
 
@@ -284,7 +310,7 @@ QtGui::QtGui(GameWindow *gw) : window(gw)
 
 void QtGui::update()
 {
-    window->refreshAll();
+    emit window->notifyRefreshAll();
 }
 
 void QtGui::onPlayerTurnStarted(int playerId)
@@ -304,14 +330,7 @@ void QtGui::onPlayerWin(int playerId)
 
 void QtGui::onGameStopped()
 {
-    if(window->gameState == 1){
-        return;
-    }
-//    update();
-    QString title= "游戏结束";
-    QString detail = "有玩家退出或者失去连接，游戏结束";
-    QMessageBox::warning(window,title,detail);
-    window->close();
+    emit window->notifyGameEnded();
 }
 
 void QtGui::onEvent(const shared_ptr<GameEvent> &event)
@@ -319,10 +338,7 @@ void QtGui::onEvent(const shared_ptr<GameEvent> &event)
     update();
     auto we = dynamic_pointer_cast<GroupEvent>(event);
     if(we && we->getSType() == StateEventType::GroupWon){
-        QString title= "游戏结束";
-        QString context = "游戏结束，玩家组%1获胜";
-        QMessageBox::warning(window,title,context.arg(we->getGroupId()));
-        window->close();
+        emit window->notifyGameWin(we);
     }
 }
 

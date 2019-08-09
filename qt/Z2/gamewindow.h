@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <core/Server.h>
+#include <event/StateEvent.h>
 #include "world/World.h"
 #include "core/GameGui.h"
 
@@ -52,16 +53,23 @@ public:
     friend class QtGui;
     friend class GameFrame;
 
-    /**
-     * Refreshes the game gui;
-     * @brief refreshAll
-     */
-    void refreshAll();
+
     void refreshSelection();
 
     void refreshPlayerInfo();
 
     void refreshTurnInfo();
+
+public slots:
+    /**
+     * Refreshes the game gui;
+     * @brief refreshAll
+     */
+    void refreshAll();
+
+    void showGameEnded();
+
+    void showGameWin(const shared_ptr<GroupEvent> &event);
 
 private slots:
     void on_btnPerform_clicked();
@@ -99,6 +107,13 @@ private:
     void exitGame();
 public:
     shared_ptr<QtGui> getGui();
+
+signals:
+    void notifyRefreshAll();
+
+    void notifyGameEnded();
+
+    void notifyGameWin(const shared_ptr<GroupEvent> &event);
 };
 
 

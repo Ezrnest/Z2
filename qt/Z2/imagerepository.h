@@ -14,6 +14,7 @@ private:
     map<string,ImagePtr> imageMap;
 public:
 
+
     void addImage(const string& str, const ImagePtr& image);
 
     bool containsImage(const string& key);

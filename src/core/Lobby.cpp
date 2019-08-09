@@ -136,6 +136,7 @@ void Lobby::closeLobby() {
     if (conductor) {
         conductor->stop();
         conductor.reset();
+        PLOG_INFO << "[Lobby] All reset";
     }
 }
 
@@ -156,10 +157,14 @@ void Lobby::setOnPlayerConnected(const function<void(Lobby &, int)> &onPlayerCon
 }
 
 string Lobby::getAddressInfo() {
-    auto s = ip::address_v4::loopback();
-    stringstream ss;
-    ss << s.to_string() << ':' << port;
-    return ss.str();
+    if(conductor){
+        return conductor->getLocalAddressInfo();
+    }
+    return "127.0.0.1";
+//    auto s = ip::address_v4::from_string("localhost");
+//    stringstream ss;
+//    ss << s.to_string() << ':' << port;
+//    return ss.str();
 }
 
 bool Lobby::isGameReady() {

@@ -28,7 +28,7 @@ bool z2::MessageConductor::isStopped() const {
 }
 
 void z2::MessageConductor::sendMessage(const MessagePtr &msg, int id) {
-    if(stopped){
+    if (stopped) {
         PLOG_WARNING << "[Conductor] Conductor is stopped!";
         return;
     }
@@ -37,8 +37,8 @@ void z2::MessageConductor::sendMessage(const MessagePtr &msg, int id) {
         PLOG_WARNING << "[Conductor] Connection not available: " << id;
         return;
     }
-    asio::error_code err = MessageConductor::sendMessageToSocket(sock,msg);
-    if(err){
+    asio::error_code err = MessageConductor::sendMessageToSocket(sock, msg);
+    if (err) {
         PLOG_WARNING << "Failed to send message, error code = " << err.value();
         failureProcessor(err, id);
     }
@@ -61,9 +61,9 @@ void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageCo
     buffers = vector<asio::streambuf>(count);
     for (int i = 0; i < count; i++) {
         auto sock = new ip::tcp::socket(*service);
-        connections[i] = sock;
+        connections[i].reset(sock);
         acceptor->async_accept(*sock, [&self, i](const error_code &error) {
-            if(self){
+            if (self) {
                 self->handleAccept(error, i);
             }
             return;
@@ -77,39 +77,56 @@ void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageCo
         stopped = true;
     };
     workingThread = std::thread(f);
-    workingThread.detach();
+//    workingThread.detach();
 }
 
 
 void MessageConductor::stop() {
-    acceptor->cancel();
-    service->stop();
+    for (auto &conn : connections) {
+        if (conn) {
+            conn->close();
+            conn.reset();
+        }
+    }
+    PLOG_INFO << "[MessageConductor] Connections reset";
+    if (acceptor) {
+        acceptor->close();
+        PLOG_INFO << "[MessageConductor] Acceptor cancelled";
+    }
+    if (service) {
+        service->stop();
+        if(workingThread.joinable()){
+            workingThread.join();
+        }else{
+            PLOG_ERROR << "[MessageConductor] Working thread is not joinable!: ";
+        }
+
+        PLOG_INFO << "[MessageConductor] Service stopped: " << service->stopped();
+    }
+
     acceptor.reset();
     service.reset();
 }
 
 
-
-
-
 void MessageConductor::handleAccept(const error_code &error, int id) {
     if (error) {
+        failureProcessor(error, id);
         PLOG_WARNING << "[Conductor] Failed to connect, error code = " << error.value() << ", message = "
                      << error.message();
-        failureProcessor(error, id);
         return;
     }
     PLOG_INFO << "[Conductor] Accepted id = " << id;
     socket_ptr sock = connections[id];
     async_read_until(*sock, buffers[id], '\n', [this, id](const error_code &error, size_t length) {
         handleReceive(error, length, id);
-        return;
     });
 }
 
 void MessageConductor::handleReceive(const error_code &error, size_t length, int id) {
     if (error) {
-        PLOG_WARNING << "[Conductor] Failed to receive, error = " << error.value();
+        PLOG_WARNING << "[Conductor] Failed to receive, error = " << error.value() << ", message = "
+                     << error.message();
         failureProcessor(error, id);
         return;
     }
@@ -130,24 +147,49 @@ void MessageConductor::handleReceive(const error_code &error, size_t length, int
     });
 }
 
-asio::error_code MessageConductor::sendMessageToSocket(socket_ptr socket, const MessagePtr& message) {
+asio::error_code MessageConductor::sendMessageToSocket(socket_ptr socket, const MessagePtr &message) {
     std::stringstream ss;
     message->serializeTo(ss);
     ss << '\n';
     asio::error_code err;
-    socket->write_some(buffer(ss.str()),err);
+    socket->write_some(buffer(ss.str()), err);
     return err;
 
 }
 
-MessagePtr MessageConductor::readMessageFromSocket(asio::streambuf& buffer) {
+MessagePtr MessageConductor::readMessageFromSocket(asio::streambuf &buffer) {
     std::istream input(&buffer);
     MessagePtr msg(dynamic_cast<Message *>(SerializableRegistry::instance().deserialize(input)));
     string s;
-    std::getline(input,s);
+    std::getline(input, s);
     return msg;
 }
 
 void MessageConductor::setFailureProcessor(const FailureProcessor &failureProcessor) {
     MessageConductor::failureProcessor = failureProcessor;
+}
+
+string MessageConductor::getLocalAddressInfo() {
+//    if(connections.empty()){
+//        return "127.0.0.1";
+//    }else{
+//        auto& conn = connections[0];
+//        try{
+//            return conn->local_endpoint().address().to_string();
+//        }catch(...){
+//            return "127.0.0.1";
+//        }
+//    }
+    ip::tcp::resolver resolver(*service);
+    ip::tcp::resolver::query query(asio::ip::host_name(), "");
+    ip::tcp::resolver::iterator iter = resolver.resolve(query);
+    ip::tcp::resolver::iterator end; // End marker.
+    if(iter != end){
+        ip::tcp::endpoint ep = *iter++;
+        return ep.address().to_string();
+    }
+    return "127.0.0.1";
+//    while (iter != end) {
+//
+//    }
 }

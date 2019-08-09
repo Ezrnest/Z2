@@ -221,8 +221,7 @@ void MainWindow::startOnlineGameClient(QString address,int id)
     rc->setView(gw->getGui());
     gw->setClient(rc);
 
-    if(!RemoteServerProxy::tryConnect(proxy,"127.0.0.1", port)){
-        cout << "failure, return";
+    if(!RemoteServerProxy::tryConnect(proxy,add, port)){
         QString title= "连接失败";
         QString context = "连接失败";
         QMessageBox::warning(this,title,context);
@@ -238,7 +237,9 @@ void MainWindow::on_btnCancel_clicked()
 {
     if(onlineLobby){
         onlineLobby->closeLobby();
+        cout << "Closed" << endl;
         onlineLobby.reset();
+        cout << "Reseted" << endl;
     }
     ui->stackedWidget->setCurrentIndex(0);
 }
@@ -246,9 +247,9 @@ void MainWindow::on_btnCancel_clicked()
 void MainWindow::startServerGame()
 {
     GameWindow* gw = new GameWindow(this);
-    cout << "Starting game!" << endl;
+//    cout << "Starting game!" << endl;
     auto server = onlineLobby->startGame(gw->getGui(),1000*60);
-    cout << "Starting game 2!" << endl;
+//    cout << "Starting game 2!" << endl;
     gw->setServer(server);
     gw->show();
 //    server->startGame();
@@ -260,3 +261,13 @@ void MainWindow::on_pushButton_clicked()
     startOnlineGameClient(ui->textInputAddress->text(),strId.toInt());
 }
 
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}

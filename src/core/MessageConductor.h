@@ -18,7 +18,7 @@ using namespace std;
 using namespace asio;
 
 namespace z2 {
-typedef ip::tcp::socket *socket_ptr;
+typedef shared_ptr<ip::tcp::socket> socket_ptr;
 
 using MessageProcessor = function<void(const MessagePtr &)>;
 using FailureProcessor = function<void(asio::error_code, int)>;
@@ -67,9 +67,14 @@ public:
 
     virtual ~MessageConductor();
 
+    string getLocalAddressInfo();
+
     static asio::error_code sendMessageToSocket(socket_ptr socket, const MessagePtr &message);
 
+
     static MessagePtr readMessageFromSocket(asio::streambuf &buffer);
+
+
 };
 
 }

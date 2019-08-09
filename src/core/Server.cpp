@@ -61,12 +61,17 @@ void z2::Server::startGame() {
 }
 
 void Server::sendMessage(const shared_ptr<Message> &message, int clientId) {
-    clients[clientId]->sendMessage(message);
+    auto& c = clients[clientId];
+    if(c){
+        c->sendMessage(message);
+    }
 }
 
 void Server::broadcastMessage(const shared_ptr<Message> &message) {
     for (auto &c : clients) {
-        c->sendMessage(message);
+        if(c){
+            c->sendMessage(message);
+        }
     }
 }
 

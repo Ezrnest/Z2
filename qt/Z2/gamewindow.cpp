@@ -261,6 +261,10 @@ void GameWindow::refreshTileInfo(bool entityInfo, World& w, Point& p)
 
 void GameWindow::exitGame()
 {
+    if(gameState == 1){
+        return;
+    }
+    cout << "Game Exited!" << endl;
     gameState = 1;
     MessagePtr msg(new ControlMessage(ControlMessageType::EndGame));
     getClient()->sendMessageToServer(msg);

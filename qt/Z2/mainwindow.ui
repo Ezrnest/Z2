@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -243,9 +243,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>510</y>
-        <width>80</width>
-        <height>20</height>
+        <y>490</y>
+        <width>101</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -324,10 +324,10 @@
      <widget class="QPushButton" name="btnCancel">
       <property name="geometry">
        <rect>
-        <x>610</x>
-        <y>460</y>
-        <width>80</width>
-        <height>20</height>
+        <x>680</x>
+        <y>480</y>
+        <width>101</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="text">
@@ -412,6 +412,19 @@
       </property>
       <property name="text">
        <string>玩家id</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>490</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>返回</string>
       </property>
      </widget>
     </widget>

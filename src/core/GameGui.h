@@ -43,6 +43,9 @@ public:
 
     virtual void onPlayerWin(int playerId) = 0;
 
+    /**
+     * Called when the game is stopped.
+     */
     virtual void onGameStopped() = 0;
 
     virtual void onEvent(const shared_ptr<GameEvent> &event) = 0;

@@ -36,7 +36,7 @@ int getRemoteClientCount(const vector<PlayerType> &v) {
 void Lobby::openLobby(int port) {
     int requiredCount = getRemoteClientCount(players);
     latch.reset(new CountDownLatch(requiredCount));
-    function<void(const MessagePtr&)> listener = [this](const MessagePtr &msg) {
+    function<void(const MessagePtr &)> listener = [this](const MessagePtr &msg) {
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
         if (!rp) {
             return;
@@ -48,7 +48,7 @@ void Lobby::openLobby(int port) {
         }
 
         const string &name = rp->getPlayerName();
-        RemoteClientProxy *cp = new RemoteClientProxy(conductor, connectionCount++);
+        auto *cp = new RemoteClientProxy(conductor, connectionCount++);
         cp->sendMessage(make_shared<SignalMessage>(SignalMessage::GOOD));
         pair<shared_ptr<ClientProxy>, string> pair(shared_ptr<ClientProxy>(cp), name);
         clients[id] = pair;
@@ -68,7 +68,6 @@ Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> worl
 }
 
 
-
 shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
     if (!waitRe) {
@@ -77,7 +76,7 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     }
     auto server = make_shared<Server>();
     server->setWorld(world);
-    int botCount  = 0;
+    int botCount = 0;
     for (int i = 0; i < players.size(); i++) {
         switch (players[i]) {
             case PlayerType::LOCAL_PLAYER: {
@@ -112,22 +111,29 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
 
     }
     weak_ptr<Server> ws = server;
-    function<void(const MessagePtr&)> listener = [ws](const MessagePtr &msg) {
+    function<void(const MessagePtr &)> listener = [ws](const MessagePtr &msg) {
         if (!msg) {
             PLOG_WARNING << "[Lobby] Failed to accept message!";
             return;
         }
         PLOG(plog::info) << "[Lobby] Received message: " << msg->getClassName();
-        ws.lock()->acceptMessage(msg);
-        return;
+        if (!ws.expired()) {
+            ws.lock()->acceptMessage(msg);
+        }
     };
     conductor->setProcessor(listener);
+    FailureProcessor fp = [ws](asio::error_code ec, int) {
+        if (!ws.expired()) {
+            ws.lock()->exceptionalEndGame(ec.message());
+        }
+    };
+    conductor->setFailureProcessor(fp);
     server->startGame();
     return server;
 }
 
 void Lobby::closeLobby() {
-    if(conductor){
+    if (conductor) {
         conductor->stop();
         conductor.reset();
     }

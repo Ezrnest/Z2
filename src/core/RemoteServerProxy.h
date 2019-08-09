@@ -27,7 +27,7 @@ private:
 
     asio::io_service service;
 
-    SocketPtr socket;
+    SocketPtr socket = nullptr;
     
     asio::streambuf buf;
 

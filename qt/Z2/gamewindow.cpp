@@ -11,7 +11,7 @@
 #include "core/messages/EntityPerform.h"
 #include "event/StateEvent.h"
 #include "world/Technology.h"
-
+#include "core/messages/ControlMessage.h"
 void setupTable(QTableWidget* table){
     table->horizontalHeader()->setStretchLastSection(true);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -78,6 +78,11 @@ shared_ptr<Client> GameWindow::getClient()
 Point &GameWindow::getSelectedPos()
 {
     return ui->gameFrame->selPos;
+}
+
+void GameWindow::closeEvent(QCloseEvent *event)
+{
+    exitGame();
 }
 
 
@@ -254,6 +259,14 @@ void GameWindow::refreshTileInfo(bool entityInfo, World& w, Point& p)
     }
 }
 
+void GameWindow::exitGame()
+{
+    gameState = 1;
+    MessagePtr msg(new ControlMessage(ControlMessageType::EndGame));
+    getClient()->sendMessageToServer(msg);
+    deleteLater();
+}
+
 shared_ptr<QtGui> GameWindow::getGui()
 {
     return this->gui;
@@ -287,7 +300,14 @@ void QtGui::onPlayerWin(int playerId)
 
 void QtGui::onGameStopped()
 {
-    update();
+    if(window->gameState == 1){
+        return;
+    }
+//    update();
+    QString title= "游戏结束";
+    QString detail = "有玩家退出或者失去连接，游戏结束";
+    QMessageBox::warning(window,title,detail);
+    window->close();
 }
 
 void QtGui::onEvent(const shared_ptr<GameEvent> &event)

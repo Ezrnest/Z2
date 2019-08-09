@@ -49,7 +49,9 @@ inline MessagePtr readMessageFromBuf(asio::streambuf &buf) {
 void RemoteServerProxy::handleReceive(const asio::error_code &err, size_t length) {
     if (err) {
         PLOG_WARNING << "[RemoteServerProxy] Failed to receive!";
-        client.lock()->onConnectionLost();
+        if(!client.expired()){
+            client.lock()->onConnectionLost();
+        }
         return;
     }
     MessagePtr msg = readMessageFromBuf(buf);
@@ -58,12 +60,12 @@ void RemoteServerProxy::handleReceive(const asio::error_code &err, size_t length
         return;
     }
     PLOG_INFO << "[RemoteServerProxy] Receiving message: " << msg->getClassName();
-    client.lock()->acceptMessage(msg);
-
-    async_read_until(*socket, buf, '\n', [this](const error_code &error, size_t length) {
-        handleReceive(error, length);
-        return;
-    });
+    if(!client.expired()){
+        client.lock()->acceptMessage(msg);
+        async_read_until(*socket, buf, '\n', [this](const error_code &error, size_t length) {
+            handleReceive(error, length);
+       });
+    }
 }
 
 bool RemoteServerProxy::waitForGoodMessage() {

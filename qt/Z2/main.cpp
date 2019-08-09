@@ -39,14 +39,14 @@ shared_ptr<z2::World> getWorld(){
 void buildTestGame(shared_ptr<Server>& server, shared_ptr<LocalClient>& client){
     auto w= getWorld();
     server.reset(new Server());
-        server->setWorld(w);
-        shared_ptr<LocalClient> local(new LocalClient());
-        local->setRealServer(server);
-        server->registerClient(local);
+    server->setWorld(w);
+    shared_ptr<LocalClient> local(new LocalClient());
+    local->setRealServer(server);
+    server->registerClient(local);
     client = local;
-        shared_ptr<BotClientPort> bot(new BotClientPort());
-        bot->setServer(server);
-        server->registerClient(bot);
+    shared_ptr<BotClientPort> bot(new BotClientPort());
+    bot->setServer(server);
+    server->registerClient(bot);
 
 //    w->resetVisibility(0);
 }
@@ -76,6 +76,6 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    return runGameWindow(a);
+    return runMainMenu(a);
 
 }

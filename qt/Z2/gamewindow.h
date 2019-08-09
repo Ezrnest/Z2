@@ -78,6 +78,7 @@ private:
     shared_ptr<Entity> selectedEntity;
     shared_ptr<Server> server;
     QRect viewport;
+    int gameState = 0;
 
     shared_ptr<World> getWorld();
 
@@ -85,6 +86,7 @@ private:
 
     Point& getSelectedPos();
 
+    void closeEvent(QCloseEvent* event) override;
 
     void refreshContruction(shared_ptr<Entity>& en, World& w, Point& p);
 
@@ -94,6 +96,7 @@ private:
 
     void refreshTileInfo(bool entityInfo,World& w,Point& pos);
 
+    void exitGame();
 public:
     shared_ptr<QtGui> getGui();
 };

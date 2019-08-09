@@ -80,7 +80,10 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
             view->onGameStarted();
             break;
         }
-        case ControlMessageType::EndGame:break;
+        case ControlMessageType::EndGame:{
+            view->onGameStopped();
+            break;
+        }
         case ControlMessageType::PlayerTurnStart: {
             auto msg = static_pointer_cast<PlayerMessage>(message);
             world->onPlayerTurnStart(msg->getPlayerId());
@@ -99,6 +102,8 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
             view->onPlayerWin(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
             break;
         }
+        case ControlMessageType::Signal:
+            break;
     }
 }
 
@@ -112,6 +117,9 @@ void RemoteClient::dealWithSyncWorld(const shared_ptr<SyncWorld> &msg) {
 
 void RemoteClient::onConnectionLost() {
     serverProxy.reset();
+    if(!gui.expired()){
+        gui.lock()->onGameStopped();
+    }
 }
 
 bool RemoteClient::isGameRunning() {

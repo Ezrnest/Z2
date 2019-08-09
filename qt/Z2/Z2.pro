@@ -31,6 +31,7 @@ HEADERS += *.h \
 
 FORMS += *.ui
 
+RC_ICONS =z2.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -27,7 +27,7 @@ private:
     /**
      * The number of gold that this player has.
      */
-    int gold_ = 50;
+    int gold_ = 100;
 
     bool dead = false;
 

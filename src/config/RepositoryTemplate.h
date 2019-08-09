@@ -21,6 +21,7 @@ public:
 
     RepositoryTemplate &operator=(RepositoryTemplate &&entityRepository) noexcept = delete;
 
+    virtual ~RepositoryTemplate();
 
     virtual void initFromFolder(const ancono::File& dir) = 0;
 public:
@@ -32,6 +33,9 @@ Clazz &RepositoryTemplate<Clazz>::instance() {
     static Clazz repo;
     return repo;
 }
+
+template<typename Clazz>
+RepositoryTemplate<Clazz>::~RepositoryTemplate() = default;
 
 template<typename Clazz>
 RepositoryTemplate<Clazz>::RepositoryTemplate() = default;

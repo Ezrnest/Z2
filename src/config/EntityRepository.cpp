@@ -98,6 +98,14 @@ const set<string> &EntityInfo::getRequiredTech() const {
     return requiredTech;
 }
 
+const string &EntityInfo::getDisplayName() const {
+    return properties.get("displayName", identifier);
+}
+
+const string &EntityInfo::getImageName() const{
+    return properties.get("displayImage","None");
+}
+
 
 EntityRepository &EntityRepository::instance() {
     static EntityRepository repository;

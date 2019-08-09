@@ -9,6 +9,8 @@ namespace z2 {
 class Point;
 
 class World;
+
+class EntityInfo;
 }
 
 #include <string>
@@ -143,6 +145,8 @@ public:
      * After this method, the `remainingMoves` of this entity will be set to zero.
      */
     bool requireRestMoves();
+
+    const EntityInfo& getEntityInfo();
 };
 
 

@@ -70,6 +70,8 @@ private slots:
 
     void on_btnBuy_clicked();
 
+    void on_btnResearch_clicked();
+
 private:
     Ui::GameWindow *ui;
     shared_ptr<QtGui> gui;
@@ -85,6 +87,8 @@ private:
 
 
     void refreshContruction(shared_ptr<Entity>& en, World& w, Point& p);
+
+    void refreshTechnology(World& w);
 
     void refreshPerformAbility(shared_ptr<Entity>& en, World& w, Point& p);
 

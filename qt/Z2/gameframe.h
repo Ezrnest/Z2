@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <world/World.h>
 #include "world/Point.h"
+#include "imagerepository.h"
 namespace Ui {
 class GameFrame;
 }
@@ -30,6 +31,8 @@ protected:
 
     void wheelEvent(QWheelEvent* event) override;
 private:
+    z2::ImageRepository& repo = z2::ImageRepository::instance();
+
     Ui::GameFrame *ui;
     GameWindow* win;
     z2::Point selPos;
@@ -42,6 +45,8 @@ private:
     z2::Point viewCordToGameCord(const QPoint& p);
 
 
+    void paintTile(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t, z2::Player& p);
+
     void paintTiles(QPainter &painter, const shared_ptr<z2::World> &world);
 
     void paintHighlightedTile(QPainter& painter, const shared_ptr<z2::World> &world );
@@ -49,6 +54,12 @@ private:
     void rightClickedOn(z2::Point& p);
 
     void zoom(bool in);
+    void paintTerrainTextureLost(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
+    void paintTerrain(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
+
+    void paintResource(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
+
+    void paintEntity(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t, bool onlyConstruction);
 };
 
 #endif // GAMEFRAME_H

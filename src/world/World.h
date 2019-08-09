@@ -18,7 +18,8 @@
 #include "event/EventDispatcher.h"
 namespace z2 {
 class CommandLineGameGui;
-
+class EntityInfo;
+class Technology;
 /**
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
@@ -129,6 +130,12 @@ public:
     World &operator=(World &&world) noexcept;
 
     ~World();
+
+    /**
+     * Calls this world to configure itself. This method should be called when the world is
+     * modified directly, such as through `getTile(...).setEntity(...)`
+     */
+    void configure();
 
     const string &getClassName()const  override;
 
@@ -264,9 +271,9 @@ public:
     /**
      * Gets the entities that the player can choose to buy, not considering the price.
      */
-    vector<string> getAvailableEntitiesFor(int playerId);
+    vector<const EntityInfo*> getAvailableEntitiesFor(int playerId);
 
-    vector<string> getResearchableTechFor(int playerId);
+    vector<const Technology*> getResearchableTechFor(int playerId);
 
     bool canAttack(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
 

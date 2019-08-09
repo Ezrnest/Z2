@@ -5,10 +5,12 @@
 #include "entity/Farmer.h"
 #include <entity/ConstructionBase.h>
 #include "config/EntityRepository.h"
+#include "config/TechRepository.h"
 #include "core/messages/UnitBuy.h"
+#include "core/messages/TechResearch.h"
 #include "core/messages/EntityPerform.h"
 #include "event/StateEvent.h"
-
+#include "world/Technology.h"
 
 void setupTable(QTableWidget* table){
     table->horizontalHeader()->setStretchLastSection(true);
@@ -99,7 +101,11 @@ void GameWindow::refreshSelection()
         return;
     }
     refreshTileInfo(true,*world,pos);
-    ui->lblEntityName->setText(QString::fromStdString(en->getEntityName()));
+
+    auto& enRepo = EntityRepository::instance();
+    auto& enInfo = enRepo.getEntityInfo(en->getEntityName());
+
+    ui->lblEntityName->setText(QString::fromStdString(enInfo.getDisplayName()));
     int ownerId = en->getOwnerId();
     ui->lblOwner->setText(QString::fromStdString(world->getPlayer(ownerId).getName()));
     ui->lblMoves->setText(QString::number(en->getRemainingMoves()));
@@ -133,6 +139,7 @@ void GameWindow::refreshPlayerInfo()
     Player& player = w->getPlayer(client->getPlayerId());
     ui->lblPlayerName->setText(QString::fromStdString(player.getName()));
     ui->lbllGold->setText(QString::number(player.getGold()));
+    ui->lbllTechPoint->setText(QString::number(player.getTechPoints()));
 }
 
 void GameWindow::refreshTurnInfo()
@@ -164,24 +171,43 @@ void GameWindow::refreshContruction(shared_ptr<Entity> &en, World &w, Point &p)
     }
     ui->tabWidget2->show();
     auto client = getClient();
-    vector<string> availables = w.getAvailableEntitiesFor(client->getPlayerId());
+    vector<const EntityInfo*> availables = w.getAvailableEntitiesFor(client->getPlayerId());
     int count = availables.size();
     auto table = ui->tableBuy;
     table->clearContents();
 
     table->setRowCount(availables.size());
 
-    auto& repo = EntityRepository::instance();
     for(int i=0;i<count;i++){
-        string& s = availables[i];
-        if(!repo.hasEntity(s)){
-            continue;
-        }
-        auto& enInfo = repo.getEntityInfo(s);
-        auto item = new QTableWidgetItem(QString::fromStdString(s));
+        auto enInfo = availables[i];
+        auto item = new QTableWidgetItem(QString::fromStdString(enInfo->getDisplayName()));
         table->setItem(i,0,item);
+        item->setData(Qt::UserRole,qVariantFromValue((void*)enInfo));
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
-        item = new QTableWidgetItem(QString::number(enInfo.getProperties().getInt("price",-1)));
+        item = new QTableWidgetItem(QString::number(enInfo->getProperties().getInt("price",-1)));
+        table->setItem(i,1,item);
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+    }
+    refreshTechnology(w);
+}
+
+void GameWindow::refreshTechnology(World &w)
+{
+    auto client = getClient();
+    auto availables = w.getResearchableTechFor(client->getPlayerId());
+    int count = availables.size();
+    auto table = ui->tableResearch;
+    table->clearContents();
+
+    table->setRowCount(availables.size());
+
+    for(int i=0;i<count;i++){
+        auto techInfo = availables[i];
+        auto item = new QTableWidgetItem(QString::fromStdString(techInfo->getDisplayName()));
+        table->setItem(i,0,item);
+        item->setData(Qt::UserRole,qVariantFromValue((void*)techInfo));
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        item = new QTableWidgetItem(QString::number(techInfo->getProp().getInt("price",-1)));
         table->setItem(i,1,item);
         item->setFlags(item->flags() & (~Qt::ItemIsEditable));
     }
@@ -296,10 +322,27 @@ void GameWindow::on_btnBuy_clicked()
     if(row < 0 || row >= table->rowCount()){
         return;
     }
-    auto text = table->item(row,0)->text();
-    auto name = text.toStdString();
+    auto item = table->item(row,0);
+    EntityInfo* enInfo = (EntityInfo*)(item->data(Qt::UserRole).value<void*>());
+    auto& name = enInfo->getIdentifier();
     auto pos = getSelectedPos();
     auto client = getClient();
     shared_ptr<UnitBuy> msg(new UnitBuy(name,pos,client->getPlayerId()));
+    client->sendMessageToServer(msg);
+}
+
+void GameWindow::on_btnResearch_clicked()
+{
+    auto table = ui->tableResearch;
+    int row = table->currentRow();
+    if(row < 0 || row >= table->rowCount()){
+        return;
+    }
+    auto item = table->item(row,0);
+    Technology* techInfo = (Technology*)(item->data(Qt::UserRole).value<void*>());
+    auto& name = techInfo->getId();
+    auto pos = getSelectedPos();
+    auto client = getClient();
+    shared_ptr<TechResearch> msg(new TechResearch(name,client->getPlayerId()));
     client->sendMessageToServer(msg);
 }

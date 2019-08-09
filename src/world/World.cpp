@@ -809,7 +809,8 @@ World *World::loadFrom(istream &input) {
             world->loadTileData(world->data[i][j], input);
         }
     }
-
+    world->configure();
+//    world->
     return world;
 }
 
@@ -824,10 +825,11 @@ void World::saveTileData(Tile &t, ostream &out) {
     }
     out << ' ';
 
-    for (int i = 0; i < playerCount; i++) {
-        int vi = static_cast<int>(t.getVisibility(i));
-        out << vi << ' ';
-    }
+    // computes the visibility later
+//    for (int i = 0; i < playerCount; i++) {
+//        int vi = static_cast<int>(t.getVisibility(i));
+//        out << vi << ' ';
+//    }
 }
 
 void World::loadTileData(Tile &t, istream &input) {
@@ -840,11 +842,11 @@ void World::loadTileData(Tile &t, istream &input) {
     if (uid > 0) {
         t.setEntity(entityMap[uid]);
     }
-    for (int i = 0; i < playerCount; i++) {
-        int v;
-        input >> v;
-        t.visibility[i] = static_cast<Visibility>(v);
-    }
+//    for (int i = 0; i < playerCount; i++) {
+//        int v;
+//        input >> v;
+//        t.visibility[i] = static_cast<Visibility>(v);
+//    }
 }
 
 const string &World::getClassName() const {
@@ -907,32 +909,37 @@ void World::publishEvent(shared_ptr<GameEvent> &event) {
     dispatcher.publish(event);
 }
 
-vector<string> World::getAvailableEntitiesFor(int playerId) {
+vector<const EntityInfo*> World::getAvailableEntitiesFor(int playerId) {
     auto& repo = EntityRepository::instance();
     Player &p = getPlayer(playerId);
-    vector<string> result;
+    vector<const EntityInfo*> result;
     for(auto& entry : repo.getEntityMap()){
         auto& enInfo = entry.second;
         if(enInfo.isBuyableByPlayer(p)){
-            result.push_back(enInfo.getIdentifier());
+            result.push_back(&enInfo);
         }
     }
     return result;
 }
 
-vector<string> World::getResearchableTechFor(int playerId) {
+vector<const Technology*> World::getResearchableTechFor(int playerId) {
     auto& repo = TechRepository::instance();
     Player &p = getPlayer(playerId);
-    vector<string> result;
+    vector<const Technology*> result;
     for(auto& entry : repo.getTechnologies()){
-        auto& enInfo = entry.second;
-        if(enInfo.isResearchable(p)){
-            result.push_back(enInfo.getId());
+        auto& techInfo = entry.second;
+        if(techInfo.isResearchable(p)){
+            result.push_back(&techInfo);
         }
     }
     return result;
 }
 
+void World::configure() {
+    for(int i=0;i<playerCount;i++){
+        updateVisibility(i);
+    }
+}
 
 
 }

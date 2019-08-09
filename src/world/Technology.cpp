@@ -55,3 +55,8 @@ z2::Technology::Technology(string id, set<string> requires, int price, Propertie
 const set<string> &z2::Technology::getRequires() const {
     return requires;
 }
+
+const string &z2::Technology::getDisplayName() const {
+    return prop.get("displayName", id);
+}
+

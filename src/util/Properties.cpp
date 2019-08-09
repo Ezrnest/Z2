@@ -114,10 +114,12 @@ set<string> Properties::getStrSet(const string &key) const{
     }
     const string &val = iter->second;
     stringstream ss(val);
-    while (ss.good()) {
+    while (ss.good() && !ss.eof()) {
         string t;
         ss >> t;
-        s.insert(t);
+        if(!t.empty()){
+            s.insert(t);
+        }
     }
     return s;
 }
@@ -226,10 +228,14 @@ double parseDouble(const string &str, bool *ok) {
     }
 }
 
+bool equalsIgnoreCase(const char* s1, const char* s2){
+    return strcasecmp(s1,s2) == 0;
+}
+
 bool parseBool(const string &str, bool defaultValue) {
-    if (str == "true") {
+    if (equalsIgnoreCase(str.c_str(),"true")) {
         return true;
-    } else if (str == "false") {
+    } else if (equalsIgnoreCase(str.c_str(),"false")) {
         return false;
     }
     return defaultValue;

@@ -7,8 +7,14 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPen>
+
+#include <entity/Building.h>
+#include <config/EntityRepository.h>
 using namespace z2;
 const static QSize qTileSize(TILE_SIZE,TILE_SIZE);
+
+const static bool GF_DEBUG = true;
+
 GameFrame::GameFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::GameFrame)
@@ -58,7 +64,120 @@ Point GameFrame::viewCordToGameCord(const QPoint &p)
     return Point(x,y);
 }
 
+void GameFrame::paintResource(QPainter &painter, QBrush &brush, QRect &rect, Tile &t)
+{
+    string name;
+    switch(t.getResource()){
+    case Resource::GEM:{
+        name = "Resource_Gem.png";
+        break;
+    }
+    case Resource::MINE:{
+        name = "Resource_Mine.png";
+        break;
+    }
+    default:{
+        name = "None";
+        break;
+    }
+    }
+    if(repo.containsImage(name)){
+        const ImagePtr& image = repo.getImage(name);
+        painter.drawImage(rect,*image);
+    }
+}
 
+void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect, Tile &t, bool onlyConstruction)
+{
+    auto en = t.getEntity();
+    if(!en){
+        return;
+    }
+    shared_ptr<Building> building = dynamic_pointer_cast<Building>(en);
+    if(onlyConstruction && (!building)){
+        return;
+    }
+    auto& info = en->getEntityInfo();
+    auto& imageName = info.getImageName();
+    if(repo.containsImage(imageName)){
+        const ImagePtr& image = repo.getImage(imageName);
+        painter.drawImage(rect,*image);
+    }else{
+        painter.drawText(rect,QString::fromStdString(info.getDisplayName()));
+    }
+}
+
+
+
+void GameFrame::paintTerrainTextureLost(QPainter& painter,QBrush& brush,QRect& rect, Tile& t){
+    switch (t.getTerrain()) {
+    case Terrain::PLAIN:{
+        brush.setColor(Qt::darkGreen);
+        break;
+    }
+    case Terrain::MOUNTAIN:{
+        brush.setColor(Qt::gray);
+        break;
+    }
+    default:{
+        brush.setColor(Qt::black);
+        break;
+    }
+    }
+    painter.fillRect(rect,brush);
+}
+
+void GameFrame::paintTerrain(QPainter& painter,QBrush& brush, QRect& rect, Tile& t){
+    string name;
+    switch (t.getTerrain()) {
+    case Terrain::PLAIN:{
+        name = "Terrain_Plain.png";
+        break;
+    }
+    case Terrain::MOUNTAIN:{
+        name = "Terrain_Mountain.png";
+        break;
+    }
+    default:{
+        name = "Null";
+        break;
+    }
+    }
+    if(!repo.containsImage(name)){
+        paintTerrainTextureLost(painter,brush,rect,t);
+    }else{
+        const ImagePtr& image = repo.getImage(name);
+        painter.drawImage(rect,*image);
+    }
+}
+
+
+void GameFrame::paintTile(QPainter &painter, QBrush &brush, QRect &rect, Tile &t, Player &p)
+{
+    auto v = t.getVisibility(p.getPlayerId());
+    bool grey = false;
+    switch(v){
+    case Visibility::DARK:{
+        brush.setColor(Qt::darkGray);
+        painter.fillRect(rect,brush);
+        return;
+    }
+    case Visibility::GREY:{
+        grey = true;
+        break;
+    }
+    case Visibility::CLEAR:{
+        break;
+    }
+    }
+    paintTerrain(painter,brush,rect,t);
+    paintResource(painter,brush,rect,t);
+    paintEntity(painter,brush,rect,t,grey);
+    if(grey){
+        brush.setColor(QColor(100,100,100,128));
+        painter.fillRect(rect,brush);
+    }
+}
 
 
 void GameFrame::paintTiles(QPainter& painter, const shared_ptr<World>& world){
@@ -66,31 +185,13 @@ void GameFrame::paintTiles(QPainter& painter, const shared_ptr<World>& world){
     int wW = world->getWidth();
     QBrush brush;
     brush.setStyle(Qt::SolidPattern);
+    Player& p =world->getPlayer(win->getClient()->getPlayerId());
     for(int x=0;x<wW;x++){
         for(int y=0;y<wH;y++){
             Tile& t = world->getTile(x,y);
             QPoint ul = gameCordToViewCord(Point(x,y));
-            switch (t.getTerrain()) {
-            case Terrain::PLAIN:{
-                brush.setColor(Qt::darkGreen);
-                break;
-            }
-            case Terrain::MOUNTAIN:{
-                brush.setColor(Qt::gray);
-                break;
-            }
-            default:{
-                brush.setColor(Qt::black);
-                break;
-            }
-            }
             auto rect = QRect(ul,qTileSize);
-            painter.fillRect(rect,brush);
-
-            auto en = t.getEntity();
-            if(en){
-                painter.drawText(rect,QString::fromStdString(en->getEntityName()));
-            }
+            paintTile(painter,brush,rect,t,p);
         }
     }
 }

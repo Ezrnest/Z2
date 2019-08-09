@@ -31,7 +31,7 @@ shared_ptr<World> GameMap::buildWorld(const vector<PlayerSetting> &players) {
     for (auto &ps : players) {
         setupInitialEntities(ps, *world);
     }
-
+//    world->configure();
     return world;
 }
 

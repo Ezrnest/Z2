@@ -76,6 +76,10 @@ public:
     bool isBuyableByPlayer(const Player& p) const;
 
     const set<string> &getRequiredTech() const;
+
+    const string& getDisplayName() const;
+
+    const string& getImageName() const;
 };
 
 /**

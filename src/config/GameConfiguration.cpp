@@ -12,9 +12,19 @@
 #include "TechRepository.h"
 using namespace z2;
 
-void GameConfiguration::initRegistration() {
+ancono::File GameConfiguration::getResourceDir() {
     File curDir = File::currentDirectory();
     File resDir = curDir.parent().subFile("resources");
+    if(resDir.exists()){
+        return resDir;
+    }
+    return curDir.parent().parent().parent().subFile("resources");
+}
+
+
+
+void GameConfiguration::initRegistration() {
+    auto resDir = getResourceDir();
     LOG_INFO << "Loading resources from: " << resDir.getPath();
 
     SerializableRegistry::initSerializableClasses();

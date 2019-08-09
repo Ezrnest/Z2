@@ -2,6 +2,7 @@
 // Created by liyicheng on 2019/7/3.
 //
 
+#include <config/EntityRepository.h>
 #include "GameUnit.h"
 #include "Entity.h"
 
@@ -117,4 +118,9 @@ void Entity::setPos(const Point &pos) {
 
 bool Entity::canPerformAbility(const Point &pos, World &world) {
     return false;
+}
+
+const EntityInfo &Entity::getEntityInfo() {
+    auto& repo = EntityRepository::instance();
+    return repo.getEntityInfo(entityName);
 }

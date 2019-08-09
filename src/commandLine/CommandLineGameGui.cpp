@@ -101,7 +101,7 @@ void CommandLineGameGui::makeMove() {
     client->sendMessageToServer(msg);
 }
 
-char getTileChar(Tile& t){
+char getTileChar(Tile &t) {
     char c = '?';
     if (!t.hasEntity()) {
         switch (t.getResource()) {
@@ -118,10 +118,11 @@ char getTileChar(Tile& t){
                 break;
             }
         }
-        switch (t.getTerrain()){
+        switch (t.getTerrain()) {
 
-            case Terrain::PLAIN:break;
-            case Terrain::MOUNTAIN:{
+            case Terrain::PLAIN:
+                break;
+            case Terrain::MOUNTAIN: {
                 c = '#';
                 break;
             }
@@ -168,7 +169,22 @@ void CommandLineGameGui::printWorld(World &w) {
         cout << "|";
         for (int i = 0; i < w.width; i++) {
             Tile &t = data[i][j];
-            char c = getTileChar(t);
+            char c;
+            switch (t.getVisibility(playerId)) {
+
+                case Visibility::DARK: {
+                    c = '@';
+                    break;
+                }
+                case Visibility::GREY: {
+                    c = '*';
+                    break;
+                }
+                case Visibility::CLEAR: {
+                    c = getTileChar(t);
+                    break;
+                }
+            }
             cout << c << ' ';
         }
         cout << "|\n";
@@ -204,7 +220,7 @@ void CommandLineGameGui::makePerform() {
 }
 
 void CommandLineGameGui::onGameStopped() {
-    runLater([](){
+    runLater([]() {
     });
 
 }

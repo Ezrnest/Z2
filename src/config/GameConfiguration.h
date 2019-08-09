@@ -5,6 +5,8 @@
 #ifndef Z2_GAMECONFIGURATION_H
 #define Z2_GAMECONFIGURATION_H
 
+#include <util/File.h>
+
 namespace z2 {
 class GameConfiguration {
 public:
@@ -14,6 +16,8 @@ public:
     static void initRegistration();
 
     static void disposeAll();
+
+    static ancono::File getResourceDir();
 
 };
 

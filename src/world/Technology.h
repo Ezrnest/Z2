@@ -40,6 +40,8 @@ public:
      * Determines whether the player has researched this technology.
      */
     bool isAvailable(const Player &p);
+
+    const string& getDisplayName() const;
 };
 
 }

@@ -23,18 +23,18 @@ void init() {
 }
 
 void m1(){
-    shared_ptr<World> w(new World(5, 5, 2));
+    shared_ptr<World> w(new World(8, 8, 2));
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
-    w->createEntity(Point(1, 1), Farmer::className(), 0);
+//    w->createEntity(Point(1, 1), Farmer::className(), 0);
+//    w->createEntity(Point(0, 1), "Archer", 0);
     w->createEntity(Point(3, 3), Farmer::className(), 1);
-    w->createEntity(Point(0, 1), "Archer", 0);
     w->getTile(0, 3).setResource(Resource::MINE);
     w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
     w->getTile(2,1).setTerrain(Terrain::MOUNTAIN);
     w->getTile(2,2).setTerrain(Terrain::MOUNTAIN);
 //    w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
 //    w->createEntity(Point(1,2), )
-
+//    w->configure();
 
     shared_ptr<Server> server(new Server());
     server->setWorld(w);

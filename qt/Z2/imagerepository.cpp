@@ -5,6 +5,7 @@
 using namespace ancono;
 namespace z2 {
 
+
 void ImageRepository::addImage(const string &str, const ImagePtr &image)
 {
     imageMap.insert(make_pair(str,image));
@@ -36,5 +37,11 @@ void ImageRepository::initFromFolder(const ancono::File &dir)
         repo.addImage(name,image);
     }
 }
+
+//ImageRepository &ImageRepository::instance()
+//{
+//    static ImageRepository repo;
+//    return repo;
+//}
 }
 

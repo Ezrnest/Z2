@@ -4,10 +4,10 @@
 #include <map>
 #include <memory>
 #include <config/RepositoryTemplate.h>
+
 using namespace std;
 namespace z2 {
 using ImagePtr = shared_ptr<QImage>;
-
 class ImageRepository : public RepositoryTemplate<ImageRepository>
 {
 private:

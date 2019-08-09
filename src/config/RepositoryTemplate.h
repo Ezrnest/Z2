@@ -35,10 +35,9 @@ Clazz &RepositoryTemplate<Clazz>::instance() {
 }
 
 template<typename Clazz>
-RepositoryTemplate<Clazz>::~RepositoryTemplate() = default;
-
+RepositoryTemplate<Clazz>::~RepositoryTemplate()= default;
 template<typename Clazz>
-RepositoryTemplate<Clazz>::RepositoryTemplate() = default;
+RepositoryTemplate<Clazz>::RepositoryTemplate()= default;
 }
 
 #endif //Z2_REPOSITORYTEMPLATE_H

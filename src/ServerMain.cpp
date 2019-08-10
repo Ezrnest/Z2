@@ -61,7 +61,7 @@ int main() {
     auto w = buildWorld();
     vector<PlayerType> players{PlayerType::LOCAL_PLAYER, PlayerType::BOT_PLAYER, PlayerType::REMOTE_PLAYER};
     shared_ptr<Lobby> lobby(new Lobby(players, port, w));
-
+//192.168.0.28
 
     shared_ptr<CommandLineGameGui> gui(new CommandLineGameGui());
 //    local->setView(static_pointer_cast<GameGui>(gui));

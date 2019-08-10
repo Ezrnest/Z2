@@ -24,6 +24,9 @@ private:
      */
     int groupId_ = NO_GROUP;
 
+    int colorCode = 0;
+
+
     /**
      * The number of gold that this player has.
      */
@@ -49,6 +52,10 @@ public:
 
     void setGroupId(int groupId);
 
+    int getColorCode() const;
+
+    void setColorCode(int colorCode);
+
     int getGold() const;
 
     void setGold(int gold);
@@ -61,6 +68,7 @@ public:
     bool requireGold(int amount);
 
     void addGold(int delta);
+
 
     bool isDead() const;
 

@@ -45,7 +45,7 @@ private:
     z2::Point viewCordToGameCord(const QPoint& p);
 
 
-    void paintTile(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t, z2::Player& p);
+    void paintTile(QPainter &painter, QBrush &brush, QRect &rect,z2::World& world, z2::Tile &t, z2::Player& p);
 
     void paintTiles(QPainter &painter, const shared_ptr<z2::World> &world);
 
@@ -59,7 +59,7 @@ private:
 
     void paintResource(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
 
-    void paintEntity(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t, bool onlyConstruction);
+    void paintEntity(QPainter &painter, QBrush &brush, QRect &rect,z2::World& world, z2::Tile &t, bool grey);
 };
 
 #endif // GAMEFRAME_H

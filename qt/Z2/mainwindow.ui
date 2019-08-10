@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -201,7 +201,7 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>501</width>
+        <width>511</width>
         <height>241</height>
        </rect>
       </property>
@@ -231,6 +231,11 @@
       <column>
        <property name="text">
         <string>位置</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>颜色</string>
        </property>
       </column>
       <item row="0" column="0">

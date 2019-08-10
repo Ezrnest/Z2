@@ -12,6 +12,9 @@ namespace Ui {
 class MainWindow;
 }
 
+void setupTable(QTableWidget* table);
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

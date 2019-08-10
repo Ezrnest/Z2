@@ -12,10 +12,7 @@
 #include "event/StateEvent.h"
 #include "world/Technology.h"
 #include "core/messages/ControlMessage.h"
-void setupTable(QTableWidget* table){
-    table->horizontalHeader()->setStretchLastSection(true);
-    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-}
+#include "mainwindow.h"
 
 GameWindow::GameWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -133,14 +130,21 @@ void GameWindow::refreshSelection()
     auto pos = getSelectedPos();
 
     auto world = getWorld();
+    int playerId = getClient()->getPlayerId();
     if(!world->isInside(pos)){
+        ui->tabWidget->hide();
+        ui->tabWidget2->hide();
+        return;
+    }
+    auto vis = world->getTile(pos).getVisibility(playerId);
+    if(vis == Visibility::DARK){
         ui->tabWidget->hide();
         ui->tabWidget2->hide();
         return;
     }
     ui->tabWidget->show();
     auto en = world->getEntity(pos);
-    if(!en){
+    if(vis == Visibility::GREY|| !en){
         refreshTileInfo(false,*world,pos);
         ui->tabWidget2->hide();
         return;
@@ -183,8 +187,10 @@ void GameWindow::refreshPlayerInfo()
     auto w = getWorld();
     Player& player = w->getPlayer(client->getPlayerId());
     ui->lblPlayerName->setText(QString::fromStdString(player.getName()));
-    ui->lbllGold->setText(QString::number(player.getGold()));
-    ui->lbllTechPoint->setText(QString::number(player.getTechPoints()));
+    ui->lbllGold->setNum(player.getGold());
+    ui->lbllTechPoint->setNum(player.getTechPoints());
+    ui->lblGroup->setNum(player.getGroupId());
+//    ui->lblP
 }
 
 void GameWindow::refreshTurnInfo()

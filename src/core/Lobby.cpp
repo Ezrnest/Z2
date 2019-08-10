@@ -86,7 +86,10 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
                 auto view = gui.lock();
                 cl->setView(view);
                 view->setControllerAndView(cl);
-                world->getPlayer(i).setName("LocalPlayer");
+
+                stringstream ss;
+                ss << "Player" << i;
+                world->getPlayer(i).setName(ss.str());
                 break;
             }
             case PlayerType::BOT_PLAYER: {

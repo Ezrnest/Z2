@@ -82,12 +82,13 @@ pair<shared_ptr<Server>, shared_ptr<LocalClient>> GameInitSetting::buildLocalGam
     int botCount = 0;
     for (int i=0;i<players.size();i++) {
         auto& ps = players[i];
+        int pid = ps.playerId;
         switch (ps.type) {
             case PlayerType::LOCAL_PLAYER: {
                 lc.reset(new LocalClient());
                 lc->setRealServer(server);
                 server->registerClient(lc);
-                w->getPlayer(i).setName("LocalPlayer");
+                w->getPlayer(pid).setName("LocalPlayer");
                 break;
             }
             case PlayerType::BOT_PLAYER: {
@@ -97,7 +98,7 @@ pair<shared_ptr<Server>, shared_ptr<LocalClient>> GameInitSetting::buildLocalGam
                 stringstream ss;
                 botCount++;
                 ss << "Bot" << botCount;
-                w->getPlayer(i).setName(ss.str());
+                w->getPlayer(pid).setName(ss.str());
                 break;
             }
             case PlayerType::REMOTE_PLAYER: {

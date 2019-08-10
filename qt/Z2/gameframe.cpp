@@ -10,9 +10,13 @@
 
 #include <entity/Building.h>
 #include <config/EntityRepository.h>
-using namespace z2;
-const static QSize qTileSize(TILE_SIZE,TILE_SIZE);
 
+#include "playercolor.h"
+
+using namespace z2;
+
+const static QSize qTileSize(TILE_SIZE,TILE_SIZE);
+const static QSize qPlayerColorSize(PLAYER_COLOR_BLOCK_SIZE,PLAYER_COLOR_BLOCK_SIZE);
 const static bool GF_DEBUG = true;
 
 GameFrame::GameFrame(QWidget *parent) :
@@ -87,14 +91,24 @@ void GameFrame::paintResource(QPainter &painter, QBrush &brush, QRect &rect, Til
     }
 }
 
-void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect, Tile &t, bool onlyConstruction)
+QColor getColor(int playerId, World& w){
+    if(playerId == Player::NO_PLAYER){
+        return QColor(Qt::white);
+    }
+    int cc = w.getPlayer(playerId).getColorCode();
+
+    return PlayerColor::getColor(cc);
+}
+
+void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect,World& world, Tile &t, bool grey)
 {
     auto en = t.getEntity();
     if(!en){
         return;
     }
+
     shared_ptr<Building> building = dynamic_pointer_cast<Building>(en);
-    if(onlyConstruction && (!building)){
+    if(grey && (!building)){
         return;
     }
     auto& info = en->getEntityInfo();
@@ -104,6 +118,14 @@ void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect, Tile 
         painter.drawImage(rect,*image);
     }else{
         painter.drawText(rect,QString::fromStdString(info.getDisplayName()));
+    }
+    // draw player color
+    if(!grey){
+        int owner = en->getOwnerId();
+        QColor c = getColor(owner,world);
+        QRect sr(rect.topLeft(),qPlayerColorSize);
+        brush.setColor(c);
+        painter.fillRect(sr,brush);
     }
 }
 
@@ -152,27 +174,30 @@ void GameFrame::paintTerrain(QPainter& painter,QBrush& brush, QRect& rect, Tile&
 }
 
 
-void GameFrame::paintTile(QPainter &painter, QBrush &brush, QRect &rect, Tile &t, Player &p)
+void GameFrame::paintTile(QPainter &painter, QBrush &brush, QRect &rect,World& world, Tile &t, Player &p)
 {
     auto v = t.getVisibility(p.getPlayerId());
     bool grey = false;
-    switch(v){
-    case Visibility::DARK:{
-        brush.setColor(Qt::darkGray);
-        painter.fillRect(rect,brush);
-        return;
+    if(!GF_DEBUG){
+        switch(v){
+        case Visibility::DARK:{
+            brush.setColor(Qt::darkGray);
+            painter.fillRect(rect,brush);
+            return;
+        }
+        case Visibility::GREY:{
+            grey = true;
+            break;
+        }
+        case Visibility::CLEAR:{
+            break;
+        }
+        }
     }
-    case Visibility::GREY:{
-        grey = true;
-        break;
-    }
-    case Visibility::CLEAR:{
-        break;
-    }
-    }
+
     paintTerrain(painter,brush,rect,t);
     paintResource(painter,brush,rect,t);
-    paintEntity(painter,brush,rect,t,grey);
+    paintEntity(painter,brush,rect,world,t,grey);
     if(grey){
         brush.setColor(QColor(100,100,100,128));
         painter.fillRect(rect,brush);
@@ -191,7 +216,7 @@ void GameFrame::paintTiles(QPainter& painter, const shared_ptr<World>& world){
             Tile& t = world->getTile(x,y);
             QPoint ul = gameCordToViewCord(Point(x,y));
             auto rect = QRect(ul,qTileSize);
-            paintTile(painter,brush,rect,t,p);
+            paintTile(painter,brush,rect,*world,t,p);
         }
     }
 }
@@ -220,6 +245,9 @@ void GameFrame::paintEvent(QPaintEvent *event)
     painter.setTransform(trans);
 //    painter.setWindow(QRect(20,20,int(percent * 631),int(percent *551)));
     auto world = win->getWorld();
+    if(!world){
+        return;
+    }
     paintTiles(painter,world);
     paintLines(painter,world);
     paintHighlightedTile(painter,world);

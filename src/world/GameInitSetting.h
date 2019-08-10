@@ -25,6 +25,7 @@ public:
     int playerId;
     int positionId;
     int groupId;
+    int colorCode = 0;
     PlayerType type;
 };
 

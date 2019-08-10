@@ -9,7 +9,9 @@
 using namespace z2;
 
 RemoteClient::RemoteClient(int playerId) : playerId(playerId){
-
+    stringstream ss;
+    ss << "player" << playerId;
+    playerName = ss.str();
 }
 
 

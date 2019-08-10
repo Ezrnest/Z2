@@ -27,6 +27,14 @@ shared_ptr<World> GameMap::buildWorld(const vector<PlayerSetting> &players) {
     int height = mapBase.getHeight();
     shared_ptr<World> world(new World(width,height,playerCount));
     mapBase.setDataTo(*world);
+    //setup players
+    for(int i=0;i<playerCount;i++){
+        const PlayerSetting &set = players[i];
+        auto& p = world->getPlayer(set.playerId);
+        p.setGroupId(set.groupId);
+        p.setColorCode(set.colorCode);
+    }
+
     //setup initial entities
     for (auto &ps : players) {
         setupInitialEntities(ps, *world);

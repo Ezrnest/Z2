@@ -3,7 +3,7 @@
 #include "ui_mainwindow.h"
 #include "config/MapRepository.h"
 #include "world/GameInitSetting.h"
-
+#include "playercolor.h"
 #include <QMessageBox>
 #include "core/LocalClient.h"
 #include <core/Server.h>
@@ -11,15 +11,29 @@
 #include <core/RemoteServerProxy.h>
 using namespace z2;
 
+void setupTable(QTableWidget* table){
+    table->horizontalHeader()->setStretchLastSection(true);
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+}
 
-QComboBox* getPlayerTypeComboBox(bool localGame){
-    QComboBox *comBox = new QComboBox();
+
+QComboBox* getPlayerTypeComboBox(QWidget* parent,bool localGame){
+    QComboBox *comBox = new QComboBox(parent);
     comBox->addItem(QObject::tr("本地玩家"));
     comBox->addItem(QObject::tr("电脑"));
     if(!localGame){
         comBox->addItem(QObject::tr("局域网玩家"));
     }
     comBox->addItem(QObject::tr("关闭"));
+    comBox->setEnabled(true);
+    return comBox;
+}
+
+QComboBox* getPlayerColorComboBox(QWidget* parent){
+    QComboBox* comBox = new QComboBox();
+    for(auto& s : PlayerColor::getColorNames()){
+        comBox->addItem(s);
+    }
     comBox->setEnabled(true);
     return comBox;
 }
@@ -32,13 +46,16 @@ PlayerType getPlayerTypeByIndex(int idx){
     default: return PlayerType::BOT_PLAYER;
     }
 }
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
-//    ui->tableWidget->setC
+    //    ui->tableWidget->setC
+    setupTable(ui->tablePlayer);
     connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::BlockingQueuedConnection);
 }
 
@@ -99,7 +116,7 @@ void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
     int rowCount = map->getMaxPlayerCount();
     table->setRowCount(rowCount);
     for(int i=0;i<rowCount;i++){
-        auto comboBox = getPlayerTypeComboBox(this->localGame);
+        auto comboBox = getPlayerTypeComboBox(table,this->localGame);
         if(i!=0){
             comboBox->setCurrentIndex(1);
         }
@@ -117,6 +134,13 @@ void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
         item = new QTableWidgetItem(QString::number(i));
         table->setItem(i,3,item);
         //pos id
+
+        comboBox = getPlayerColorComboBox(table);
+        if(i < comboBox->count()){
+            comboBox->setCurrentIndex(i);
+        }
+        table->setCellWidget(i,4,comboBox);
+        //color
     }
 }
 
@@ -146,7 +170,13 @@ GameInitSetting loadSettingFromTable(const shared_ptr<GameMap>& map, QTableWidge
         int playerId = table->item(i,1)->text().toInt();
         int groupId = table->item(i,2)->text().toInt();
         int posId = table->item(i,3)->text().toInt();
-        players.push_back(PlayerSetting(playerId,posId,groupId,type));
+        box = dynamic_cast<QComboBox*>(table->cellWidget(i,4));
+        if(box == nullptr){
+            continue;
+        }
+        PlayerSetting ps(playerId,posId,groupId,type);
+        ps.colorCode = box->currentIndex();
+        players.push_back(ps);
     }
     return GameInitSetting(players,map);
 }
@@ -247,16 +277,16 @@ void MainWindow::on_btnCancel_clicked()
 void MainWindow::startServerGame()
 {
     GameWindow* gw = new GameWindow(this);
-//    cout << "Starting game!" << endl;
+    //    cout << "Starting game!" << endl;
     auto server = onlineLobby->startGame(gw->getGui(),1000*60);
-//    cout << "Starting game 2!" << endl;
+    //    cout << "Starting game 2!" << endl;
     gw->setServer(server);
     gw->setLobby(onlineLobby);
     onlineLobby.reset();
     ui->stackedWidget->setCurrentIndex(0);
     gw->show();
 
-//    server->startGame();
+    //    server->startGame();
 }
 
 void MainWindow::on_pushButton_clicked()

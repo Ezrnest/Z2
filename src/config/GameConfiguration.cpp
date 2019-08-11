@@ -12,13 +12,25 @@
 #include "TechRepository.h"
 using namespace z2;
 
-ancono::File GameConfiguration::getResourceDir() {
+ancono::File getDirNamed(const string& name){
     File curDir = File::currentDirectory();
-    File resDir = curDir.parent().subFile("resources");
+    File resDir = curDir.parent().subFile(name);
     if(resDir.exists()){
         return resDir;
     }
-    return curDir.parent().parent().parent().subFile("resources");
+    return curDir.parent().parent().parent().subFile(name);
+}
+
+ancono::File GameConfiguration::getResourceDir() {
+    return getDirNamed("resources");
+}
+
+ancono::File GameConfiguration::getConfigDir() {
+    return getDirNamed("conf");
+}
+
+ancono::File GameConfiguration::getSaveDir() {
+    return getDirNamed("saves");
 }
 
 
@@ -41,6 +53,14 @@ void GameConfiguration::initRegistration() {
     //TODO load from file
 }
 
+void GameConfiguration::initGameConfig() {
+    auto confDir = getConfigDir();
+    LOG_INFO << "Loading config from: " << confDir.getPath();
+
+    GameConfiguration::instance().initFromFolder(confDir);
+
+}
+
 
 void initLogger() {
 //    el::Configurations defaultConf;
@@ -59,8 +79,34 @@ void initLogger() {
 void GameConfiguration::initAll() {
     initLogger();
     initRegistration();
+    initGameConfig();
 }
 
 void GameConfiguration::disposeAll() {
 }
+
+void GameConfiguration::initFromFolder(const ancono::File &dir) {
+    File conf = dir.subFile("config.ini");
+    if(conf.exists()){
+        prop.loadFromFile(conf.getPath());
+    }else{
+        LOG_WARNING << "Failed to init config";
+    }
+}
+
+const string &GameConfiguration::getPlayerName() {
+
+    const string& name =  prop.get("playerName", "player");
+    if(name.find_first_of(' ') == std::__cxx11::string::npos){
+        return name;
+    }
+    string n = name.substr(0,name.find_first_of(' '));
+    prop.set("playerName", n);
+    return prop.get("playerName",n);
+}
+
+
+
+
+
 

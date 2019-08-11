@@ -6,6 +6,7 @@
 #define Z2_BOTCLIENTPORT_H
 
 #include "core/ClientProxy.h"
+#include "Bot.h"
 
 
 namespace z2 {
@@ -16,19 +17,21 @@ class Server;
  * The class of the bot.
  */
 class BotClientPort : public ClientProxy{
+private:
+    shared_ptr<Bot> bot;
+
+    void performTurn();
+
+    void botTurnFinish();
 protected:
     weak_ptr<Server> server;
 
-    /**
-     * Override this method to customize the bot behavior. To perform an operation,
-     * this method should invoke `sendMessage` to send the message of the operation.
-     * <br><b>Notice: Direct modification to the server's world will lead to world inconsistency between the server and client! </b>
-     * <br>See class `GameMessage` for more info of messages.
-     */
-    void doBotTurn();
 
-    void botTurnFinish();
 public:
+
+    explicit BotClientPort(shared_ptr<Bot> bot);
+
+    BotClientPort();
 
     const weak_ptr<Server> &getServer() const;
 

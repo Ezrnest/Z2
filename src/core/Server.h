@@ -112,6 +112,8 @@ public:
      */
     bool registerClient(const shared_ptr<ClientProxy> &client);
 
+    bool registerClient(const shared_ptr<ClientProxy> &client, int clientId);
+
     /**
      * Starts the game.
      */

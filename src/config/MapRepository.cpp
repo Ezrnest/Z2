@@ -2,6 +2,7 @@
 // Created by liyicheng on 2019/7/27.
 //
 
+#include <world/GameMapPredefined.h>
 #include "MapRepository.h"
 #include "plog/Log.h"
 namespace z2 {
@@ -17,7 +18,7 @@ void MapRepository::initFromFolder(const ancono::File &folder) {
     for(File& f : entityFiles){
         ifstream in;
         f.inStream(in);
-        shared_ptr<GameMap> m = GameMap::loadFrom(in);
+        shared_ptr<GameMap> m = GameMapPredefined::loadFrom(in);
         in.close();
         repo.addMap(m);
     }
@@ -35,5 +36,14 @@ void MapRepository::addMap(const shared_ptr<GameMap> &map) {
 
 vector<shared_ptr<GameMap>> &MapRepository::getMaps() {
     return maps;
+}
+
+shared_ptr<GameMap> MapRepository::getMap(const string &name) {
+    for(auto& map : maps){
+        if (map->getName() == name) {
+            return map;
+        }
+    }
+    return shared_ptr<GameMap>();
 }
 }

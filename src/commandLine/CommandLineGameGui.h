@@ -32,6 +32,8 @@ public:
 
     void onPlayerTurnStarted(int playerId) override;
 
+    void onPlayerTurnFinished(int playerId) override;
+
     void onGameStarted() override;
 
     void onPlayerWin(int playerId) override;

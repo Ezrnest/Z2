@@ -4,6 +4,7 @@
 
 #include <core/messages/SignalMessage.h>
 #include <core/messages/PlayerMessage.h>
+#include <core/messages/SetPlayerData.h>
 
 #include "SerializableRegistry.h"
 #include "world/World.h"
@@ -75,6 +76,9 @@ void initMessageClass(SerializableRegistry &sr) {
     registerMessageClass<UnitBuy>(sr);
     registerMessageClass<UnitMove>(sr);
     registerMessageClass<TechResearch>(sr);
+
+    registerMessageClass<SetPlayerData>(sr);
+
     //TODO add message classes
 }
 }

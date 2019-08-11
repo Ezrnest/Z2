@@ -39,6 +39,8 @@ public:
 
     virtual void onPlayerTurnStarted(int playerId) = 0;
 
+    virtual void onPlayerTurnFinished(int playerId) = 0;
+
     virtual void onGameStarted() = 0;
 
     virtual void onPlayerWin(int playerId) = 0;

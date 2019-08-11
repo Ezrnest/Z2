@@ -5,6 +5,8 @@
 #ifndef Z2_LOCALCLIENT_H
 #define Z2_LOCALCLIENT_H
 
+#include <world/GameInitSetting.h>
+
 #include "Client.h"
 #include "ClientProxy.h"
 #include "Server.h"
@@ -51,12 +53,15 @@ public:
 
     void sendMessageToServer(const MessagePtr &message) override;
 
-    const string& getPlayerName() override ;
+    const string &getPlayerName() override;
 
     void setPlayerName(const string &playerName);
 
     bool isGameRunning() override;
 };
+
+
+
 
 }
 #endif //Z2_LOCALCLIENT_H

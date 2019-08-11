@@ -37,8 +37,15 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
 
 bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
     int cid = clients.size();
-    client->setClientId(cid);
-    clients.push_back(client);
+    registerClient(client, cid);
+}
+
+bool Server::registerClient(const shared_ptr<ClientProxy> &client, int clientId) {
+    client->setClientId(clientId);
+    if (clients.size() <= clientId) {
+        clients.resize(clientId + 1);
+    }
+    clients[clientId] = client;
 
     bool re = client->syncWorld(world);
     if (re) {
@@ -49,6 +56,7 @@ bool z2::Server::registerClient(const shared_ptr<z2::ClientProxy> &client) {
         return false;
     }
 }
+
 
 void z2::Server::startGame() {
     if (!checkGameReady()) {

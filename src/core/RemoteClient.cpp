@@ -19,6 +19,7 @@ void z2::RemoteClient::acceptMessage(const shared_ptr<z2::Message> &command) {
     switch (command->getGeneralType()) {
         case GeneralMessageType::ControlMessage: {
             dealWithControlMessage(static_pointer_cast<ControlMessage>(command));
+
             break;
         }
         case GeneralMessageType::GameMessage: {
@@ -94,12 +95,13 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
         case ControlMessageType::PlayerTurnStart: {
             auto msg = static_pointer_cast<PlayerMessage>(message);
             world->onPlayerTurnStart(msg->getPlayerId());
-            view->onPlayerTurnStarted(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
+            view->onPlayerTurnStarted(msg->getPlayerId());
             break;
         }
         case ControlMessageType::PlayerTurnFinish:{
+            auto msg = static_pointer_cast<PlayerMessage>(message);
             world->onPlayerTurnFinish();
-//            view->on(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
+            view->onPlayerTurnFinished(msg->getPlayerId());
             break;
         }
         case ControlMessageType::PlayerDefeated:{

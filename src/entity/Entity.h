@@ -104,7 +104,7 @@ public:
 
     void setVisibility(int visibility);
 
-    const int getObjectId() const;
+    int getObjectId() const;
 
     /**
      * Gets the class name of this entity.

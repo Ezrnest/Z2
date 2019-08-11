@@ -20,7 +20,7 @@ void Entity::setOwnerId(int ownerId) {
     Entity::ownerId_ = ownerId;
 }
 
-const int Entity::getObjectId() const {
+int Entity::getObjectId() const {
     return objectId;
 }
 

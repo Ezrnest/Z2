@@ -53,16 +53,16 @@ void m1(){
     gui->setControllerAndView(static_pointer_cast<Client>(local));
 
 //    w->nextPlayer();
-//    gui->printWorld();
-//    cout << " -------------- \n";
-//    stringstream ss;
-//    w->serializeTo(ss);
-//    cout << ss.str() << endl;
-//    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
-//    CommandLineGameGui::printWorld(*w2);
+    gui->printWorld();
+    cout << " -------------- \n";
+    stringstream ss;
+    w->serializeTo(ss);
+    cout << ss.str() << endl;
+    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
+    CommandLineGameGui::printWorld(*w2);
 
-    server->startGame();
-    gui->mainLoop();
+//    server->startGame();
+//    gui->mainLoop();
 }
 
 void m2(){
@@ -73,9 +73,15 @@ void m2(){
     GameInitSetting setting(players,map);
     auto world = setting.buildWorld();
     CommandLineGameGui::printWorld(*world);
+    File f = File::currentDirectory();
+    string path = f.subFile("save1.txt").getPath();
+    GameMap::saveWorldTo(path,"",world);
+    map = GameMap::loadWorldFrom(path);
+    auto w2 = map->buildWorld(players);
+    CommandLineGameGui::printWorld(*w2);
 }
 
 int main() {
     init();
-    m1();
+    m2();
 }

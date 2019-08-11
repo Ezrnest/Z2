@@ -19,6 +19,8 @@ public:
 
     void addMap(const shared_ptr<GameMap> &map);
 
+    shared_ptr<GameMap> getMap(const string& name);
+
     static MapRepository& instance();
 
     static void initFromFolder(const ancono::File &folder);

@@ -6,10 +6,18 @@
 #define Z2_GAMECONFIGURATION_H
 
 #include <util/File.h>
-
+#include <util/Properties.h>
+#include "RepositoryTemplate.h"
 namespace z2 {
-class GameConfiguration {
+class GameConfiguration : public RepositoryTemplate<GameConfiguration> {
+private:
+    ancono::Properties prop;
+private:
+    void initFromFolder(const ancono::File &dir) override;
+
 public:
+
+    const string& getPlayerName();
 
     static void initAll();
 
@@ -19,6 +27,14 @@ public:
 
     static ancono::File getResourceDir();
 
+    static ancono::File getConfigDir();
+
+    /**
+     * Gets the directory for game saves.
+     */
+    static ancono::File getSaveDir();
+
+    static void initGameConfig();
 };
 
 }

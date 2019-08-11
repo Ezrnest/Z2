@@ -31,6 +31,10 @@ void CommandLineGameGui::onPlayerTurnStarted(int playerId) {
 }
 
 
+void CommandLineGameGui::onPlayerTurnFinished(int playerId) {
+
+}
+
 void CommandLineGameGui::onGameStarted() {
     cout << "Game started!\n";
     printWorld();
@@ -236,3 +240,5 @@ void CommandLineGameGui::onEvent(const shared_ptr<GameEvent> &event) {
     }
     printWorld();
 }
+
+

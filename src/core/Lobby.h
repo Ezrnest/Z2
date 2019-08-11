@@ -21,8 +21,9 @@ class Server;
 
 class Lobby {
 private:
-    vector<PlayerType> players;
-    shared_ptr<World> world;
+
+    GameInitSetting gis;
+
     vector<pair<shared_ptr<ClientProxy>,string>> clients;
 
     shared_ptr<MessageConductor> conductor;
@@ -37,17 +38,30 @@ private:
 
     function<void(Lobby&,int)> onPlayerConnected = [](Lobby&,int){return;};
 
-    void openLobby(int port);
+
+
+    void initNames(shared_ptr<World>& world);
+
+    void openLocalLobby();
+
+    shared_ptr<Server> startLocalGame(const weak_ptr<GameGui> &gui);
 
 public:
     /**
      * Creates and opens a lobby.
      */
-    explicit Lobby(const vector<PlayerType> &players, int port, shared_ptr<World>  world);
+    explicit Lobby(int port, const GameInitSetting& gameInitSetting);
+
+    /**
+     * Opens the lobby, enabling connection.
+     */
+    void openLobby();
 
     virtual ~Lobby();
 
     string getAddressInfo();
+
+
 
     /**
      * A blocking method, waiting all the players to join in.
@@ -55,8 +69,6 @@ public:
     shared_ptr<Server> startGame(const weak_ptr<GameGui> &gui, int timeOut);
 
     bool isGameReady();
-
-    const vector<PlayerType> &getPlayers() const;
 
     const vector<pair<shared_ptr<ClientProxy>, string>> &getClients() const;
 
@@ -66,6 +78,7 @@ public:
 
     void closeLobby();
 
+    void setupRemoteClients(shared_ptr<Server> &server, const vector<PlayerSetting> &players) const;
 };
 }
 

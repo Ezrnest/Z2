@@ -1,9 +1,9 @@
-name=Demo
+name=TestMap
 description=A map for testing.
 width=6
 height=6
-maxPlayerCount=4
-setupBornPoints=true
+maxPlayerCount=3
+setupBornPoints=false
 # The first line of the file is the name of the map, and the second line is the description.
 # Following lines which start with '#' will be ignored.
 # Then the data of the map are:
@@ -13,9 +13,9 @@ setupBornPoints=true
 # <number> for born point.
 # '_' for mine
 # '-' for gem
-# There must be an indicator line before the map
+# There must be an indicator line: $$$ before the map
 $$$$
-2 #  3
+2 #
 _    _
    -
   -

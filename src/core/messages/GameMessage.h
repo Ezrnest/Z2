@@ -32,6 +32,9 @@ enum class GameMessageType{
     UnitAttack,
     ///class: UnitMove
     UnitMove,
+
+    ///class: SetPlayerData <br> This message is used for bot to cheat.
+    SetPlayerData,
 };
 
 /**

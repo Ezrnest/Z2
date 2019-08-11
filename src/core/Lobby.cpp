@@ -16,25 +16,43 @@
 #include <thread>
 #include "plog/Log.h"
 #include <core/messages/SignalMessage.h>
+#include <config/GameConfiguration.h>
 #include "core/Server.h"
 #include "bot/BotClientPort.h"
 #include "LocalClient.h"
 
 namespace z2 {
+//Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> world)
+//        : players(players), clients(players.size()), world(std::move(world)), port(port) {
+//    openLobby(port);
+//}
+Lobby::Lobby(int port, const GameInitSetting &gameInitSetting) : port(port), gis(gameInitSetting), clients(gameInitSetting.getPlayerCount()){
+}
 
-
-int getRemoteClientCount(const vector<PlayerType> &v) {
+int getRemoteClientCount(const GameInitSetting &gis) {
     int c = 0;
-    for (auto &it : v) {
-        if (it == PlayerType::REMOTE_PLAYER) {
+    for (auto &it : gis.getPlayers()) {
+        if (it.type == PlayerType::REMOTE_PLAYER) {
             c++;
         }
     }
     return c;
 }
 
-void Lobby::openLobby(int port) {
-    int requiredCount = getRemoteClientCount(players);
+void Lobby::openLocalLobby() {
+    // start local game instead
+    onPlayerConnected(*this, -1);
+    PLOG(plog::info) << "[Lobby] A local game is ready!";
+    return;
+}
+
+
+void Lobby::openLobby() {
+    int requiredCount = getRemoteClientCount(gis);
+    if(requiredCount == 0){
+       openLocalLobby();
+       return;
+    }
     latch.reset(new CountDownLatch(requiredCount));
     function<void(const MessagePtr &)> listener = [this](const MessagePtr &msg) {
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
@@ -42,7 +60,7 @@ void Lobby::openLobby(int port) {
             return;
         }
         int id = rp->getPlayerId();
-        if (id < 0 || id >= players.size() || players[id] != PlayerType::REMOTE_PLAYER) {
+        if (id < 0 || id >= gis.getPlayers().size() || gis.getPlayers()[id].type != PlayerType::REMOTE_PLAYER) {
             PLOG_WARNING << "[Lobby] Invalid remote player id = " << id;
             return;
         }
@@ -62,57 +80,70 @@ void Lobby::openLobby(int port) {
     PLOG(plog::info) << "[Lobby] Lobby opened!";
 }
 
-Lobby::Lobby(const vector<PlayerType> &players, int port, shared_ptr<World> world)
-        : players(players), clients(players.size()), world(std::move(world)), port(port) {
-    openLobby(port);
-}
 
 
-shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
-    bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
-    if (!waitRe) {
-        PLOG_WARNING << "[Lobby] Wait timeout!";
-        return shared_ptr<Server>();
-    }
-    auto server = make_shared<Server>();
-    server->setWorld(world);
-    int botCount = 0;
+
+void Lobby::initNames(shared_ptr<World>& world) {
+    auto& players = gis.getPlayers();
     for (int i = 0; i < players.size(); i++) {
-        switch (players[i]) {
+        switch (players[i].type) {
             case PlayerType::LOCAL_PLAYER: {
-                auto cl = std::make_shared<LocalClient>();
-                cl->setRealServer(server);
-                server->registerClient(cl);
-                auto view = gui.lock();
-                cl->setView(view);
-                view->setControllerAndView(cl);
-
-                stringstream ss;
-                ss << "Player" << i;
-                world->getPlayer(i).setName(ss.str());
+                world->getPlayer(i).setName(GameConfiguration::instance().getPlayerName());
                 break;
             }
             case PlayerType::BOT_PLAYER: {
-                auto cl = std::make_shared<BotClientPort>();
-                cl->setServer(server);
-                server->registerClient(cl);
-
-                stringstream ss;
-                botCount++;
-                ss << "Bot" << botCount;
-                world->getPlayer(i).setName(ss.str());
-
                 break;
             }
             case PlayerType::REMOTE_PLAYER: {
                 auto &p = clients[i];
                 world->getPlayer(i).setName(p.second);
-                server->registerClient(p.first);
                 break;
             }
         }
 
     }
+}
+
+void setGameGui(const weak_ptr<GameGui> &gui, shared_ptr<LocalClient>& lc){
+    auto view = gui.lock();
+    view->setControllerAndView(lc);
+    lc->setView(view);
+}
+void Lobby::setupRemoteClients(shared_ptr<Server> &server, const vector<PlayerSetting> &players) const {
+    for (int i = 0; i < players.size(); i++) {
+        if (players[i].type == PlayerType::REMOTE_PLAYER ) {
+            auto &p = clients[i];
+            server->registerClient(p.first,players[i].playerId);
+        }
+    }
+}
+
+shared_ptr<Server> Lobby::startLocalGame(const weak_ptr<GameGui> &gui) {
+    auto pair = gis.buildLocalGame();
+    auto server = pair.first;
+    auto localClient = pair.second;
+    setGameGui(gui, localClient);
+    server->startGame();
+    return server;
+}
+
+
+shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
+    if(getRemoteClientCount(gis) == 0){
+        return startLocalGame(gui);
+    }
+    bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
+    if (!waitRe) {
+        PLOG_WARNING << "[Lobby] Wait timeout!";
+        return shared_ptr<Server>();
+    }
+    auto pair = gis.buildLocalGame();
+    auto server = pair.first;
+    auto localClient = pair.second;
+    setGameGui(gui, localClient);
+    auto& players = gis.getPlayers();
+    setupRemoteClients(server, players);
+
     weak_ptr<Server> ws = server;
     function<void(const MessagePtr &)> listener = [ws](const MessagePtr &msg) {
         if (!msg) {
@@ -135,6 +166,7 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     return server;
 }
 
+
 void Lobby::closeLobby() {
     if (conductor) {
         conductor->stop();
@@ -143,9 +175,6 @@ void Lobby::closeLobby() {
     }
 }
 
-const vector<PlayerType> &Lobby::getPlayers() const {
-    return players;
-}
 
 const vector<pair<shared_ptr<ClientProxy>, string>> &Lobby::getClients() const {
     return clients;
@@ -171,11 +200,13 @@ string Lobby::getAddressInfo() {
 }
 
 bool Lobby::isGameReady() {
-    return latch->getCount() == 0;
+    return getRemoteClientCount(gis) == 0 || latch->getCount() == 0;
 }
 
 Lobby::~Lobby() {
     closeLobby();
 }
+
+
 
 }

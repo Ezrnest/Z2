@@ -71,7 +71,7 @@ void Tile::resetVisibility(int playerId) {
 }
 
 void Tile::setPlayerCount(int count) {
-    visibility.reserve(count);
+    visibility.resize(count);
     for(int i=0;i<count;i++){
         visibility[i] = Visibility::DARK;
     }

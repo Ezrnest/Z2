@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <bot/Bot.h>
+
 using namespace std;
 namespace z2 {
 class GameMap;
@@ -26,6 +28,7 @@ public:
     int positionId;
     int groupId;
     int colorCode = 0;
+    BotDifficulty diff = BotDifficulty::NONE;
     PlayerType type;
 };
 
@@ -38,6 +41,9 @@ public:
 
     GameInitSetting(vector<PlayerSetting> players, shared_ptr<GameMap> map);
 
+
+    int getPlayerCount() const;
+
     void setupPlayer(int idx,const PlayerSetting& s);
 
     bool isValidLocalSetting(bool isLocalGame);
@@ -45,7 +51,7 @@ public:
     shared_ptr<World> buildWorld();
 
     /**
-     * Builds a server for local game. The GameGui for the LocalClient is not set yet.
+     * Builds a server for local game. Only local clients will be registered.
      */
     pair<shared_ptr<Server>,shared_ptr<LocalClient>> buildLocalGame();
 
@@ -53,6 +59,8 @@ public:
 
     const shared_ptr<GameMap> &getMap() const;
 };
+
+void initBot(shared_ptr<Server>& server,shared_ptr<World> & w, PlayerSetting& ps);
 
 }
 

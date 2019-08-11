@@ -1,3 +1,4 @@
+#include "gameutil.h"
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 #include <QMessageBox>
@@ -6,6 +7,7 @@
 #include <entity/ConstructionBase.h>
 #include "config/EntityRepository.h"
 #include "config/TechRepository.h"
+#include "config/GameConfiguration.h"
 #include "core/messages/UnitBuy.h"
 #include "core/messages/TechResearch.h"
 #include "core/messages/EntityPerform.h"
@@ -13,7 +15,7 @@
 #include "world/Technology.h"
 #include "core/messages/ControlMessage.h"
 #include "mainwindow.h"
-
+#include <QFileDialog>
 GameWindow::GameWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::GameWindow)
@@ -23,10 +25,18 @@ GameWindow::GameWindow(QWidget *parent) :
     //    ui->frEntityInfo->
 
     QPalette pal = palette();
-    // set black background
     pal.setColor(QPalette::Background, Qt::white);
 
     ui->gameFrame->setWindow(this);
+    ui->frMenu->setVisible(false);
+
+    QPalette background;
+    background.setColor(QPalette::Background,Qt::white);
+    ui->frTurnInfo->setPalette(background);
+    ui->frTurnInfo->setAutoFillBackground(true);
+    background.setColor(QPalette::Background,Qt::lightGray);
+    ui->frMenu->setPalette(background);
+    ui->frMenu->setAutoFillBackground(true);
 
     setupTable(ui->tableBuy);
     setupTable(ui->tableResearch);
@@ -84,6 +94,7 @@ void GameWindow::showGameEnded()
 
 void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
 {
+    refreshAll();
     auto we = dynamic_pointer_cast<GroupEvent>(event);
     if(we && we->getSType() == StateEventType::GroupWon){
         showGameWin(we);
@@ -107,9 +118,19 @@ shared_ptr<World> GameWindow::getWorld()
     return gui->client->getWorld();
 }
 
-shared_ptr<Client> GameWindow::getClient()
+shared_ptr<Client>& GameWindow::getClient()
 {
     return gui->client;
+}
+
+int GameWindow::getPlayerId()
+{
+    return gui->client->getPlayerId();
+}
+
+bool GameWindow::isCurrentTurn()
+{
+    return getWorld()->getCurrentPlayer() == getPlayerId();
 }
 
 Point &GameWindow::getSelectedPos()
@@ -196,7 +217,16 @@ void GameWindow::refreshPlayerInfo()
 void GameWindow::refreshTurnInfo()
 {
     auto w = getWorld();
-    ui->lblCurrentPlayer->setText(QString::fromStdString(w->getCurrentAsPlayer().getName()));
+    int curPlayer = w->getCurrentPlayer();
+    if(curPlayer == getPlayerId()){
+        ui->frTurnInfo->hide();
+        ui->btnEndTurn->setEnabled(true);
+    }else{
+        ui->frTurnInfo->show();
+        ui->btnEndTurn->setEnabled(false);
+        ui->lblCurrentPlayer->setText(QString::fromStdString(w->getCurrentAsPlayer().getName()));
+    }
+
 }
 
 void GameWindow::refreshPerformAbility(shared_ptr<Entity> &en, World &w, Point &pos)
@@ -305,6 +335,17 @@ void GameWindow::refreshTileInfo(bool entityInfo, World& w, Point& p)
     }
 }
 
+void GameWindow::saveGame()
+{
+    if(!isCurrentTurn()){
+        QString title = "警告";
+        QString text = "只有在自己的回合才能保存游戏！";
+        QMessageBox::warning(this,title,text);
+        return;
+    }
+    GameUtil::saveGame(this,getWorld());
+}
+
 void GameWindow::exitGame()
 {
     if(gameState == 1){
@@ -338,6 +379,11 @@ void QtGui::onPlayerTurnStarted(int playerId)
     update();
 }
 
+void QtGui::onPlayerTurnFinished(int playerId)
+{
+    update();
+}
+
 void QtGui::onGameStarted()
 {
     update();
@@ -355,7 +401,7 @@ void QtGui::onGameStopped()
 
 void QtGui::onEvent(const shared_ptr<GameEvent> &event)
 {
-    update();
+//    update();
     emit window->notifyGameEvent(event);
 
 }
@@ -403,4 +449,29 @@ void GameWindow::on_btnResearch_clicked()
     auto client = getClient();
     shared_ptr<TechResearch> msg(new TechResearch(name,client->getPlayerId()));
     client->sendMessageToServer(msg);
+}
+
+void GameWindow::on_actionPlayerInfo_triggered()
+{
+
+}
+
+void GameWindow::on_btnMenu_clicked()
+{
+    ui->frMenu->show();
+}
+
+void GameWindow::on_btnExitGame_clicked()
+{
+    close();
+}
+
+void GameWindow::on_btnMenuCancel_clicked()
+{
+    ui->frMenu->hide();
+}
+
+void GameWindow::on_btnSaveGame_clicked()
+{
+    saveGame();
 }

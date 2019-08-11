@@ -8,6 +8,7 @@
 #include <core/messages/TechResearch.h>
 #include <config/TechRepository.h>
 #include <event/InGamePlayerEvent.h>
+#include <core/messages/SetPlayerData.h>
 #include "event/GameEvent.h"
 #include "event/StateEvent.h"
 #include "World.h"
@@ -49,13 +50,13 @@ World::World(int width_, int height_, int playerCount)
 }
 
 World::World(const World &world) {
-    data = copyMatrix(world.data, world.height, world.width);
+    data = copyMatrix(world.data, world.width, world.height);
     initPlainDataFrom(world);
 }
 
 World &World::operator=(const World &world) {
     auto dataOrigin = data;
-    data = copyMatrix(world.data, world.height, world.width);
+    data = copyMatrix(world.data, world.width, world.height);
     deleteMatrix(dataOrigin, height);
     initPlainDataFrom(world);
 
@@ -69,7 +70,7 @@ World::World(World &&world) noexcept {
 }
 
 World &World::operator=(World &&world) noexcept {
-    deleteMatrix(data, height);
+    deleteMatrix(data, width);
 
     data = world.data;
     initPlainDataFrom(world);
@@ -80,7 +81,7 @@ World &World::operator=(World &&world) noexcept {
 }
 
 World::~World() {
-    deleteMatrix(data, height);
+    deleteMatrix(data, width);
 }
 
 const string &World::className() {
@@ -207,15 +208,22 @@ void World::dealWithMessage(const shared_ptr<GameMessage> &message) {
             removeEntity(msg->getPos());
             break;
         }
-        case GameMessageType::TechResearch:{
+        case GameMessageType::TechResearch: {
             const shared_ptr<TechResearch> msg = static_pointer_cast<TechResearch>(message);
             researchTechnology(msg->getPlayerId(), msg->getTechId());
+            break;
         }
+        case GameMessageType::SetPlayerData: {
+            const shared_ptr<SetPlayerData> msg = static_pointer_cast<SetPlayerData>(message);
+            msg->setDataForWorld(*this);
+            break;
+        }
+
     }
 }
 
 /* ------------------------------- Start of Game Operation -------------------------------------- */
-bool playerCanControl(int playerId, Entity& en){
+bool playerCanControl(int playerId, Entity &en) {
     return playerId == Player::NO_PLAYER || en.getOwnerId() == playerId;
 }
 
@@ -232,7 +240,7 @@ bool World::canMove(const Point &from, const Point &dest, int playerId) {
     if (!entity) {
         return false;
     }
-    if(!playerCanControl(playerId,*entity)){
+    if (!playerCanControl(playerId, *entity)) {
         return false;
     }
     int requiredMoves = pathLength(from, dest, entity);
@@ -305,6 +313,7 @@ bool World::performMeleeAttack(const Point &from, const Point &dest, const share
     }
     return false;
 }
+
 bool World::canAttack(const Point &from, const Point &dest, int playerId) {
     const EntityPtr &attacker = getEntity(from);
     const EntityPtr &receiver = getEntity(dest);
@@ -314,7 +323,7 @@ bool World::canAttack(const Point &from, const Point &dest, int playerId) {
     if (attacker->getRemainingMoves() < 1) {
         return false;
     }
-    if(!playerCanControl(playerId,*attacker)){
+    if (!playerCanControl(playerId, *attacker)) {
         return false;
     }
     if (isOfSameGroup(attacker, receiver)) {
@@ -376,7 +385,6 @@ void World::attackEntityRange(const Point &from, const Point &dest, const shared
 }
 
 
-
 void World::attackEntity(const Point &from, const Point &dest) {
     const EntityPtr &attacker = getEntity(from);
     const EntityPtr &receiver = getEntity(dest);
@@ -409,15 +417,16 @@ void World::attackEntity(const Point &from, const Point &dest) {
     }
     PLOG_WARNING << "The unit can't attack!";
 }
-bool World::canPerform(const z2::Point & target, int playerId) {
+
+bool World::canPerform(const z2::Point &target, int playerId) {
     auto en = getEntity(target);
     if (!en) {
         return false;
     }
-    if(!playerCanControl(playerId,*en)){
+    if (!playerCanControl(playerId, *en)) {
         return false;
     }
-    if(en->getRemainingMoves() < 1){
+    if (en->getRemainingMoves() < 1) {
         return false;
     }
     return en->canPerformAbility(target, *this);
@@ -437,26 +446,26 @@ void World::performEntity(const Point &target) {
     onEntityPerformed(target, entity);
 }
 
-bool World::canResearchTechnology(int playerId, const string& techId){
-    if(!isValidLivingPlayer(playerId)){
+bool World::canResearchTechnology(int playerId, const string &techId) {
+    if (!isValidLivingPlayer(playerId)) {
         return false;
     }
-    auto& repo = TechRepository::instance();
+    auto &repo = TechRepository::instance();
     if (!repo.containsTech(techId)) {
         return false;
     }
     Player &p = getPlayer(playerId);
     const Technology &tech = repo.getTechnology(techId);
-    if(!tech.isResearchable(p)){
+    if (!tech.isResearchable(p)) {
         return false;
     }
-    if (p.getGold()< tech.getPrice()) {
+    if (p.getGold() < tech.getPrice()) {
         return false;
     }
     return p.getTechPoints() >= 1;
 }
 
-bool World::researchTechnology(int playerId, const string& techId) {
+bool World::researchTechnology(int playerId, const string &techId) {
 //    if(!isValidLivingPlayer(playerId)){
 //        PLOG_WARNING << "Invalid playerId: " << playerId;
 //        return false;
@@ -476,7 +485,7 @@ bool World::researchTechnology(int playerId, const string& techId) {
 //        return false;
 //    }
     if (!canResearchTechnology(playerId, techId)) {
-        PLOG_WARNING << "Player " << playerId << " can't research tech "<< techId;
+        PLOG_WARNING << "Player " << playerId << " can't research tech " << techId;
         return false;
     }
     auto &repo = TechRepository::instance();
@@ -542,12 +551,11 @@ void World::onEntityPerformed(const Point &pos, const EntityPtr &entity) {
     dispatcher.publish(event);
 }
 
-void World::onPlayerResearchedTech(int playerId, const string& techId) {
+void World::onPlayerResearchedTech(int playerId, const string &techId) {
     PLOG_INFO << "[World] Player " << playerId << " reserached tech " << techId;
     GameEventPtr event(new TechResearchedEvent(playerId, techId));
     dispatcher.publish(event);
 }
-
 
 
 void World::onPlayerTurnStart() {
@@ -580,7 +588,7 @@ void World::onPlayerDefeated(int playerId) {
 
 void World::onPlayerGroupWon(int groupId) {
     PLOG(plog::info) << "Player group " << groupId << " won!";
-    shared_ptr<GameEvent> event(new GroupEvent(StateEventType::GroupWon,groupId));
+    shared_ptr<GameEvent> event(new GroupEvent(StateEventType::GroupWon, groupId));
     dispatcher.publish(event);
 }
 
@@ -616,7 +624,7 @@ Player &World::getPlayer(int playerId) {
     return players[playerId];
 }
 
-bool World::isValidLivingPlayer(int playerId){
+bool World::isValidLivingPlayer(int playerId) {
     if (playerId < 0 || playerId >= playerCount) {
         return false;
     }
@@ -758,7 +766,8 @@ int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit
 void World::serializeTo(ostream &output) {
     //general information
     output << className() << ' ';
-    output << width << ' '
+    output << mapName << ' '
+           << width << ' '
            << height << ' '
            << playerCount << ' ';
     // players
@@ -784,6 +793,8 @@ void World::serializeTo(ostream &output) {
 
 
 World *World::loadFrom(istream &input) {
+    string mapName;
+    input >> mapName;
     int width, height, playerCount;
     input >> width >> height >> playerCount;
     auto *world = new World(width, height, playerCount);
@@ -910,26 +921,26 @@ void World::publishEvent(shared_ptr<GameEvent> &event) {
     dispatcher.publish(event);
 }
 
-vector<const EntityInfo*> World::getAvailableEntitiesFor(int playerId) {
-    auto& repo = EntityRepository::instance();
+vector<const EntityInfo *> World::getAvailableEntitiesFor(int playerId) {
+    auto &repo = EntityRepository::instance();
     Player &p = getPlayer(playerId);
-    vector<const EntityInfo*> result;
-    for(auto& entry : repo.getEntityMap()){
-        auto& enInfo = entry.second;
-        if(enInfo.isBuyableByPlayer(p)){
+    vector<const EntityInfo *> result;
+    for (auto &entry : repo.getEntityMap()) {
+        auto &enInfo = entry.second;
+        if (enInfo.isBuyableByPlayer(p)) {
             result.push_back(&enInfo);
         }
     }
     return result;
 }
 
-vector<const Technology*> World::getResearchableTechFor(int playerId) {
-    auto& repo = TechRepository::instance();
+vector<const Technology *> World::getResearchableTechFor(int playerId) {
+    auto &repo = TechRepository::instance();
     Player &p = getPlayer(playerId);
-    vector<const Technology*> result;
-    for(auto& entry : repo.getTechnologies()){
-        auto& techInfo = entry.second;
-        if(techInfo.isResearchable(p)){
+    vector<const Technology *> result;
+    for (auto &entry : repo.getTechnologies()) {
+        auto &techInfo = entry.second;
+        if (techInfo.isResearchable(p)) {
             result.push_back(&techInfo);
         }
     }
@@ -937,9 +948,17 @@ vector<const Technology*> World::getResearchableTechFor(int playerId) {
 }
 
 void World::configure() {
-    for(int i=0;i<playerCount;i++){
+    for (int i = 0; i < playerCount; i++) {
         updateVisibility(i);
     }
+}
+
+const string &World::getMapName() const {
+    return mapName;
+}
+
+void World::setMapName(const string &mapName) {
+    World::mapName = mapName;
 }
 
 

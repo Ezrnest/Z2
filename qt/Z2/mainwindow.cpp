@@ -2,13 +2,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "config/MapRepository.h"
+#include "config/GameConfiguration.h"
 #include "world/GameInitSetting.h"
+#include "gameutil.h"
 #include "playercolor.h"
 #include <QMessageBox>
 #include "core/LocalClient.h"
 #include <core/Server.h>
 #include <core/RemoteClient.h>
 #include <core/RemoteServerProxy.h>
+#include <QFileDialog>
+
 using namespace z2;
 
 void setupTable(QTableWidget* table){
@@ -38,6 +42,16 @@ QComboBox* getPlayerColorComboBox(QWidget* parent){
     return comBox;
 }
 
+QComboBox* getBotDifficultyComboBox(QWidget* parent){
+    QComboBox* comBox = new QComboBox();
+    comBox->addItem("无");
+    comBox->addItem("简单");
+    comBox->addItem("中等");
+    comBox->addItem("困难");
+    comBox->setEnabled(true);
+    return comBox;
+}
+
 PlayerType getPlayerTypeByIndex(int idx){
     switch(idx){
     case 0: return PlayerType::LOCAL_PLAYER;
@@ -56,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
     //    ui->tableWidget->setC
     setupTable(ui->tablePlayer);
-    connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::BlockingQueuedConnection);
+    connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::AutoConnection);
 }
 
 MainWindow::~MainWindow()
@@ -71,6 +85,7 @@ void MainWindow::on_btnMultiple_clicked()
 {
     ui->stackedWidget->setCurrentIndex(1);
     localGame = false;
+    loadSavedMap = false;
     initGameLobby();
 }
 
@@ -78,6 +93,7 @@ void MainWindow::on_btnSingle_clicked()
 {
     ui->stackedWidget->setCurrentIndex(1);
     localGame = true;
+    loadSavedMap = false;
     initGameLobby();
 }
 
@@ -94,7 +110,7 @@ void MainWindow::on_stackedWidget_currentChanged(int arg1)
 }
 
 void initMapComboBox(QComboBox* box){
-    //TODO add from GameMapRepository
+    box->clear();
     auto& maps = z2::MapRepository::instance().getMaps();
     for(auto& m : maps){
         box->addItem(QString::fromStdString(m->getName()));
@@ -106,11 +122,24 @@ void MainWindow::initGameLobby()
 {
     auto comBox = ui->cmbMap;
     initMapComboBox(comBox);
+}
 
+void MainWindow::refreshGameLobby()
+{
+    auto comBox = ui->cmbMap;
+    if(loadSavedMap){
+        comBox->hide();
+        ui->lblMapName->show();
+        ui->lblMapName->setText(QString::fromStdString(currentMap->getName()));
+    }else{
+        comBox->show();
+        ui->lblMapName->hide();
+    }
 }
 
 void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
 {
+    currentMap = map;
     auto table = ui->tablePlayer;
     table->clearContents();
     int rowCount = map->getMaxPlayerCount();
@@ -141,13 +170,20 @@ void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
         }
         table->setCellWidget(i,4,comboBox);
         //color
+
+        comboBox = getBotDifficultyComboBox(table);
+        table->setCellWidget(i,5,comboBox);
     }
+    refreshGameLobby();
 }
 
 
 void MainWindow::on_cmbMap_currentIndexChanged(int index)
 {
     auto& maps = z2::MapRepository::instance().getMaps();
+    if(index < 0 || index >= maps.size()){
+        return;
+    }
     currentMap = maps[index];
     loadMap(currentMap);
 }
@@ -174,8 +210,12 @@ GameInitSetting loadSettingFromTable(const shared_ptr<GameMap>& map, QTableWidge
         if(box == nullptr){
             continue;
         }
+        int colorCode = box->currentIndex();
+        box = dynamic_cast<QComboBox*>(table->cellWidget(i,5));
+        BotDifficulty diff = (BotDifficulty)box->currentIndex();
         PlayerSetting ps(playerId,posId,groupId,type);
-        ps.colorCode = box->currentIndex();
+        ps.colorCode = colorCode;
+        ps.diff = diff;
         players.push_back(ps);
     }
     return GameInitSetting(players,map);
@@ -212,6 +252,7 @@ void MainWindow::startLocalGame(z2::GameInitSetting &setting)
     gw->setServer(server);
     gw->show();
     server->startGame();
+    ui->stackedWidget->setCurrentIndex(0);
 }
 
 
@@ -226,7 +267,7 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
     for(auto& p : players){
         ps.push_back(p.type);
     }
-    onlineLobby.reset(new Lobby(ps,port,setting.buildWorld()));
+    onlineLobby.reset(new Lobby(port,setting));
     auto listener =  [this](Lobby& lobby,int id){
         if(lobby.isGameReady()){
             emit notifyStartServerGame();
@@ -235,6 +276,10 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
         return;
     };
     onlineLobby->setOnPlayerConnected(listener);
+    onlineLobby->openLobby();
+    if(!onlineLobby || onlineLobby->isGameReady()){
+        return;
+    }
     ui->lblAddress->setText(QString::fromStdString(onlineLobby->getAddressInfo()));
     ui->stackedWidget->setCurrentIndex(2);
     update();
@@ -283,9 +328,8 @@ void MainWindow::startServerGame()
     gw->setServer(server);
     gw->setLobby(onlineLobby);
     onlineLobby.reset();
-    ui->stackedWidget->setCurrentIndex(0);
     gw->show();
-
+    ui->stackedWidget->setCurrentIndex(0);
     //    server->startGame();
 }
 
@@ -304,4 +348,16 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    auto map = GameUtil::loadGame(this);
+    if(!map){
+        loadSavedMap = false;
+        refreshGameLobby();
+        return;
+    }
+    loadSavedMap = true;
+    loadMap(map);
 }

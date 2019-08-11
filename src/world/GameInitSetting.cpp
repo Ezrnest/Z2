@@ -14,6 +14,8 @@
 #include "GameMap.h"
 #include "core/Server.h"
 #include "bot/BotClientPort.h"
+#include "config/BotRepository.h"
+#include "config/GameConfiguration.h"
 using namespace std;
 namespace z2 {
 
@@ -28,7 +30,6 @@ PlayerSetting::PlayerSetting() : PlayerSetting(-1, -1, -1, PlayerType::BOT_PLAYE
 }
 
 GameInitSetting::GameInitSetting(int playerCount, shared_ptr<GameMap> map) : players(playerCount), map(std::move(map)) {
-
 }
 
 void GameInitSetting::setupPlayer(int idx, const PlayerSetting &s) {
@@ -74,31 +75,24 @@ shared_ptr<World> GameInitSetting::buildWorld() {
     return map->buildWorld(players);
 }
 
+
 pair<shared_ptr<Server>, shared_ptr<LocalClient>> GameInitSetting::buildLocalGame() {
     auto w = buildWorld();
     shared_ptr<Server> server(new Server());
     server->setWorld(w);
     shared_ptr<LocalClient> lc;
-    int botCount = 0;
-    for (int i=0;i<players.size();i++) {
-        auto& ps = players[i];
-        int pid = ps.playerId;
+    for (auto & ps : players) {
         switch (ps.type) {
             case PlayerType::LOCAL_PLAYER: {
+                int pid = ps.playerId;
                 lc.reset(new LocalClient());
                 lc->setRealServer(server);
-                server->registerClient(lc);
-                w->getPlayer(pid).setName("LocalPlayer");
+                server->registerClient(lc,pid);
+                w->getPlayer(pid).setName(GameConfiguration::instance().getPlayerName());
                 break;
             }
             case PlayerType::BOT_PLAYER: {
-                shared_ptr<BotClientPort> bc(new BotClientPort());
-                bc->setServer(server);
-                server->registerClient(bc);
-                stringstream ss;
-                botCount++;
-                ss << "Bot" << botCount;
-                w->getPlayer(pid).setName(ss.str());
+                initBot(server,w,ps);
                 break;
             }
             case PlayerType::REMOTE_PLAYER: {
@@ -117,4 +111,45 @@ const vector<PlayerSetting> &GameInitSetting::getPlayers() const {
 const shared_ptr<GameMap> &GameInitSetting::getMap() const {
     return map;
 }
+
+int GameInitSetting::getPlayerCount()const {
+    return getPlayers().size();
+}
+
+
+string generateBotName(const shared_ptr<World> &w, shared_ptr<Bot> &bot) {
+    auto& baseName = bot->getBotName();
+    string name = baseName;
+    int suffix = 1;
+    while(true){
+        bool duplicated = false;
+        for(auto& p : w->getPlayers()){
+            if(p.getName() == name){
+                duplicated = true;
+                break;
+            }
+        }
+        if(!duplicated){
+            break;
+        }
+        stringstream ss;
+        ss << baseName << suffix;
+        name = ss.str();
+        suffix++;
+    }
+    return name;
+}
+
+void initBot(shared_ptr<Server> &server, shared_ptr<World> &w, PlayerSetting &ps) {
+    BotDifficulty diff = ps.diff;
+    auto bot = BotRepository::instance().getBot(diff);
+    shared_ptr<BotClientPort> bc(new BotClientPort(bot));
+    bc->setClientId(ps.playerId);
+    bc->setServer(server);
+    server->registerClient(bc,ps.playerId);
+    //make the name
+    string name = generateBotName(w, bot);
+    w->getPlayer(ps.playerId).setName(name);
+}
+
 }

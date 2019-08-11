@@ -47,16 +47,22 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     bool localGame = false;
+
+    bool loadSavedMap = false;
 
     shared_ptr<z2::GameMap> currentMap;
 
     shared_ptr<z2::Lobby> onlineLobby;
 
     void initGameLobby();
+
+    void refreshGameLobby();
 
     void loadMap(const std::shared_ptr<z2::GameMap>& map);
 

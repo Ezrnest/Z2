@@ -10,41 +10,10 @@
 #include <memory>
 #include <string>
 #include "GameInitSetting.h"
+#include "MapPreview.h"
+
 using namespace std;
 namespace z2 {
-
-class MapTile{
-public:
-    Terrain terrain = Terrain::PLAIN;
-    Resource resource = Resource::NONE;
-
-    MapTile(Terrain terrain, Resource resource);
-
-    MapTile();
-
-    void setTo(Tile& t);
-};
-
-class MapBase{
-private:
-    int width;
-    int height;
-    vector<vector<MapTile>> data;
-public:
-    MapBase(int w,int h);
-
-    void setTile(int x,int y, Terrain t,Resource r);
-
-    MapTile& tile(int x, int y);
-
-    int getWidth() const;
-
-    int getHeight() const;
-
-    void setDataTo(World& w);
-
-    const vector<vector<MapTile>> &getData() const;
-};
 
 /**
  * The map of the game.
@@ -54,19 +23,14 @@ private:
     string name;
     string description;
     int maxPlayerCount;
-    vector<Point> bornPoints;
-    MapBase mapBase;
 
-
-    void setupInitialEntities(const PlayerSetting &ps, World &world);
 
 public:
-    GameMap(string name, string description, int maxPlayerCount,  const vector<Point>&  bornPoints,
-            MapBase mapBase);
+    GameMap(string name, string description, int maxPlayerCount);
 
+    virtual shared_ptr<MapPreview> getPreview() = 0;
 
-
-    shared_ptr<World> buildWorld(const vector<PlayerSetting>& players);
+    virtual shared_ptr<World> buildWorld(const vector<PlayerSetting>& players) = 0;
 
     const string& getDescription();
 
@@ -74,10 +38,9 @@ public:
 
     const string &getName() const;
 
-    static shared_ptr<GameMap> loadFrom(istream& in);
+    static bool saveWorldTo(const string &path, const string& description, const shared_ptr<World> &world);
 
-    static MapTile getTileFromChar(char c);
-
+    static shared_ptr<GameMap> loadWorldFrom(const string& path);
 
 };
 

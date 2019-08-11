@@ -30,7 +30,6 @@ SOURCES += *.cpp \
 
 
 
-
 FORMS += *.ui
 
 RC_ICONS =z2.ico

@@ -25,6 +25,8 @@ class Technology;
  */
 class World : public Serializable {
 private:
+    string mapName = "none";
+
     int width = 1;
     int height = 1;
 
@@ -138,6 +140,10 @@ public:
     void configure();
 
     const string &getClassName()const  override;
+
+    const string &getMapName() const;
+
+    void setMapName(const string &mapName);
 
     int getWidth() const;
 

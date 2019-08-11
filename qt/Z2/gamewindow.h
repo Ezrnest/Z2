@@ -28,9 +28,13 @@ public:
 
     virtual void onPlayerTurnStarted(int playerId) override;
 
+    virtual void onPlayerTurnFinished(int playerId) override;
+
     virtual void onGameStarted() override;
 
     virtual void onPlayerWin(int playerId) override;
+
+
 
     virtual void onGameStopped() override ;
 
@@ -85,6 +89,16 @@ private slots:
 
     void on_btnResearch_clicked();
 
+    void on_actionPlayerInfo_triggered();
+
+    void on_btnMenu_clicked();
+
+    void on_btnExitGame_clicked();
+
+    void on_btnMenuCancel_clicked();
+
+    void on_btnSaveGame_clicked();
+
 private:
     Ui::GameWindow *ui;
     shared_ptr<QtGui> gui;
@@ -99,10 +113,14 @@ private:
 
     shared_ptr<World> getWorld();
 
-    shared_ptr<Client> getClient();
+    shared_ptr<Client>& getClient();
 
+    int getPlayerId();
+
+    bool isCurrentTurn();
 
     Point& getSelectedPos();
+
 
     void closeEvent(QCloseEvent* event) override;
 
@@ -113,6 +131,8 @@ private:
     void refreshPerformAbility(shared_ptr<Entity>& en, World& w, Point& p);
 
     void refreshTileInfo(bool entityInfo,World& w,Point& pos);
+
+    void saveGame();
 
     void exitGame();
 public:

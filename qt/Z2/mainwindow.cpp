@@ -6,6 +6,7 @@
 #include "world/GameInitSetting.h"
 #include "gameutil.h"
 #include "playercolor.h"
+#include <QDialog>
 #include <QMessageBox>
 #include "core/LocalClient.h"
 #include <core/Server.h>
@@ -83,7 +84,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btnMultiple_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(1);
     localGame = false;
     loadSavedMap = false;
     initGameLobby();
@@ -91,7 +91,7 @@ void MainWindow::on_btnMultiple_clicked()
 
 void MainWindow::on_btnSingle_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(1);
+
     localGame = true;
     loadSavedMap = false;
     initGameLobby();
@@ -120,6 +120,7 @@ void initMapComboBox(QComboBox* box){
 
 void MainWindow::initGameLobby()
 {
+    ui->stackedWidget->setCurrentIndex(1);
     auto comBox = ui->cmbMap;
     initMapComboBox(comBox);
 }
@@ -135,6 +136,7 @@ void MainWindow::refreshGameLobby()
         comBox->show();
         ui->lblMapName->hide();
     }
+    ui->mapDisplay->setGameMap(currentMap);
 }
 
 void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
@@ -277,7 +279,7 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
     };
     onlineLobby->setOnPlayerConnected(listener);
     onlineLobby->openLobby();
-    if(!onlineLobby || onlineLobby->isGameReady()){
+    if(!onlineLobby || onlineLobby->isGameReady()){ //game already started
         return;
     }
     ui->lblAddress->setText(QString::fromStdString(onlineLobby->getAddressInfo()));
@@ -305,6 +307,26 @@ void MainWindow::startOnlineGameClient(QString address,int id)
     }
 
     gw->show();
+}
+
+void MainWindow::initSettingPage()
+{
+    ui->stackedWidget->setCurrentIndex(4);
+    const string& playerName = GameConfiguration::instance().getPlayerName();
+    ui->textInputPlayerName->setText(QString::fromStdString(playerName));
+}
+
+void MainWindow::saveGameSetting()
+{
+    QString playerName = ui->textInputPlayerName->text();
+    if(playerName.contains(' ')){
+        QMessageBox::warning(this,"警告","用户名中不能含有空格!");
+        return;
+    }
+    auto& gc = GameConfiguration::instance();
+    gc.getProp().set("playerName",playerName.toStdString());
+    gc.saveProp();
+    QMessageBox::information(this,"信息","保存成功");
 }
 
 
@@ -360,4 +382,19 @@ void MainWindow::on_pushButton_4_clicked()
     }
     loadSavedMap = true;
     loadMap(map);
+}
+
+void MainWindow::on_btnSetting_clicked()
+{
+    initSettingPage();
+}
+
+void MainWindow::on_btnCancel_2_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::on_btnCancel_3_clicked()
+{
+    saveGameSetting();
 }

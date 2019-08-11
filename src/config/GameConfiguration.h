@@ -16,6 +16,11 @@ private:
     void initFromFolder(const ancono::File &dir) override;
 
 public:
+    const ancono::Properties &getProp() const;
+
+    ancono::Properties& getProp();
+
+    void saveProp();
 
     const string& getPlayerName();
 

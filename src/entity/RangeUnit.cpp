@@ -6,34 +6,25 @@
 #include "RangeUnit.h"
 
 
-z2::RangeUnit::RangeUnit(unsigned int objectId) : GameUnit(objectId) {
+z2::RangeUnit::RangeUnit(unsigned int objectId) : BattleUnit(objectId) {
 
 }
 
 void z2::RangeUnit::initialize(const Properties &prop) {
-    GameUnit::initialize(prop);
-    attackStrength = prop.getInt("attackStrength", attackStrength);
+    BattleUnit::initialize(prop);
+
     range = prop.getDouble("range", range);
 }
 
 void z2::RangeUnit::serializeDataPart(ostream &output) {
-    GameUnit::serializeDataPart(output);
-    output << attackStrength << ' '
-           << range << ' ';
+    BattleUnit::serializeDataPart(output);
+    output << range << ' ';
 }
 
 void z2::RangeUnit::deserializeDataPart(istream &input, z2::RangeUnit *en) {
-    GameUnit::deserializeDataPart(input, en);
-    input >> en->attackStrength >> en->range;
+    BattleUnit::deserializeDataPart(input, en);
+    input >> en->range;
 
-}
-
-int z2::RangeUnit::getAttackStrength() const {
-    return attackStrength;
-}
-
-void z2::RangeUnit::setAttackStrength(int attackStrength) {
-    RangeUnit::attackStrength = attackStrength;
 }
 
 double z2::RangeUnit::getRange() const {

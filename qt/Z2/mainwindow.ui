@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -85,7 +85,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>载入游戏</string>
+       <string>游戏设置</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnJoin">
@@ -114,16 +114,6 @@
       </property>
       <property name="text">
        <string>开始游戏</string>
-      </property>
-     </widget>
-     <widget class="QGraphicsView" name="graphicsMapDisplay">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>40</y>
-        <width>200</width>
-        <height>200</height>
-       </rect>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -205,6 +195,9 @@
         <height>241</height>
        </rect>
       </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>75</number>
+      </attribute>
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
@@ -292,6 +285,16 @@
       </property>
       <property name="text">
        <string>载入存档</string>
+      </property>
+     </widget>
+     <widget class="GameMapDisplay" name="mapDisplay" native="true">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>40</y>
+        <width>200</width>
+        <height>200</height>
+       </rect>
       </property>
      </widget>
     </widget>
@@ -500,6 +503,103 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="settingPage">
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>161</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>20</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>游戏设置：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>玩家名：</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="textInputPlayerName">
+      <property name="geometry">
+       <rect>
+        <x>97</x>
+        <y>68</y>
+        <width>161</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnCancel_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>490</y>
+        <width>101</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>取消</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnCancel_3">
+      <property name="geometry">
+       <rect>
+        <x>670</x>
+        <y>490</y>
+        <width>101</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>保存</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -513,6 +613,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>GameMapDisplay</class>
+   <extends>QWidget</extends>
+   <header>gamemapdisplay.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

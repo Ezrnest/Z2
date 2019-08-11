@@ -10,12 +10,13 @@
 #include "plog/Appenders/ConsoleAppender.h"
 #include "MapRepository.h"
 #include "TechRepository.h"
+
 using namespace z2;
 
-ancono::File getDirNamed(const string& name){
+ancono::File getDirNamed(const string &name) {
     File curDir = File::currentDirectory();
     File resDir = curDir.parent().subFile(name);
-    if(resDir.exists()){
+    if (resDir.exists()) {
         return resDir;
     }
     return curDir.parent().parent().parent().subFile(name);
@@ -32,7 +33,6 @@ ancono::File GameConfiguration::getConfigDir() {
 ancono::File GameConfiguration::getSaveDir() {
     return getDirNamed("saves");
 }
-
 
 
 void GameConfiguration::initRegistration() {
@@ -87,22 +87,40 @@ void GameConfiguration::disposeAll() {
 
 void GameConfiguration::initFromFolder(const ancono::File &dir) {
     File conf = dir.subFile("config.ini");
-    if(conf.exists()){
+    if (conf.exists()) {
         prop.loadFromFile(conf.getPath());
-    }else{
+    } else {
         LOG_WARNING << "Failed to init config";
     }
 }
 
 const string &GameConfiguration::getPlayerName() {
 
-    const string& name =  prop.get("playerName", "player");
-    if(name.find_first_of(' ') == std::__cxx11::string::npos){
+    const string &name = prop.get("playerName", "player");
+    if (name.find_first_of(' ') == std::__cxx11::string::npos) {
         return name;
     }
-    string n = name.substr(0,name.find_first_of(' '));
+    string n = name.substr(0, name.find_first_of(' '));
     prop.set("playerName", n);
-    return prop.get("playerName",n);
+    return prop.get("playerName", n);
+}
+
+const Properties &GameConfiguration::getProp() const {
+    return prop;
+}
+
+ancono::Properties &GameConfiguration::getProp() {
+    return prop;
+}
+
+void GameConfiguration::saveProp() {
+    File dir = getConfigDir().subFile("config.ini");
+    if (dir.exists()) {
+        prop.saveToFile(dir.getPath());
+    } else {
+        LOG_WARNING << "Failed to save config!";
+    }
+
 }
 
 

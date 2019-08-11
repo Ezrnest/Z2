@@ -17,7 +17,7 @@ using namespace z2;
 
 const static QSize qTileSize(TILE_SIZE,TILE_SIZE);
 const static QSize qPlayerColorSize(PLAYER_COLOR_BLOCK_SIZE,PLAYER_COLOR_BLOCK_SIZE);
-const static bool GF_DEBUG = true;
+const static bool GF_DEBUG = false;
 
 GameFrame::GameFrame(QWidget *parent) :
     QFrame(parent),
@@ -302,7 +302,7 @@ void GameFrame::mouseReleaseEvent(QMouseEvent *event)
         if(dragState != 2){
             auto pos = event->pos();
             selPos = viewCordToGameCord(pos);
-            cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
+//            cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
             win->refreshSelection();
             update();
         }

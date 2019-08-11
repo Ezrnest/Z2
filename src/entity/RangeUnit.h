@@ -7,18 +7,13 @@
 
 
 #include "GameUnit.h"
+#include "BattleUnit.h"
 
 namespace z2 {
-class RangeUnit : public GameUnit{
+class RangeUnit : public BattleUnit{
 protected:
-    int attackStrength = 100;
-
     double range = 2.0;
 public:
-    int getAttackStrength() const;
-
-    void setAttackStrength(int attackStrength);
-
     double getRange() const;
 
     void setRange(double range);

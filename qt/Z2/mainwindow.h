@@ -49,6 +49,12 @@ private slots:
 
     void on_pushButton_4_clicked();
 
+    void on_btnSetting_clicked();
+
+    void on_btnCancel_2_clicked();
+
+    void on_btnCancel_3_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -71,6 +77,11 @@ private:
     void startOnlineGameServer(z2::GameInitSetting& setting);
 
     void startOnlineGameClient(QString address,int id);
+
+
+    void initSettingPage();
+
+    void saveGameSetting();
 
 signals:
     void notifyStartServerGame();

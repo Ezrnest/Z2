@@ -62,8 +62,16 @@ bool GameMapFromSave::saveGameSaving(const string &path) {
 }
 
 shared_ptr<MapPreview> GameMapFromSave::getPreview() {
-    //TODO
-    return shared_ptr<MapPreview>();
+    int width = world->getWidth();
+    int height = world->getHeight();
+    shared_ptr<MapPreview> mp(new MapPreview(width, height));
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            Tile &t = world->getTile(x, y);
+            mp->setTile(x,y,MapPreview::fromTile(t));
+        }
+    }
+    return mp;
 }
 
 }

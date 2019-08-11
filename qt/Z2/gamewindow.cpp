@@ -246,7 +246,7 @@ void GameWindow::refreshPerformAbility(shared_ptr<Entity> &en, World &w, Point &
 void GameWindow::refreshContruction(shared_ptr<Entity> &en, World &w, Point &p)
 {
     auto cons = dynamic_pointer_cast<ConstructionBase>(en);
-    if(!cons){
+    if(!cons || cons->getOwnerId() != getPlayerId()){
         ui->tabWidget2->hide();
         return;
     }

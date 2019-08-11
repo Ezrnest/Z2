@@ -16,8 +16,10 @@ enum class TilePreview{
     Mine,
     Gem,
     BornPoint,
-    BattleEntity,
-    EcoEntity
+    Building,
+    BattleUnit,
+    EcoUnit,
+    GameUnit
 };
 
 class MapPreview {

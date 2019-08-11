@@ -6,17 +6,12 @@
 #define Z2_MELEEUNIT_H
 
 #include "GameUnit.h"
+#include "BattleUnit.h"
 
 namespace z2 {
-class MeleeUnit : public GameUnit {
-protected:
-    int attackStrength = 100;
+class MeleeUnit : public BattleUnit {
 public:
     explicit MeleeUnit(unsigned int objectId);
-
-    int getAttackStrength() const;
-
-    void setAttackStrength(int attackStrength);
 
     void initialize(const Properties &prop) override;
 

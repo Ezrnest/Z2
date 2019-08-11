@@ -6,29 +6,19 @@
 
 
 void z2::MeleeUnit::initialize(const Properties &prop) {
-    GameUnit::initialize(prop);
-    attackStrength = prop.getInt("attackStrength", attackStrength);
+    BattleUnit::initialize(prop);
 }
 
 void z2::MeleeUnit::serializeDataPart(ostream &output) {
-    GameUnit::serializeDataPart(output);
-    output << attackStrength << ' ';
+    BattleUnit::serializeDataPart(output);
 }
 
 void z2::MeleeUnit::deserializeDataPart(istream &input, z2::MeleeUnit *en) {
-    GameUnit::deserializeDataPart(input,en);
-    input >> en->attackStrength;
+    BattleUnit::deserializeDataPart(input,en);
 }
 
-z2::MeleeUnit::MeleeUnit(unsigned int objectId) : GameUnit(objectId) {}
+z2::MeleeUnit::MeleeUnit(unsigned int objectId) : BattleUnit(objectId) {}
 
-int z2::MeleeUnit::getAttackStrength() const {
-    return attackStrength;
-}
-
-void z2::MeleeUnit::setAttackStrength(int attackStrength) {
-    MeleeUnit::attackStrength = attackStrength;
-}
 
 void z2::MeleeUnit::serializeTo(ostream &output) {
     output << className() << ' ';

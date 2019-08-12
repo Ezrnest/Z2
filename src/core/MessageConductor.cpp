@@ -187,9 +187,11 @@ string MessageConductor::getLocalAddressInfo() {
     ip::tcp::resolver::query query(asio::ip::host_name(), "");
     ip::tcp::resolver::iterator iter = resolver.resolve(query);
     ip::tcp::resolver::iterator end; // End marker.
-    if(iter != end){
+    while(iter != end){
         ip::tcp::endpoint ep = *iter++;
-        return ep.address().to_string();
+        if(ep.address().is_v4()){
+            return ep.address().to_string();
+        }
     }
     return "127.0.0.1";
 //    while (iter != end) {

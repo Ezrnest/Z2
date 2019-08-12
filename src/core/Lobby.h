@@ -61,7 +61,7 @@ public:
 
     string getAddressInfo();
 
-
+    string getHostNameInfo();
 
     /**
      * A blocking method, waiting all the players to join in.

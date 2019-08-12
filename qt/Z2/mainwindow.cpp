@@ -282,6 +282,7 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
     if(!onlineLobby || onlineLobby->isGameReady()){ //game already started
         return;
     }
+    ui->lblHostName->setText(QString::fromStdString(onlineLobby->getHostNameInfo()));
     ui->lblAddress->setText(QString::fromStdString(onlineLobby->getAddressInfo()));
     ui->stackedWidget->setCurrentIndex(2);
     update();

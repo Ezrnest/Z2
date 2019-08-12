@@ -20,14 +20,14 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
+      <x>10</x>
+      <y>0</y>
       <width>791</width>
       <height>551</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -302,7 +302,7 @@
      <widget class="QLabel" name="label_3">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>500</y>
         <width>151</width>
         <height>31</height>
@@ -334,7 +334,7 @@
      <widget class="QLabel" name="lblAddress">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>340</x>
         <y>140</y>
         <width>251</width>
         <height>31</height>
@@ -379,13 +379,51 @@
        <string>取消</string>
       </property>
      </widget>
+     <widget class="QLabel" name="lblHostName">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>90</y>
+        <width>251</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>20</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>服务器主机名：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>70</y>
+        <width>181</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>20</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>服务器主机名：</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="connectPage">
      <widget class="QPushButton" name="pushButton">
       <property name="geometry">
        <rect>
-        <x>330</x>
-        <y>229</y>
+        <x>400</x>
+        <y>230</y>
         <width>91</width>
         <height>41</height>
        </rect>
@@ -397,9 +435,9 @@
      <widget class="QLineEdit" name="textInputAddress">
       <property name="geometry">
        <rect>
-        <x>180</x>
+        <x>210</x>
         <y>219</y>
-        <width>121</width>
+        <width>171</width>
         <height>31</height>
        </rect>
       </property>
@@ -418,7 +456,7 @@
        <rect>
         <x>93</x>
         <y>221</y>
-        <width>81</width>
+        <width>121</width>
         <height>21</height>
        </rect>
       </property>
@@ -429,13 +467,13 @@
        </font>
       </property>
       <property name="text">
-       <string>地址</string>
+       <string>地址/主机名</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_6">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>0</y>
         <width>191</width>
         <height>31</height>
@@ -454,7 +492,7 @@
      <widget class="QLineEdit" name="textInputId">
       <property name="geometry">
        <rect>
-        <x>180</x>
+        <x>210</x>
         <y>259</y>
         <width>121</width>
         <height>31</height>

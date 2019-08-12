@@ -196,3 +196,7 @@ string MessageConductor::getLocalAddressInfo() {
 //
 //    }
 }
+
+string MessageConductor::getLocalHostNameInfo() {
+    return asio::ip::host_name();
+}

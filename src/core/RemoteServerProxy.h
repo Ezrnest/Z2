@@ -15,7 +15,7 @@
 #include <thread>
 
 namespace z2 {
-using SocketPtr = asio::ip::tcp::socket*;
+using SocketPtr = shared_ptr<asio::ip::tcp::socket>;
 
 class Client;
 
@@ -47,6 +47,8 @@ private:
 
     void startReceiving(const shared_ptr<RemoteServerProxy> &self);
 
+    bool tryConnectToAddress(const shared_ptr<RemoteServerProxy> &self, const asio::ip::address& address, int port);
+
     bool tryConnect0(const shared_ptr<RemoteServerProxy> &self, const string &address, int port);
 
 public:
@@ -64,11 +66,13 @@ public:
     void stop();
 
     /**
-     * Tries to connect to the given address. The player will be registered.
+     * Tries to connect to the given address. The address can be an ipv4 address or the hostname. The player will be registered.
      *
      * Returns `true` if the connection is established.
      */
     static bool tryConnect(const shared_ptr<RemoteServerProxy> &self, const string &address, int port);
+
+    ~RemoteServerProxy() override;
 };
 
 }

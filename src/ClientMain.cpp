@@ -36,7 +36,7 @@ int main(){
 
     shared_ptr<CommandLineGameGui> gui(new CommandLineGameGui());
     rc->setView(gui);
-    if(!RemoteServerProxy::tryConnect(proxy,"127.0.0.1", port)){
+    if(!RemoteServerProxy::tryConnect(proxy,"desktop-lyc", port)){
         cout << "failure, return";
         return 0;
     }

@@ -69,6 +69,8 @@ public:
 
     string getLocalAddressInfo();
 
+    string getLocalHostNameInfo();
+
     static asio::error_code sendMessageToSocket(socket_ptr socket, const MessagePtr &message);
 
 

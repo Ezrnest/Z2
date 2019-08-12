@@ -207,6 +207,12 @@ Lobby::~Lobby() {
     closeLobby();
 }
 
+string Lobby::getHostNameInfo() {
+    if(conductor){
+        return conductor->getLocalHostNameInfo();
+    }
+    return "Unknown";
+}
 
 
 }

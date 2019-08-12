@@ -88,23 +88,50 @@ bool RemoteServerProxy::waitForGoodMessage() {
     return true;
 }
 
+bool RemoteServerProxy::tryConnectToAddress(const shared_ptr<RemoteServerProxy> &self, const asio::ip::address &address,
+                                            int port) {
+    ip::tcp::endpoint ep(address, port);
+    socket.reset(new ip::tcp::socket(service));
+    asio::error_code err;
+    socket->connect(ep, err);
+    if (err) {
+        socket->close();
+        return false;
+    }
+    PLOG_INFO << "[RemoteServerProxy] Connected to " << address.to_string();
+    return true;
+}
+
+
 
 bool RemoteServerProxy::tryConnect0(const shared_ptr<RemoteServerProxy> &self, const string &address, int port) {
     if (running) {
         return false;
     }
-    ip::tcp::endpoint ep(ip::address::from_string(address), port);
-    socket = (new ip::tcp::socket(service));
-//    socket->async_connect(ep, [this](const asio::error_code &ec) {
-//        handleConnect(ec);
-//        return;
-//    });
-    asio::error_code err;
-    socket->connect(ep, err);
-    if (err) {
-        PLOG_WARNING << "[RemoteServerProxy] Failed to establish connection, error code = " << err.value();
+    bool success = false;
+    try{
+        success = tryConnectToAddress(self,ip::address::from_string(address),port);
+    }catch(...){
+        success = false;
+    }
+    if(!success){
+        ip::tcp::resolver resolver(service);
+        ip::tcp::resolver::query query(address, "");
+        ip::tcp::resolver::iterator iter = resolver.resolve(query);
+        ip::tcp::resolver::iterator end; // End marker.
+        while(iter != end){
+            ip::tcp::endpoint ep = *iter++;
+            if(tryConnectToAddress(self,ep.address(),port)){
+                success = true;
+                break;
+            }
+        }
+    }
+    if(!success){
+        PLOG_WARNING << "[RemoteServerProxy] Failed to establish connection.";
         return false;
     }
+
     if (!handleConnect()) {
         return false;
     }
@@ -123,7 +150,6 @@ void RemoteServerProxy::startReceiving(const shared_ptr<RemoteServerProxy> &self
         PLOG(plog::info) << "[RemoteServerProxy] Service stopped!";
     };
     workingThread = std::thread(f);
-
     workingThread.detach();
 }
 
@@ -132,6 +158,21 @@ bool RemoteServerProxy::tryConnect(const shared_ptr<RemoteServerProxy> &self, co
 }
 
 void RemoteServerProxy::stop() {
+    if(service.stopped()){
+        return;
+    }
     service.stop();
+    if(workingThread.joinable()){
+        workingThread.join();
+    }
 }
+
+RemoteServerProxy::~RemoteServerProxy() {
+    if(socket){
+        socket->close();
+        socket.reset();
+    }
+    stop();
+}
+
 

@@ -25,10 +25,10 @@ set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLin
 #        src/ClientMain.cpp
 #        ${Z2_Sources}
 #        )
-add_executable(Server
-        src/ServerMain.cpp
-        ${Z2_Sources}
-        )
+#add_executable(Server
+#        src/ServerMain.cpp
+#        ${Z2_Sources}
+#        )
 
 add_library(Z2Core ${Z2_Sources})
 install(TARGETS Z2Core DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core)

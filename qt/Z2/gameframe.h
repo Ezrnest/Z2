@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <world/World.h>
 #include "world/Point.h"
-#include "imagerepository.h"
+#include "ImageRepository.h"
 namespace Ui {
 class GameFrame;
 }

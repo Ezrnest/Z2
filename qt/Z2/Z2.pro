@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,11 +28,14 @@ HEADERS += *.h \
 
 SOURCES += *.cpp \
 
+#CONFIG += resources_big
 
+#RESOURCES += \
+#    resources.qrc
 
 FORMS += *.ui
 
-RC_ICONS =z2.ico
+RC_ICONS = z2.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -49,4 +52,7 @@ DEPENDPATH += $$PWD/../../../api/z2Core/include
 
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../../../api/z2Core/Z2Core.lib
 else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../api/z2Core/libZ2Core.a
+
+
+
 

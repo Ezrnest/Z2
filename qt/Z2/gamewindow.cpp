@@ -12,17 +12,22 @@
 #include "core/messages/TechResearch.h"
 #include "core/messages/EntityPerform.h"
 #include "event/StateEvent.h"
+#include "event/InGamePlayerEvent.h"
 #include "world/Technology.h"
 #include "core/messages/ControlMessage.h"
 #include "mainwindow.h"
 #include <QFileDialog>
-GameWindow::GameWindow(QWidget *parent) :
+#include "SoundRepository.h"
+
+GameWindow::GameWindow(MainWindow *parent) :
     QMainWindow(parent),
     ui(new Ui::GameWindow)
 {
     ui->setupUi(this);
     gui = shared_ptr<QtGui>(new QtGui(this));
     //    ui->frEntityInfo->
+    mainWindow = parent;
+
 
     QPalette pal = palette();
     pal.setColor(QPalette::Background, Qt::white);
@@ -95,11 +100,27 @@ void GameWindow::showGameEnded()
 void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
 {
     refreshAll();
-    auto we = dynamic_pointer_cast<GroupEvent>(event);
-    if(we && we->getSType() == StateEventType::GroupWon){
-        showGameWin(we);
-        return;
+    switch (event->getType()) {
+    case EventType::STATE_EVENT:{
+        auto we = dynamic_pointer_cast<GroupEvent>(event);
+        if(we && we->getSType() == StateEventType::GroupWon){
+            showGameWin(we);
+            return;
+        }
+        break;
     }
+    case EventType::IN_GAME_EVENT:{
+        if(dynamic_pointer_cast<InGamePlayerEvent>(event)){
+            dealWithInGamePlayerEvent(static_pointer_cast<InGamePlayerEvent>(event));
+        }else if(dynamic_pointer_cast<EntityEvent>(event)){
+            dealWithEntityEvent(static_pointer_cast<EntityEvent>(event));
+        }
+
+        break;
+    }
+    }
+
+
 }
 
 void GameWindow::showGameWin(const shared_ptr<GroupEvent> &event)
@@ -121,6 +142,117 @@ shared_ptr<World> GameWindow::getWorld()
 shared_ptr<Client>& GameWindow::getClient()
 {
     return gui->client;
+}
+
+void GameWindow::dealWithInGamePlayerEvent(const shared_ptr<InGamePlayerEvent> &event)
+{
+    switch(event->getPType()){
+    case InGamePlayerEventType::TECH_RESEARCHED:{
+        processPlayerResearch(static_pointer_cast<TechResearchedEvent>(event));
+        break;
+    }
+    }
+}
+
+void GameWindow::dealWithEntityEvent(const shared_ptr<EntityEvent> &event)
+{
+    switch(event->getEntityEventType()){
+    case EntityEventType::EntityMoved:{
+        processEntityMove(static_pointer_cast<EEntityMoved>(event));
+        break;
+    }
+    case EntityEventType::EntityCreated:{
+        processEntityCreated(event);
+        break;
+    }
+    case EntityEventType::EntityPerformed:{
+        processEntityPerform(event);
+        break;
+    }
+    }
+}
+
+void GameWindow::processEntityPerform(const shared_ptr<EntityEvent> &event)
+{
+    auto& en = event->getEntity();
+    SoundRepository::instance().playSound(en->getEntityInfo().getProperties().get("soundOnPerform","none"));
+}
+
+void GameWindow::processEntityMove(const shared_ptr<EEntityMoved> &event)
+{
+
+}
+
+void GameWindow::processEntityCreated(const shared_ptr<EntityEvent> &event)
+{
+
+}
+
+void GameWindow::processPlayerResearch(const shared_ptr<TechResearchedEvent> &event)
+{
+
+}
+
+
+void GameWindow::arrangeUi()
+{
+    adjustPosMid(ui->frMenu,true,false);
+    adjustPosToBorder( ui->btnEndTurn,10,false,10,false);
+    adjustPosToBorder( ui->frTurnInfo,70,false,20,false);
+    adjustPosToBorder( ui->btnMenu, 5,false,5,true);
+    adjustPosToBorder(ui->tabWidget,2,true, 20, false);
+    adjustWidgetSize(ui->gameFrame,true,true);
+
+}
+
+void GameWindow::adjustPosMid(QWidget *t, bool xMid, bool yMid)
+{
+    int rx,ry;
+    if(xMid){
+        rx = width()/2 - t->width()/2;
+    }else{
+        rx = t->x();
+    }
+
+    if(yMid){
+        ry = height()/2 - t->height()/2;
+    }else{
+        ry = t->y();
+    }
+    t->move(rx,ry);
+}
+
+void GameWindow::adjustWidgetSize(QWidget *t, bool xExpanding, bool yExpanding)
+{
+    int rw,rh;
+
+    if(xExpanding){
+        rw = width() - t->x();
+    }else{
+        rw = t->width();
+    }
+    if(yExpanding){
+        rh = height() - t->y();
+    }else{
+        rh = t->width();
+    }
+    t->resize(rw,rh);
+}
+
+void GameWindow::adjustPosToBorder(QWidget *t, int x, bool toLeft, int y, bool toTop)
+{
+    int rx,ry;
+    if(toLeft){
+        rx = x;
+    }else{
+        rx = width() - x - t->width();
+    }
+    if(toTop){
+        ry = y;
+    }else{
+        ry = height() - y - t->height();
+    }
+    t->move(rx,ry);
 }
 
 int GameWindow::getPlayerId()
@@ -146,7 +278,7 @@ void GameWindow::closeEvent(QCloseEvent *event)
 
 
 
-void GameWindow::refreshSelection()
+void GameWindow::refreshSelection(bool playerClicked)
 {
     auto pos = getSelectedPos();
 
@@ -180,6 +312,7 @@ void GameWindow::refreshSelection()
     ui->lblOwner->setText(QString::fromStdString(world->getPlayer(ownerId).getName()));
     ui->lblMoves->setText(QString::number(en->getRemainingMoves()));
 
+
     auto hpBar = ui->barHP;
     {
         auto wh = dynamic_pointer_cast<EntityWithHealth>(en);
@@ -197,8 +330,18 @@ void GameWindow::refreshSelection()
     }else{
         ui->lblAttack->setText("0");
     }
+
+    if(playerClicked && ownerId == getPlayerId()){
+        clickedOnOwnedEntity(en);
+    }
+
     refreshContruction(en,*world,pos);
     refreshPerformAbility(en,*world,pos);
+}
+
+void GameWindow::clickedOnOwnedEntity(const shared_ptr<Entity> &en)
+{
+    SoundRepository::instance().playSound(en->getEntityInfo().getProperties().get("soundOnClick","none"));
 }
 
 void GameWindow::refreshPlayerInfo()
@@ -235,9 +378,8 @@ void GameWindow::refreshPerformAbility(shared_ptr<Entity> &en, World &w, Point &
 
     if(w.canPerform( pos,getClient()->getPlayerId())){
         btn->show();
-        if(dynamic_pointer_cast<Farmer>(en)){
-            btn->setText("采矿");
-        }
+        const string& pText = en->getEntityInfo().getProperties().get("displayPerformText","perform");
+        btn->setText(QString::fromStdString(pText));
     }else{
         btn->hide();
     }
@@ -356,11 +498,20 @@ void GameWindow::exitGame()
     MessagePtr msg(new ControlMessage(ControlMessageType::EndGame));
     getClient()->sendMessageToServer(msg);
     deleteLater();
+    if(mainWindow){
+        mainWindow->afterGameEnded();
+    }
 }
 
 shared_ptr<QtGui> GameWindow::getGui()
 {
     return this->gui;
+}
+
+void GameWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    arrangeUi();
 }
 
 

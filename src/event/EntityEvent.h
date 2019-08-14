@@ -39,6 +39,8 @@ public:
     explicit EntityEvent(shared_ptr<Entity> entityId, EntityEventType type);
 
     const shared_ptr<Entity> &getEntity() const;
+
+    EntityEventType getEntityEventType() const;
 };
 
 class EEntityMoved : public EntityEvent{

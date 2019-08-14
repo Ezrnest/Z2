@@ -23,6 +23,10 @@ const shared_ptr<Entity> &EntityEvent::getEntity() const {
     return entity;
 }
 
+EntityEventType EntityEvent::getEntityEventType() const {
+    return entityEventType;
+}
+
 EEntityMoved::EEntityMoved(shared_ptr<Entity> entityId, Point from, Point dest)
         : EntityEvent(std::move(entityId), EntityEventType::EntityMoved), from(std::move(from)), dest(std::move(dest)) {}
 

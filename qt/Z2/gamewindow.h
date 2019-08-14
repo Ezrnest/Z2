@@ -3,10 +3,14 @@
 
 #include <QMainWindow>
 #include <core/Server.h>
+#include <event/InGamePlayerEvent.h>
+#include <event/EntityEvent.h>
 #include <event/StateEvent.h>
 #include "world/World.h"
 #include "core/GameGui.h"
 #include "core/Lobby.h"
+#include "mainwindow.h"
+#include <QMediaPlayer>
 namespace Ui {
 class GameWindow;
 }
@@ -49,7 +53,7 @@ class GameWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit GameWindow(QWidget *parent = nullptr);
+    explicit GameWindow(MainWindow *parent = nullptr);
     ~GameWindow() override;
 
     void setClient(const shared_ptr<Client>& client);
@@ -61,7 +65,9 @@ public:
     friend class GameFrame;
 
 
-    void refreshSelection();
+    void refreshSelection(bool playerClicked = false);
+
+    void clickedOnOwnedEntity(const shared_ptr<Entity>& en);
 
     void refreshPlayerInfo();
 
@@ -75,6 +81,7 @@ public slots:
     void refreshAll();
 
     void showGameEnded();
+
 
     void dealWithGameEvent(const shared_ptr<GameEvent> &event);
 
@@ -100,7 +107,9 @@ private slots:
     void on_btnSaveGame_clicked();
 
 private:
+//    using GameEventProcessor = function<bool(const GameEventPtr&)>;
     Ui::GameWindow *ui;
+    MainWindow* mainWindow;
     shared_ptr<QtGui> gui;
     shared_ptr<Entity> selectedEntity;
     shared_ptr<Server> server;
@@ -111,9 +120,31 @@ private:
     QRect viewport;
     int gameState = 0;
 
+
     shared_ptr<World> getWorld();
 
     shared_ptr<Client>& getClient();
+
+    void dealWithInGamePlayerEvent(const shared_ptr<InGamePlayerEvent> &event);
+
+    void dealWithEntityEvent(const shared_ptr<EntityEvent>& event);
+
+    void processEntityPerform(const shared_ptr<EntityEvent>& event);
+
+    void processEntityMove(const shared_ptr<EEntityMoved>& event);
+
+    void processEntityCreated(const shared_ptr<EntityEvent>& event);
+
+    void processPlayerResearch(const shared_ptr<TechResearchedEvent>& event);
+
+
+    void arrangeUi();
+
+    void adjustPosToBorder(QWidget* t, int x,bool toLeft, int y, bool toTop);
+
+    void adjustPosMid(QWidget* t, bool xMid, bool yMid);
+
+    void adjustWidgetSize(QWidget* t, bool xExpanding, bool yExpanding);
 
     int getPlayerId();
 
@@ -137,6 +168,8 @@ private:
     void exitGame();
 public:
     shared_ptr<QtGui> getGui();
+
+    void resizeEvent(QResizeEvent* event);
 
 signals:
     void notifyRefreshAll();

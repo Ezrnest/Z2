@@ -23,6 +23,7 @@ void init() {
 }
 
 void m1(){
+    EventType  t;
     shared_ptr<World> w(new World(8, 8, 2));
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
 //    w->createEntity(Point(1, 1), Farmer::className(), 0);

@@ -1,4 +1,4 @@
-#include "imagerepository.h"
+#include "ImageRepository.h"
 #include <plog/Log.h>
 #include <util/File.h>
 #include <util/Properties.h>
@@ -25,7 +25,7 @@ const ImagePtr& ImageRepository::getImage(const string &key)
 void ImageRepository::initFromFolder(const ancono::File &dir)
 {
     if(!dir.exists()){
-        LOG_WARNING << "Unable to load entities from: " << dir.getPath();
+        LOG_WARNING << "Unable to load images from: " << dir.getPath();
         return;
     }
 

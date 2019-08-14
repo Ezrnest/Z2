@@ -303,7 +303,7 @@ void GameFrame::mouseReleaseEvent(QMouseEvent *event)
             auto pos = event->pos();
             selPos = viewCordToGameCord(pos);
 //            cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
-            win->refreshSelection();
+            win->refreshSelection(true);
             update();
         }
         break;

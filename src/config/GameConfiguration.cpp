@@ -15,7 +15,11 @@ using namespace z2;
 
 ancono::File getDirNamed(const string &name) {
     File curDir = File::currentDirectory();
-    File resDir = curDir.parent().subFile(name);
+    File resDir = curDir.subFile(name);
+    if (resDir.exists()) {
+        return resDir;
+    }
+    resDir = curDir.parent().subFile(name);
     if (resDir.exists()) {
         return resDir;
     }

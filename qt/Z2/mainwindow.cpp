@@ -4,10 +4,13 @@
 #include "config/MapRepository.h"
 #include "config/GameConfiguration.h"
 #include "world/GameInitSetting.h"
+#include "SoundRepository.h"
 #include "gameutil.h"
 #include "playercolor.h"
 #include <QDialog>
+#include <QMediaPlaylist>
 #include <QMessageBox>
+#include <QSoundEffect>
 #include "core/LocalClient.h"
 #include <core/Server.h>
 #include <core/RemoteClient.h>
@@ -71,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
     //    ui->tableWidget->setC
     setupTable(ui->tablePlayer);
+    SoundRepository::instance().playMainMenuBGM();
     connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::AutoConnection);
 }
 
@@ -84,6 +88,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btnMultiple_clicked()
 {
+    SoundRepository::instance().playClick();
     localGame = false;
     loadSavedMap = false;
     initGameLobby();
@@ -91,7 +96,7 @@ void MainWindow::on_btnMultiple_clicked()
 
 void MainWindow::on_btnSingle_clicked()
 {
-
+    SoundRepository::instance().playClick();
     localGame = true;
     loadSavedMap = false;
     initGameLobby();
@@ -99,6 +104,7 @@ void MainWindow::on_btnSingle_clicked()
 
 void MainWindow::on_btnJoin_clicked()
 {
+    SoundRepository::instance().playClick();
     ui->stackedWidget->setCurrentIndex(3);
 }
 
@@ -226,6 +232,7 @@ GameInitSetting loadSettingFromTable(const shared_ptr<GameMap>& map, QTableWidge
 
 void MainWindow::on_btnStartGame_clicked()
 {
+    SoundRepository::instance().playClick();
     auto table = ui->tablePlayer;
     auto setting = loadSettingFromTable(currentMap,table);
     if(!setting.isValidLocalSetting(localGame)){
@@ -252,9 +259,9 @@ void MainWindow::startLocalGame(z2::GameInitSetting &setting)
     shared_ptr<Client> c = static_pointer_cast<Client>(client);
     gw->setClient(c);
     gw->setServer(server);
-    gw->show();
+
     server->startGame();
-    ui->stackedWidget->setCurrentIndex(0);
+    beforeStartingGame(gw);
 }
 
 
@@ -288,6 +295,22 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
     update();
 }
 
+void MainWindow::startServerGame()
+{
+    GameWindow* gw = new GameWindow(this);
+    //    cout << "Starting game!" << endl;
+    auto server = onlineLobby->startGame(gw->getGui(),1000*60);
+    //    cout << "Starting game 2!" << endl;
+    gw->setServer(server);
+    gw->setLobby(onlineLobby);
+    onlineLobby.reset();
+    ui->stackedWidget->setCurrentIndex(0);
+
+    beforeStartingGame(gw);
+    //    server->startGame();
+}
+
+
 void MainWindow::startOnlineGameClient(QString address,int id)
 {
     string add = address.toStdString();
@@ -307,14 +330,18 @@ void MainWindow::startOnlineGameClient(QString address,int id)
         return;
     }
 
-    gw->show();
+    beforeStartingGame(gw);
 }
 
 void MainWindow::initSettingPage()
 {
     ui->stackedWidget->setCurrentIndex(4);
-    const string& playerName = GameConfiguration::instance().getPlayerName();
+    auto& gc = GameConfiguration::instance();
+    const string& playerName = gc.getPlayerName();
     ui->textInputPlayerName->setText(QString::fromStdString(playerName));
+    auto& prop = gc.getProp();
+    ui->sliderBGM->setValue(prop.getInt("volumnBGM",100));
+    ui->sliderSoundEffect->setValue(prop.getInt("volumnEff",100));
 }
 
 void MainWindow::saveGameSetting()
@@ -325,9 +352,33 @@ void MainWindow::saveGameSetting()
         return;
     }
     auto& gc = GameConfiguration::instance();
-    gc.getProp().set("playerName",playerName.toStdString());
+    auto& prop = gc.getProp();
+    prop.set("playerName",playerName.toStdString());
+    prop.setInt("volumnBGM",ui->sliderBGM->value());
+    prop.setInt("volumnEff",ui->sliderSoundEffect->value());
+    SoundRepository::instance().setVolumn(ui->sliderBGM->value(),ui->sliderSoundEffect->value());
     gc.saveProp();
     QMessageBox::information(this,"信息","保存成功");
+}
+
+void MainWindow::beforeStartingGame(GameWindow *gw)
+{
+    SoundRepository::instance().playInGameBGM();
+//    this->setVisible(false);
+    ui->stackedWidget->setCurrentIndex(0);
+    gw->show();
+}
+
+void MainWindow::afterGameEnded()
+{
+    SoundRepository::instance().playMainMenuBGM();
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::showEvent(QShowEvent *e)
+{
+    QMainWindow::showEvent(e);
+    this->update();
 }
 
 
@@ -342,22 +393,10 @@ void MainWindow::on_btnCancel_clicked()
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-void MainWindow::startServerGame()
-{
-    GameWindow* gw = new GameWindow(this);
-    //    cout << "Starting game!" << endl;
-    auto server = onlineLobby->startGame(gw->getGui(),1000*60);
-    //    cout << "Starting game 2!" << endl;
-    gw->setServer(server);
-    gw->setLobby(onlineLobby);
-    onlineLobby.reset();
-    gw->show();
-    ui->stackedWidget->setCurrentIndex(0);
-    //    server->startGame();
-}
 
 void MainWindow::on_pushButton_clicked()
 {
+    SoundRepository::instance().playClick();
     QString strId = ui->textInputId->text();
     startOnlineGameClient(ui->textInputAddress->text(),strId.toInt());
 }
@@ -365,11 +404,13 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
+    SoundRepository::instance().playClick();
     ui->stackedWidget->setCurrentIndex(0);
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
+    SoundRepository::instance().playClick();
     ui->stackedWidget->setCurrentIndex(0);
 }
 
@@ -387,6 +428,7 @@ void MainWindow::on_pushButton_4_clicked()
 
 void MainWindow::on_btnSetting_clicked()
 {
+    SoundRepository::instance().playClick();
     initSettingPage();
 }
 
@@ -398,4 +440,11 @@ void MainWindow::on_btnCancel_2_clicked()
 void MainWindow::on_btnCancel_3_clicked()
 {
     saveGameSetting();
+}
+
+
+
+void MainWindow::on_btnExitGame_clicked()
+{
+    this->close();
 }

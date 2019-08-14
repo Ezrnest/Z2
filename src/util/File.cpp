@@ -14,7 +14,7 @@
 using namespace std;
 using namespace ancono;
 
-void getFiles(const string &, vector<File> &);
+void getFiles(const string &, vector<File> &, bool recur = false);
 
 File::File(const string &path) : path(path) {
     const char *p = path.c_str();
@@ -127,7 +127,7 @@ bool File::exists() const {
 }
 
 
-void getFiles(const string &path, vector<File> &files) {
+void getFiles(const string &path, vector<File> &files, bool recur) {
     long tmpHandle = 0;
     struct _finddata_t fileinfo{};
     string p;
@@ -135,7 +135,9 @@ void getFiles(const string &path, vector<File> &files) {
         do {
             if (fileinfo.attrib == _A_SUBDIR) {
                 if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
-                    getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+                    if(recur){
+                        getFiles(p.assign(path).append("\\").append(fileinfo.name), files, recur);
+                    }
                 }
             } else {
                 File tmp(p.assign(path).append("\\").append(fileinfo.name));

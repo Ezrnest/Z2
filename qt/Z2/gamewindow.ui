@@ -50,7 +50,7 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>1141</width>
+      <width>3000</width>
       <height>16</height>
      </rect>
     </property>
@@ -93,7 +93,7 @@
     <property name="geometry">
      <rect>
       <x>205</x>
-      <y>33</y>
+      <y>31</y>
       <width>761</width>
       <height>691</height>
      </rect>
@@ -117,7 +117,7 @@
       <x>195</x>
       <y>0</y>
       <width>20</width>
-      <height>731</height>
+      <height>3000</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -536,7 +536,7 @@
    <widget class="QTabWidget" name="tabWidget2">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>2</x>
       <y>30</y>
       <width>201</width>
       <height>411</height>
@@ -835,84 +835,133 @@
     <property name="lineWidth">
      <number>4</number>
     </property>
-    <widget class="QLabel" name="label">
+    <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>0</y>
-       <width>181</width>
-       <height>51</height>
+       <x>10</x>
+       <y>10</y>
+       <width>281</width>
+       <height>311</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <family>微软雅黑</family>
-       <pointsize>20</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>菜单</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="btnMenuCancel">
-     <property name="geometry">
-      <rect>
-       <x>79</x>
-       <y>270</y>
-       <width>141</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>微软雅黑</family>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>取消</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="btnSaveGame">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>60</y>
-       <width>141</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>微软雅黑</family>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>保存游戏</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="btnExitGame">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>120</y>
-       <width>141</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>微软雅黑</family>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>退出游戏</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>20</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>菜单</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSaveGame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100000</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>保存游戏</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnExitGame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100000</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>退出游戏</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>30</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnMenuCancel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100000</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>取消</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="Line" name="line_5">
@@ -1034,7 +1083,6 @@
    </widget>
    <zorder>gameFrame</zorder>
    <zorder>label_3</zorder>
-   <zorder>line</zorder>
    <zorder>lbllGold</zorder>
    <zorder>line_2</zorder>
    <zorder>tabWidget</zorder>
@@ -1051,6 +1099,7 @@
    <zorder>frTurnInfo</zorder>
    <zorder>btnMenu</zorder>
    <zorder>frMenu</zorder>
+   <zorder>line</zorder>
   </widget>
   <action name="actionPlayerInfo">
    <property name="text">

@@ -2,7 +2,8 @@
 #define ASIO_STANDALONE
 
 #include "gamewindow.h"
-#include "imagerepository.h"
+#include "ImageRepository.h"
+#include "SoundRepository.h"
 #include "mainwindow.h"
 #include <QApplication>
 #include "config/GameConfiguration.h"
@@ -16,7 +17,9 @@ using namespace z2;
 
 
 void initAboutQT(){
-    z2::ImageRepository::instance().initFromFolder(z2::GameConfiguration::getResourceDir().subFile("image"));
+    auto resDir = z2::GameConfiguration::getResourceDir();
+    z2::ImageRepository::instance().initFromFolder(resDir.subFile("image"));
+    z2::SoundRepository::instance().initFromFolder(resDir.subFile("sound"));
     qRegisterMetaType<shared_ptr<GameEvent>>("shared_ptr<GameEvent>");
 }
 
@@ -27,19 +30,19 @@ void initAll(){
 
 shared_ptr<z2::World> getWorld(){
     shared_ptr<World> w(new World(7, 7, 2));
-        w->createEntity(Point(0, 0), "ConstructionBase", 0);
-//        w->createEntity(Point(0, 1), "Fighter", 0);
-//        w->createEntity(Point(1, 1), "Farmer", 0);
-        w->createEntity(Point(3, 3), "Farmer", 1);
-        w->getTile(0, 3).setResource(Resource::MINE);
-        w->getTile(3,4).setResource(Resource::GEM);
-        w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
-        w->getTile(2,1).setTerrain(Terrain::MOUNTAIN);
-        w->getTile(2,2).setTerrain(Terrain::MOUNTAIN);
-        w->getPlayer(0).setName("LocalPlayer");
-        w->getPlayer(1).setName("BotPlayer");
-//        w->configure();
-        return w;
+    w->createEntity(Point(0, 0), "ConstructionBase", 0);
+    //        w->createEntity(Point(0, 1), "Fighter", 0);
+    //        w->createEntity(Point(1, 1), "Farmer", 0);
+    w->createEntity(Point(3, 3), "Farmer", 1);
+    w->getTile(0, 3).setResource(Resource::MINE);
+    w->getTile(3,4).setResource(Resource::GEM);
+    w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
+    w->getTile(2,1).setTerrain(Terrain::MOUNTAIN);
+    w->getTile(2,2).setTerrain(Terrain::MOUNTAIN);
+    w->getPlayer(0).setName("LocalPlayer");
+    w->getPlayer(1).setName("BotPlayer");
+    //        w->configure();
+    return w;
 }
 
 void buildTestGame(shared_ptr<Server>& server, shared_ptr<LocalClient>& client){
@@ -54,7 +57,7 @@ void buildTestGame(shared_ptr<Server>& server, shared_ptr<LocalClient>& client){
     bot->setServer(server);
     server->registerClient(bot);
 
-//    w->resetVisibility(0);
+    //    w->resetVisibility(0);
 }
 
 int runGameWindow(QApplication& a){
@@ -66,6 +69,7 @@ int runGameWindow(QApplication& a){
     w.setClient(client);
     //    shared_ptr<
     w.show();
+    w.setServer(server);
     server->startGame();
     return a.exec();
 }
@@ -78,9 +82,9 @@ int runMainMenu(QApplication& a){
 
 int main(int argc, char *argv[])
 {
-    initAll();
-
     QApplication a(argc, argv);
+
+    initAll();
 
     return runMainMenu(a);
 

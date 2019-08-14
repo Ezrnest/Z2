@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <QTableWidget>
 #include <memory>
 
@@ -13,7 +14,7 @@ class MainWindow;
 }
 
 void setupTable(QTableWidget* table);
-
+class GameWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -55,6 +56,8 @@ private slots:
 
     void on_btnCancel_3_clicked();
 
+    void on_btnExitGame_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -65,6 +68,11 @@ private:
     shared_ptr<z2::GameMap> currentMap;
 
     shared_ptr<z2::Lobby> onlineLobby;
+
+    QMediaPlaylist* playListMainMenu;
+
+    bool gameRunning = false;
+
 
     void initGameLobby();
 
@@ -82,6 +90,12 @@ private:
     void initSettingPage();
 
     void saveGameSetting();
+
+    void beforeStartingGame(GameWindow* gw);
+public:
+    void afterGameEnded();
+
+    void showEvent(QShowEvent *e) override;
 
 signals:
     void notifyStartServerGame();

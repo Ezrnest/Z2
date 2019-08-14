@@ -117,7 +117,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>z2: beta 1.0</string>
+       <string>z2: beta 1.1</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnExitGame">

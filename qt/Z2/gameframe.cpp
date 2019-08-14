@@ -91,6 +91,36 @@ void GameFrame::paintResource(QPainter &painter, QBrush &brush, QRect &rect, Til
     }
 }
 
+
+void GameFrame::paintTerrain(QPainter& painter,QBrush& brush, QRect& rect, Tile& t){
+    string name;
+    switch (t.getTerrain()) {
+    case Terrain::PLAIN:{
+        name = "Terrain_Plain.png";
+        break;
+    }
+    case Terrain::MOUNTAIN:{
+        name = "Terrain_Mountain.png";
+        break;
+    }
+    case Terrain::HILL:{
+        name ="Terrain_Hill.png";
+        break;
+    }
+    default:{
+        name = "Null";
+        break;
+    }
+    }
+    if(!repo.containsImage(name)){
+        paintTerrainTextureLost(painter,brush,rect,t);
+    }else{
+        const ImagePtr& image = repo.getImage(name);
+        painter.drawImage(rect,*image);
+    }
+}
+
+
 QColor getColor(int playerId, World& w){
     if(playerId == Player::NO_PLAYER){
         return QColor(Qt::white);
@@ -149,29 +179,6 @@ void GameFrame::paintTerrainTextureLost(QPainter& painter,QBrush& brush,QRect& r
     painter.fillRect(rect,brush);
 }
 
-void GameFrame::paintTerrain(QPainter& painter,QBrush& brush, QRect& rect, Tile& t){
-    string name;
-    switch (t.getTerrain()) {
-    case Terrain::PLAIN:{
-        name = "Terrain_Plain.png";
-        break;
-    }
-    case Terrain::MOUNTAIN:{
-        name = "Terrain_Mountain.png";
-        break;
-    }
-    default:{
-        name = "Null";
-        break;
-    }
-    }
-    if(!repo.containsImage(name)){
-        paintTerrainTextureLost(painter,brush,rect,t);
-    }else{
-        const ImagePtr& image = repo.getImage(name);
-        painter.drawImage(rect,*image);
-    }
-}
 
 
 void GameFrame::paintTile(QPainter &painter, QBrush &brush, QRect &rect,World& world, Tile &t, Player &p)
@@ -267,6 +274,7 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
     case Qt::MouseButton::LeftButton:{
         auto pos = event->pos();
         clickedPos = pos;
+        clickedTime = clock();
         dragState = 1;
         break;
     }
@@ -280,10 +288,14 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
 
     }
 }
-
+const int MinTimeGapMilliseconds = 100;
 void GameFrame::mouseMoveEvent(QMouseEvent *event)
 {
     if(dragState == 0){
+        return;
+    }
+    clock_t cur = clock();
+    if(cur - clickedTime <= MinTimeGapMilliseconds * CLOCKS_PER_SEC / 1000){
         return;
     }
     dragState = 2;

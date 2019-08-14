@@ -5,6 +5,7 @@
 #include <world/World.h>
 #include "world/Point.h"
 #include "ImageRepository.h"
+#include <ctime>
 namespace Ui {
 class GameFrame;
 }
@@ -39,6 +40,7 @@ private:
     QTransform trans;
 
     QPoint clickedPos;
+    clock_t clickedTime;
     int dragState = 0;
     QPoint gameCordToViewCord(const z2::Point& p);
 

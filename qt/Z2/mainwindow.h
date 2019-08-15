@@ -6,8 +6,9 @@
 #include <QTableWidget>
 #include <memory>
 
+#include <world/GameInitSetting.h>
+
 #include <world/GameMap.h>
-#include "world/GameInitSetting.h"
 #include "core/Lobby.h"
 namespace Ui {
 class MainWindow;
@@ -58,6 +59,8 @@ private slots:
 
     void on_btnExitGame_clicked();
 
+    void on_comboBoxPlayerNumber_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -79,6 +82,10 @@ private:
     void refreshGameLobby();
 
     void loadMap(const std::shared_ptr<z2::GameMap>& map);
+
+    int getPlayerCount();
+
+    z2::GameInitSetting loadGameSettings();
 
     void startLocalGame(z2::GameInitSetting& setting);
 

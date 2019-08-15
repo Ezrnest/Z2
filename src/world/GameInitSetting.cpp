@@ -11,6 +11,7 @@
 #include "GameInitSetting.h"
 #include <vector>
 #include <core/LocalClient.h>
+#include <plog/Log.h>
 #include "GameMap.h"
 #include "core/Server.h"
 #include "bot/BotClientPort.h"
@@ -57,13 +58,16 @@ bool GameInitSetting::isValidLocalSetting(bool isLocalGame) {
             return false;
         }
         int pos = ps.positionId;
-        if (pos < 0 || pos >= usedPositions.size()) {
-            return false;
+        if(pos != PlayerSetting::RANDOM_POS){
+            if (pos < 0 || pos >= usedPositions.size()) {
+                return false;
+            }
+            if (usedPositions[pos]) {
+                return false;
+            }
+            usedPositions[pos] = true;
         }
-        if (usedPositions[pos]) {
-            return false;
-        }
-        usedPositions[pos] = true;
+
     }
     return hasPlayer;
 }
@@ -72,6 +76,8 @@ GameInitSetting::GameInitSetting(vector<PlayerSetting> players, shared_ptr<GameM
         players)), map(std::move(map)) {}
 
 shared_ptr<World> GameInitSetting::buildWorld() {
+    assignRandomPositions();
+
     return map->buildWorld(players);
 }
 
@@ -114,6 +120,53 @@ const shared_ptr<GameMap> &GameInitSetting::getMap() const {
 
 int GameInitSetting::getPlayerCount()const {
     return getPlayers().size();
+}
+
+void GameInitSetting::assignRandomPositions() {
+    bool hasRandom = false;
+    for(auto& ps : players){
+        if(ps.positionId == PlayerSetting::RANDOM_POS){
+            hasRandom = true;
+            continue;
+        }
+    }
+    if(!hasRandom){
+        return;
+    }
+    default_random_engine re;
+    re.seed(currentTimeMillis());
+    re();
+    int mpc = map->getMaxPlayerCount();
+    vector<bool> positions(mpc,false);
+    int remainingPosCount = mpc;
+    for(auto& ps : players){
+        if(ps.positionId == PlayerSetting::RANDOM_POS){
+            continue;
+        }
+        remainingPosCount--;
+        positions[ps.positionId] = true;
+    }
+//    PLOG_INFO << "RemainingPosCount= " << remainingPosCount << endl;
+    for(auto& ps : players){
+        if(ps.positionId != PlayerSetting::RANDOM_POS){
+            continue;
+        }
+        std::uniform_int_distribution<int> dis(0,remainingPosCount-1);
+        int pos = dis(re);
+        for(int i=0;i<mpc;i++){
+            if(positions[i]){ // occupied
+                continue;
+            }
+            if(pos == 0){
+                positions[i] = true;
+                remainingPosCount--;
+                ps.positionId = i;
+//                PLOG_INFO << "Random pos: " << i;
+                break;
+            }
+            pos--;
+        }
+    }
 }
 
 

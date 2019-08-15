@@ -24,6 +24,56 @@ void setupTable(QTableWidget* table){
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }
 
+void setupComboBoxInt(QComboBox* x,int maxNumber){
+    x->clear();
+    for(int i=1;i<=maxNumber;i++){
+        x->addItem(QString::number(i));
+    }
+    x->setCurrentIndex(maxNumber-1);
+}
+
+QComboBox* getPlayerGroupComboBox(QWidget* parent,int idx, const shared_ptr<GameMap>& map){
+    int maxGroup = map->getMaxPlayerCount();
+    QComboBox *comBox = new QComboBox(parent);
+    comBox->addItem("-");
+    for(int i=0;i<maxGroup;i++){
+        comBox->addItem(QString::number(i));
+    }
+
+    comBox->setCurrentIndex(idx+1);
+    return comBox;
+}
+
+
+int getPlayerGroupFromComboBox(QWidget* w){
+    QComboBox* box = dynamic_cast<QComboBox*>(w);
+    if(!box || box->currentIndex() == 0){
+        return -1;
+    }else{
+        return box->currentIndex()-1;
+    }
+}
+
+QComboBox* getPlayerPosComboBox(QWidget* parent, int idx, const shared_ptr<GameMap>& map){
+    int maxGroup = map->getMaxPlayerCount();
+    QComboBox *comBox = new QComboBox(parent);
+    comBox->addItem("随机");
+    for(int i=1;i<=maxGroup;i++){
+        comBox->addItem(QString::number(i));
+    }
+    comBox->setCurrentIndex(0);
+    return comBox;
+}
+
+int getPlayerPosFromComboBox(QWidget* w){
+    QComboBox* box = dynamic_cast<QComboBox*>(w);
+    if(!box || box->currentIndex() == 0){
+        return PlayerSetting::RANDOM_POS;
+    }else{
+        return box->currentIndex()-1;
+    }
+}
+
 
 QComboBox* getPlayerTypeComboBox(QWidget* parent,bool localGame){
     QComboBox *comBox = new QComboBox(parent);
@@ -32,8 +82,9 @@ QComboBox* getPlayerTypeComboBox(QWidget* parent,bool localGame){
     if(!localGame){
         comBox->addItem(QObject::tr("局域网玩家"));
     }
-    comBox->addItem(QObject::tr("关闭"));
+//    comBox->addItem(QObject::tr("关闭"));
     comBox->setEnabled(true);
+
     return comBox;
 }
 
@@ -153,23 +204,25 @@ void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
     int rowCount = map->getMaxPlayerCount();
     table->setRowCount(rowCount);
     for(int i=0;i<rowCount;i++){
+
+
+        auto item = new QTableWidgetItem(QString::number(i));
+        table->setItem(i,0,item);
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        // playerId
+
         auto comboBox = getPlayerTypeComboBox(table,this->localGame);
         if(i!=0){
             comboBox->setCurrentIndex(1);
         }
-        table->setCellWidget(i,0,comboBox);
+        table->setCellWidget(i,1,comboBox);
 
-
-        auto item = new QTableWidgetItem(QString::number(i));
-        table->setItem(i,1,item);
-        // playerId
-
-        item = new QTableWidgetItem(QString::number(i));
-        table->setItem(i,2,item);
+        comboBox = getPlayerGroupComboBox(table,i,map);
+        table->setCellWidget(i,2,comboBox);
         //group id
 
-        item = new QTableWidgetItem(QString::number(i));
-        table->setItem(i,3,item);
+        comboBox = getPlayerPosComboBox(table,i,map);
+        table->setCellWidget(i,3,comboBox);
         //pos id
 
         comboBox = getPlayerColorComboBox(table);
@@ -182,7 +235,13 @@ void MainWindow::loadMap(const std::shared_ptr<z2::GameMap> &map)
         comboBox = getBotDifficultyComboBox(table);
         table->setCellWidget(i,5,comboBox);
     }
+    setupComboBoxInt(ui->comboBoxPlayerNumber,map->getMaxPlayerCount());
     refreshGameLobby();
+}
+
+int MainWindow::getPlayerCount()
+{
+    return ui->comboBoxPlayerNumber->currentIndex() + 1;
 }
 
 
@@ -198,22 +257,24 @@ void MainWindow::on_cmbMap_currentIndexChanged(int index)
 
 
 
-GameInitSetting loadSettingFromTable(const shared_ptr<GameMap>& map, QTableWidget* table){
-    int rowCount = table->rowCount();
+GameInitSetting MainWindow::loadGameSettings(){
+    auto& map = currentMap;
+    auto table = ui->tablePlayer;
+    int playerCount = getPlayerCount();
+
     vector<PlayerSetting> players;
-    for(int i=0;i<rowCount;i++){
-        QComboBox* box = dynamic_cast<QComboBox*>(table->cellWidget(i,0));
+    for(int i=0;i<playerCount;i++){
+        int playerId = table->item(i,0)->text().toInt();
+        QComboBox* box = dynamic_cast<QComboBox*>(table->cellWidget(i,1));
         if(box == nullptr){
             continue;
         }
         int idx = box->currentIndex();
-        if(idx == box->count()-1){ // closed
-            continue;
-        }
+
         PlayerType type = getPlayerTypeByIndex(idx);
-        int playerId = table->item(i,1)->text().toInt();
-        int groupId = table->item(i,2)->text().toInt();
-        int posId = table->item(i,3)->text().toInt();
+
+        int groupId = getPlayerGroupFromComboBox(table->cellWidget(i,2));
+        int posId = getPlayerPosFromComboBox(table->cellWidget(i,3));
         box = dynamic_cast<QComboBox*>(table->cellWidget(i,4));
         if(box == nullptr){
             continue;
@@ -233,11 +294,11 @@ GameInitSetting loadSettingFromTable(const shared_ptr<GameMap>& map, QTableWidge
 void MainWindow::on_btnStartGame_clicked()
 {
     SoundRepository::instance().playClick();
-    auto table = ui->tablePlayer;
-    auto setting = loadSettingFromTable(currentMap,table);
+    auto setting = loadGameSettings();
     if(!setting.isValidLocalSetting(localGame)){
         QString title= "游戏设置不正确";
-        QString context = "游戏设置不正确";
+        QString context = "游戏设置不正确\n"
+                          "位置不能重复";
         QMessageBox::warning(this,title,context);
         return;
     }
@@ -447,4 +508,26 @@ void MainWindow::on_btnCancel_3_clicked()
 void MainWindow::on_btnExitGame_clicked()
 {
     this->close();
+}
+
+void MainWindow::on_comboBoxPlayerNumber_currentIndexChanged(int index)
+{
+    auto table = ui->tablePlayer;
+    int number = min(index+1,table->rowCount());
+    int column = table->columnCount();
+    for(int i=0;i<number;i++){
+        table->showRow(i);
+//        for(int j =0;j<column;j++){
+//            auto item = table->item(i,j);
+//            }
+//            item->setFlags(item->flags() & (Qt::ItemIsEnabled));
+//        }
+    }
+    for(int i=number;i<table->rowCount();i++){
+//        for(int j =0;j<column;j++){
+//            auto item = table->item(i,j);
+//            item->setFlags(item->flags() & (~Qt::ItemIsEnabled));
+//        }
+        table->hideRow(i);
+    }
 }

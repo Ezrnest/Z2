@@ -67,19 +67,20 @@ void m1(){
 }
 
 void m2(){
-    vector<PlayerSetting> players{PlayerSetting(0,0,0,PlayerType::LOCAL_PLAYER),
-                                  PlayerSetting(1,1,1,PlayerType::LOCAL_PLAYER),
-                                  PlayerSetting(2,2,2,PlayerType::LOCAL_PLAYER)};
+    vector<PlayerSetting> players{PlayerSetting(0,-1,0,PlayerType::LOCAL_PLAYER),
+                                  PlayerSetting(1,-1,1,PlayerType::BOT_PLAYER),
+                                  PlayerSetting(2,-1,2,PlayerType::BOT_PLAYER),
+                                  PlayerSetting(3,-1,2,PlayerType::BOT_PLAYER)};
     auto map = MapRepository::instance().getMaps()[0];
     GameInitSetting setting(players,map);
     auto world = setting.buildWorld();
     CommandLineGameGui::printWorld(*world);
-    File f = File::currentDirectory();
-    string path = f.subFile("save1.txt").getPath();
-    GameMap::saveWorldTo(path,"",world);
-    map = GameMap::loadWorldFrom(path);
-    auto w2 = map->buildWorld(players);
-    CommandLineGameGui::printWorld(*w2);
+//    File f = File::currentDirectory();
+//    string path = f.subFile("save1.txt").getPath();
+//    GameMap::saveWorldTo(path,"",world);
+//    map = GameMap::loadWorldFrom(path);
+//    auto w2 = map->buildWorld(players);
+//    CommandLineGameGui::printWorld(*w2);
 }
 
 int main() {

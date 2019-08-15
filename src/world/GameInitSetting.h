@@ -20,22 +20,31 @@ enum class PlayerType {
     BOT_PLAYER,
     REMOTE_PLAYER,
 };
+
+
+
 class PlayerSetting{
 public:
     PlayerSetting(int playerId, int positionId, int groupId, PlayerType type);
     PlayerSetting();
     int playerId;
-    int positionId;
+    int positionId = RANDOM_POS;
     int groupId;
     int colorCode = 0;
     BotDifficulty diff = BotDifficulty::NONE;
     PlayerType type;
+
+    static const int RANDOM_POS = -1;
 };
 
 class GameInitSetting {
 private:
     vector<PlayerSetting> players;
     shared_ptr<GameMap> map;
+
+
+    void assignRandomPositions();
+
 public:
     GameInitSetting(int playerCount, shared_ptr<GameMap> map);
 

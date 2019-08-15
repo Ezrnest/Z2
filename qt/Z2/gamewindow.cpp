@@ -643,3 +643,24 @@ void GameWindow::on_tableResearch_currentCellChanged(int currentRow, int current
         ui->btnResearch->setEnabled(false);
     }
 }
+
+void GameWindow::on_tableBuy_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+{
+    auto table = ui->tableBuy;
+    int row = currentRow;
+    if(row < 0 || row >= table->rowCount()){
+        return;
+    }
+    auto item = table->item(row,0);
+    EntityInfo* enInfo = (EntityInfo*)(item->data(Qt::UserRole).value<void*>());
+    auto& name = enInfo->getIdentifier();
+    auto pos = getSelectedPos();
+    auto world =getWorld();
+
+    if(world->canBuy(getPlayerId(),pos,name)){
+        ui->btnBuy->setEnabled(true);
+    }else{
+        ui->btnBuy->setEnabled(false);
+    }
+
+}

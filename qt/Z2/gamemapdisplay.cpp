@@ -82,6 +82,16 @@ void GameMapDisplay::paintEvent(QPaintEvent *event)
             paintTile(pt,mp->getTile(x,y),cordX,cordY,tw,th);
         }
     }
+    auto& bps = mp->getBornPoints();
+    QPen pen;
+    pen.setColor(Qt::white);
+    pt.setPen(pen);
+    for(size_t i=0;i<bps.size();i++){
+        auto& bp = bps[i];
+        int cordX = gameCordToViewCordX(bp.x,tileWidth,mw);
+        int cordY = gameCordToViewCordY(bp.y,tileHeight,mh);
+        pt.drawText(cordX,cordY,tw,th, Qt::AlignCenter,QString::number(i));
+    }
 }
 
 void GameMapDisplay::setGameMap(const shared_ptr<GameMap> gm)

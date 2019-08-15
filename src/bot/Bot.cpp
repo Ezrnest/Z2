@@ -15,6 +15,7 @@ void Bot::init(const shared_ptr<Server> &s, const shared_ptr<World> &w, int pid)
     server = s.get();
     world = w.get();
     playerId = pid;
+    randomEngine(); // make it random
 }
 
 void Bot::doBotTurn() {
@@ -40,7 +41,9 @@ void Bot::sleepFor(long millisecond) {
     std::this_thread::sleep_for(std::chrono::milliseconds(millisecond));
 }
 
-Bot::Bot() = default;
+Bot::Bot(){
+    randomEngine();
+}
 
 Bot &Bot::operator=(const Bot &bot) = default;
 

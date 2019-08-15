@@ -119,6 +119,9 @@ shared_ptr<MapPreview> GameMapPredefined::getPreview() {
             mp->setTile(bp.x, bp.y, TilePreview::BornPoint);
         }
     }
+    for(auto& bp : bornPoints){
+        mp->addBornPoint(bp);
+    }
     return mp;
 }
 }

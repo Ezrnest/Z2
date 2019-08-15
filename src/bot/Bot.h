@@ -8,6 +8,7 @@
 #include <ctime>
 #include <core/Server.h>
 #include <random>
+#include "util/BasicUtil.h"
 namespace z2 {
 
 enum class BotDifficulty{
@@ -22,6 +23,8 @@ enum class BotDifficulty{
 class Bot {
 private:
 public:
+
+
 
     void init(const shared_ptr<Server> &server, const shared_ptr<World> &world, int playerId);
 
@@ -41,7 +44,7 @@ protected:
     Server* server = nullptr;
     World* world = nullptr;
     int playerId = 0;
-    default_random_engine randomEngine {(unsigned int)(1 + time(nullptr))};
+    default_random_engine randomEngine { (unsigned int)(ancono::currentTimeMillis())};
 
     int randomIntBetween(int downerInclusive, int upperExclusive);
 

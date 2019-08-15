@@ -33,14 +33,14 @@ void require(bool expr, const std::function<std::string()>& f);
 template <typename T> void requireNotNull(T* pointer){
     require(pointer != nullptr, "The object must not be null!");
 }
-}
 
 
 template <typename T> void requireNotNull(const shared_ptr<T>& ptr) {
     require(ptr.get() != nullptr, "The object must not be null!");
 }
 
+long long  currentTimeMillis();
 
-
+}
 
 #endif //HOMEWORK_BASICUTIL_H

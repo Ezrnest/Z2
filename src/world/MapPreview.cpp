@@ -97,4 +97,12 @@ TilePreview MapPreview::fromTile(Tile &tile) {
 
     return TilePreview::Plain;
 }
+
+void MapPreview::addBornPoint(const Point &p) {
+    bornPoints.push_back(p);
+}
+
+const vector<Point> &MapPreview::getBornPoints() const {
+    return bornPoints;
+}
 }

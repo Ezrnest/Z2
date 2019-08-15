@@ -27,16 +27,21 @@ private:
     int width;
     int height;
     vector<vector<TilePreview>> data;
+    vector<Point> bornPoints;
 public:
     MapPreview(int w,int h);
 
     void setTile(int x,int y, TilePreview tp);
+
+    void addBornPoint(const Point& p);
 
     TilePreview getTile(int x, int y);
 
     int getWidth() const;
 
     int getHeight() const;
+
+    const vector<Point> &getBornPoints() const;
 
     static TilePreview fromMapTile(MapTile& mp);
 

@@ -596,7 +596,6 @@ void GameWindow::on_btnResearch_clicked()
     auto item = table->item(row,0);
     Technology* techInfo = (Technology*)(item->data(Qt::UserRole).value<void*>());
     auto& name = techInfo->getId();
-    auto pos = getSelectedPos();
     auto client = getClient();
     shared_ptr<TechResearch> msg(new TechResearch(name,client->getPlayerId()));
     client->sendMessageToServer(msg);
@@ -625,4 +624,22 @@ void GameWindow::on_btnMenuCancel_clicked()
 void GameWindow::on_btnSaveGame_clicked()
 {
     saveGame();
+}
+
+void GameWindow::on_tableResearch_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+{
+    auto table = ui->tableResearch;
+    int row = currentRow;
+    if(row < 0 || row >= table->rowCount()){
+        return;
+    }
+    auto item = table->item(row,0);
+    Technology* techInfo = (Technology*)(item->data(Qt::UserRole).value<void*>());
+    auto& name = techInfo->getId();
+    auto world = getWorld();
+    if(world->canResearchTechnology(getPlayerId(),name)){
+        ui->btnResearch->setEnabled(true);
+    }else{
+        ui->btnResearch->setEnabled(false);
+    }
 }

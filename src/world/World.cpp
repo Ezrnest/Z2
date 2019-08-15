@@ -276,6 +276,29 @@ bool World::moveEntity(const Point &from, const Point &dest) {
     return true;
 }
 
+bool World::canBuy(int playerId, const Point& pos, const string& entityName){
+    const Point &whereToPlace = getAdjacentEmptyPos(pos);
+    if (whereToPlace.x < 0) {
+        return false;
+    }
+    if (playerId != Player::NO_PLAYER) {
+        Player &p = players[playerId];
+        auto &repo = EntityRepository::instance();
+        if (!repo.hasEntity(entityName)) {
+            return false;
+        }
+        auto &info = repo.getEntityInfo(entityName);
+        if(!info.isBuyableByPlayer(p)){
+            return false;
+        }
+        int cost = info.getProperties().getInt("price", 0);
+        if (p.getGold() < cost) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void World::buyEntity(int playerId, const Point &pos, const string &entityName) {
     const Point &whereToPlace = getAdjacentEmptyPos(pos);
     if (whereToPlace.x < 0) {
@@ -290,7 +313,11 @@ void World::buyEntity(int playerId, const Point &pos, const string &entityName) 
             return;
         }
         auto &info = repo.getEntityInfo(entityName);
-        int cost = info.getProperties().getInt("price", 25);
+        if(!info.isBuyableByPlayer(p)){
+            PLOG_WARNING << "Entity: " << entityName << " is not buyable for player " << p.getPlayerId();
+            return;
+        }
+        int cost = info.getProperties().getInt("price", 0);
         if (!p.requireGold(cost)) {
             PLOG_WARNING << "Not enough gold!";
             return;

@@ -45,11 +45,12 @@ protected:
 
     int randomIntBetween(int downerInclusive, int upperExclusive);
 
+
     void sleepFor(long millisecond);
 
 
     /**
-    static  * Do some initialization. The `server`, `world` is non-null when this method is invoked.
+     * Do some initialization. The `server`, `world` is non-null when this method is invoked.
      */
     virtual void doInit();
 

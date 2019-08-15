@@ -291,6 +291,8 @@ public:
      */
     bool moveEntity(const Point &from, const Point &dest);
 
+    bool canBuy(int playerId, const Point& pos, const string& entityName);
+
     void buyEntity(int playerId, const Point &pos, const string &entityName);
 
 
@@ -323,6 +325,9 @@ public:
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
 
+    /**
+     * Determines whether the player can research the tech.
+     */
     bool canResearchTechnology(int playerId, const string& techId);
 
     bool researchTechnology(int playerId, const string& techId);

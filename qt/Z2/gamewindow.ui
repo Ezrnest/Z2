@@ -674,6 +674,9 @@
       </column>
      </widget>
      <widget class="QPushButton" name="btnResearch">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>15</x>

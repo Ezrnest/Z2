@@ -106,6 +106,8 @@ private slots:
 
     void on_btnSaveGame_clicked();
 
+    void on_tableResearch_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
+
 private:
 //    using GameEventProcessor = function<bool(const GameEventPtr&)>;
     Ui::GameWindow *ui;

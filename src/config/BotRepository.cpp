@@ -42,6 +42,7 @@ void BotRepository::addProvider(const BotProvider &provider, BotDifficulty diff)
 void BotRepository::initBots() {
     auto& repo = instance();
     repo.registerBotClass<Dummy>(BotDifficulty::NONE);
+
 }
 
 void BotRepository::initFromFolder(const ancono::File &dir) {

@@ -12,7 +12,9 @@ namespace z2 {
 
 class Dummy : public Bot{
 public:
+protected:
 
+public:
     void doBotTurn() override;
 
     const string &getBotName() override;

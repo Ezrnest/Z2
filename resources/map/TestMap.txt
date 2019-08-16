@@ -9,15 +9,16 @@ setupBornPoints=false
 # Then the data of the map are:
 # width, height, maxPlayerCount
 # Then it is the map. Here are the representations:
-# '#' for mountain.
+# 'M' for mountain.
+
 # <number> for born point.
 # '_' for mine
 # '-' for gem
 # There must be an indicator line: $$$ before the map
 $$$$
-2 #
+2 M
 _    _
    -
   -
 _    _
-0  # 1
+0  M 1

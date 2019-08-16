@@ -39,6 +39,7 @@ void paintLines(QPainter& painter, const shared_ptr<World>& world){
     int yEnd = wH * TILE_SIZE;
     QPen pen;
     pen.setWidth(2);
+    pen.setColor(QColor(255,255,255,128));
     painter.setPen(pen);
     for(int i=0;i<=wH;i++){
         int y = i*TILE_SIZE;
@@ -107,6 +108,19 @@ void GameFrame::paintTerrain(QPainter& painter,QBrush& brush, QRect& rect, Tile&
         name ="Terrain_Hill.png";
         break;
     }
+    case Terrain::FOREST:{
+        name ="Terrain_Forest.png";
+        break;
+    }
+    case Terrain::DESERT:{
+        name ="Terrain_Desert.png";
+        break;
+    }
+    case Terrain::WATER:{
+        name ="Terrain_Water.png";
+        break;
+    }
+
     default:{
         name = "Null";
         break;
@@ -171,6 +185,20 @@ void GameFrame::paintTerrainTextureLost(QPainter& painter,QBrush& brush,QRect& r
         brush.setColor(Qt::gray);
         break;
     }
+    case Terrain::DESERT:{
+        brush.setColor(Qt::darkYellow);
+        break;
+    }
+    case Terrain::WATER:{
+        brush.setColor(Qt::blue);
+        break;
+    }
+    case Terrain::FOREST:{
+        brush.setColor(Qt::darkGreen);
+        break;
+    }
+//    case Terrain::HILL:{
+//    }
     default:{
         brush.setColor(Qt::black);
         break;
@@ -250,7 +278,6 @@ void GameFrame::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setTransform(trans);
-//    painter.setWindow(QRect(20,20,int(percent * 631),int(percent *551)));
     auto world = win->getWorld();
     if(!world){
         return;
@@ -300,9 +327,12 @@ void GameFrame::mouseMoveEvent(QMouseEvent *event)
     }
     dragState = 2;
     auto pos = event->pos();
-    int dx = pos.x() - clickedPos.x();
-    int dy = pos.y() - clickedPos.y();
+    qreal dx = pos.x() - clickedPos.x();
+    qreal dy = pos.y() - clickedPos.y();
+
     clickedPos = pos;
+    dx /= trans.m11();
+    dy /= trans.m22();
     trans.translate(dx,dy);
     update();
 }
@@ -347,24 +377,78 @@ void GameFrame::rightClickedOn(Point &p)
 
 }
 
-void GameFrame::zoom(bool in)
+void shearWithPivot(QTransform& trans,double multiplier, double pivotX, double pivotY){
+//    auto v = trans.map(QPointF(pivotX,pivotY));
+//    cout << pivotX << "," << pivotY << endl;
+
+
+
+    QTransform tl1(1,0,0,1,-pivotX,-pivotY);
+    QTransform sc(multiplier,0,0,multiplier,0,0);
+    QTransform tl2(1,0,0,1,pivotX,pivotY);
+    trans = trans * tl1 * sc * tl2;
+//    auto inv = trans.inverted();
+//    auto p = inv.map(QPointF(pivotX,pivotY));
+//    cout << p.x() << "," << p.y() << endl;
+//    trans.scale(multiplier,multiplier);
+//    cout << trans.m11() << endl;
+//    trans.translate(pivotX / trans.m11(),pivotY /trans.m22());
+}
+
+void GameFrame::zoom(bool in, int mouseX, int mouseY)
 {
     double mul;
     if(in){
         mul = 1.25;
-
     }else{
         mul = 0.8;
     }
-    trans.scale(mul,mul);
+    shearWithPivot(trans,mul,mouseX,mouseY);
+//    if(selPos.x < 0){
+//        trans.scale(mul,mul);
+//    }else{
+
+//        shearWithPivot(trans,mul,selPos.x,selPos.y);
+//    }
+
     update();
+}
+
+void GameFrame::makeCenter(const Point &p)
+{
+    QPoint qp = trans.map(gameCordToViewCord(p));
+    int w = width();
+    int h = height();
+    cout << qp.x() << ", " << qp.y() << endl;
+    qreal dx = w/3 - qp.x();
+    qreal dy = h/3 - qp.y();
+    QTransform tl(1,0,0,1,dx,dy);
+    trans = trans * tl;
+    update();
+}
+
+void GameFrame::makeCenterConstructionBase()
+{
+    if(!win){
+        return;
+    }
+    auto world = win->getWorld();
+    if(!world){
+        return;
+    }
+    Point p = world->searchFor(win->getPlayerId(),"ConstructionBase");
+    if(p.x >= 0){
+        makeCenter(p);
+    }
+
 }
 
 
 
 void GameFrame::wheelEvent(QWheelEvent *event)
 {
-    this->zoom(event->delta() > 0);
+    this->zoom(event->delta() > 0,event->x(),event->y());
 }
+
 
 

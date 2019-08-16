@@ -13,6 +13,7 @@ class Tile;
 enum class TilePreview{
     Plain,
     Mountain,
+    Water,
     Mine,
     Gem,
     BornPoint,
@@ -42,6 +43,8 @@ public:
     int getHeight() const;
 
     const vector<Point> &getBornPoints() const;
+
+    static TilePreview fromTerrainAndResource(Terrain t, Resource r);
 
     static TilePreview fromMapTile(MapTile& mp);
 

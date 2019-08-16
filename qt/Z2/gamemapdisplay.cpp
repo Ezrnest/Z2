@@ -23,6 +23,10 @@ void GameMapDisplay::paintTile(QPainter &p, TilePreview tp, int cordX, int cordY
         p.fillRect(cordX,cordY,tileWidth,tileHeight,Qt::darkGray);
         break;
     }
+    case TilePreview::Water: {
+        p.fillRect(cordX,cordY,tileWidth,tileHeight,Qt::blue);
+        break;
+    }
     case TilePreview::Mine: {
         p.fillRect(cordX,cordY,tileWidth,tileHeight,Qt::yellow);
         break;
@@ -90,7 +94,7 @@ void GameMapDisplay::paintEvent(QPaintEvent *event)
         auto& bp = bps[i];
         int cordX = gameCordToViewCordX(bp.x,tileWidth,mw);
         int cordY = gameCordToViewCordY(bp.y,tileHeight,mh);
-        pt.drawText(cordX,cordY,tw,th, Qt::AlignCenter,QString::number(i));
+        pt.drawText(cordX,cordY,tw,th, Qt::AlignCenter,QString::number(i+1));
     }
 }
 

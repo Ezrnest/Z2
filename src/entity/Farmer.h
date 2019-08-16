@@ -16,7 +16,10 @@ private:
     int goldPerTurn = 10;
 
 
+    static const int GEM_MULTIPLIER = 10;
 public:
+
+
     explicit Farmer(unsigned int objectId);
 
     const string &getClassName() const override;

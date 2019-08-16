@@ -58,13 +58,26 @@ shared_ptr<GameMap> GameMapPredefined::loadFrom(istream &in) {
 
 MapTile GameMapPredefined::getTileFromChar(char c) {
     switch (c) {
+        case 'M':
+            return {Terrain::MOUNTAIN, Resource::NONE};
+        case 'W':
+            return {Terrain::WATER, Resource::NONE};
+        case 'D':
+            return {Terrain::DESERT, Resource::NONE};
+        case 'H':
+            return {Terrain::HILL, Resource::NONE};
+        case 'F':
+            return {Terrain::FOREST, Resource::NONE};
+        case 'm':
+            return {Terrain::PLAIN, Resource::MINE};
+        case 'g':
+            return {Terrain::PLAIN, Resource::GEM};
         case '#':
             return {Terrain::MOUNTAIN, Resource::NONE};
         case '_':
             return {Terrain::PLAIN, Resource::MINE};
         case '-':
             return {Terrain::PLAIN, Resource::GEM};
-        case ' ':
         default:
             return {Terrain::PLAIN, Resource::NONE};
 

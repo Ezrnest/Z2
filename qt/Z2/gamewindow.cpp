@@ -2,6 +2,7 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPainter>
 #include "entity/Farmer.h"
 #include <entity/ConstructionBase.h>
@@ -47,6 +48,7 @@ GameWindow::GameWindow(MainWindow *parent) :
     setupTable(ui->tableResearch);
 
     connect(this,SIGNAL(notifyRefreshAll()),this,SLOT(refreshAll()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameStarted()),this,SLOT(gameStarted()),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
 
@@ -85,6 +87,12 @@ void GameWindow::refreshAll()
     update();
 }
 
+void GameWindow::gameStarted()
+{
+    ui->gameFrame->makeCenterConstructionBase();
+    refreshAll();
+}
+
 void GameWindow::showGameEnded()
 {
     if(gameState == 1){
@@ -102,11 +110,7 @@ void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
     refreshAll();
     switch (event->getType()) {
     case EventType::STATE_EVENT:{
-        auto we = dynamic_pointer_cast<GroupEvent>(event);
-        if(we && we->getSType() == StateEventType::GroupWon){
-            showGameWin(we);
-            return;
-        }
+        dealWithStateEvent(static_pointer_cast<StateEvent>(event));
         break;
     }
     case EventType::IN_GAME_EVENT:{
@@ -142,6 +146,24 @@ shared_ptr<World> GameWindow::getWorld()
 shared_ptr<Client>& GameWindow::getClient()
 {
     return gui->client;
+}
+
+void GameWindow::dealWithStateEvent(const shared_ptr<StateEvent> &event)
+{
+    switch(event->getSType()){
+    case StateEventType::GroupWon:{
+        auto we = dynamic_pointer_cast<GroupEvent>(event);
+        if(we){
+            showGameWin(we);
+            return;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+
 }
 
 void GameWindow::dealWithInGamePlayerEvent(const shared_ptr<InGamePlayerEvent> &event)
@@ -354,7 +376,7 @@ void GameWindow::refreshPlayerInfo()
     ui->lbllGold->setNum(player.getGold());
     ui->lbllTechPoint->setNum(player.getTechPoints());
     ui->lblGroup->setNum(player.getGroupId());
-//    ui->lblP
+    //    ui->lblP
 }
 
 void GameWindow::refreshTurnInfo()
@@ -393,6 +415,7 @@ void GameWindow::refreshContruction(shared_ptr<Entity> &en, World &w, Point &p)
         return;
     }
     ui->tabWidget2->show();
+    ui->btnBuy->setEnabled(false);
     auto client = getClient();
     vector<const EntityInfo*> availables = w.getAvailableEntitiesFor(client->getPlayerId());
     int count = availables.size();
@@ -416,6 +439,7 @@ void GameWindow::refreshContruction(shared_ptr<Entity> &en, World &w, Point &p)
 
 void GameWindow::refreshTechnology(World &w)
 {
+    ui->btnResearch->setEnabled(false);
     auto client = getClient();
     auto availables = w.getResearchableTechFor(client->getPlayerId());
     int count = availables.size();
@@ -443,6 +467,12 @@ QString terrainToString(Terrain t){
         return "山脉";
     case Terrain::HILL:
         return "丘陵";
+    case Terrain::WATER:
+        return "水域";
+    case Terrain::DESERT:
+        return "沙地";
+    case Terrain::FOREST:
+        return "森林";
     case Terrain::PLAIN:
     default:
         return "平原";
@@ -503,6 +533,16 @@ void GameWindow::exitGame()
     }
 }
 
+void GameWindow::keyPressEvent(QKeyEvent *event)
+{
+    int k = event->key();
+    if(k == Qt::Key_C){
+        cout << "Make CCB" << endl;
+        ui->gameFrame->makeCenterConstructionBase();
+        return;
+    }
+}
+
 shared_ptr<QtGui> GameWindow::getGui()
 {
     return this->gui;
@@ -537,7 +577,7 @@ void QtGui::onPlayerTurnFinished(int playerId)
 
 void QtGui::onGameStarted()
 {
-    update();
+    emit window->notifyGameStarted();
 }
 
 void QtGui::onPlayerWin(int playerId)
@@ -552,7 +592,7 @@ void QtGui::onGameStopped()
 
 void QtGui::onEvent(const shared_ptr<GameEvent> &event)
 {
-//    update();
+    //    update();
     emit window->notifyGameEvent(event);
 
 }

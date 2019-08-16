@@ -38,21 +38,7 @@ TilePreview MapPreview::getTile(int x, int y) {
 }
 
 TilePreview MapPreview::fromMapTile(MapTile &mp) {
-    switch (mp.resource) {
-        case Resource::MINE:
-            return TilePreview::Mine;
-        case Resource::GEM:
-            return TilePreview::Gem;
-        default:
-            break;
-    }
-    switch (mp.terrain) {
-        case Terrain::MOUNTAIN:
-            return TilePreview::Mountain;
-        default:
-            break;
-    }
-    return TilePreview::Plain;
+    return fromTerrainAndResource(mp.terrain,mp.resource);
 }
 
 TilePreview fromEntity(const shared_ptr<Entity> &en) {
@@ -69,7 +55,7 @@ TilePreview fromEntity(const shared_ptr<Entity> &en) {
         return TilePreview::EcoUnit;
     }
     if (dynamic_pointer_cast<GameUnit>(en)) {
-        return TilePreview ::GameUnit;
+        return TilePreview::GameUnit;
     }
     return TilePreview::Plain;
 //    if(dynamic_pointer_cast<MeleeUnit>(en) || dynamic_pointer_cast<RangeUnit>(en))
@@ -80,22 +66,7 @@ TilePreview MapPreview::fromTile(Tile &tile) {
     if (tile.hasEntity()) {
         return fromEntity(tile.getEntity());
     }
-    switch (tile.getResource()) {
-        case Resource::MINE:
-            return TilePreview::Mine;
-        case Resource::GEM:
-            return TilePreview::Gem;
-        default:
-            break;
-    }
-    switch (tile.getTerrain()) {
-        case Terrain::MOUNTAIN:
-            return TilePreview::Mountain;
-        default:
-            break;
-    }
-
-    return TilePreview::Plain;
+    return fromTerrainAndResource(tile.getTerrain(), tile.getResource());
 }
 
 void MapPreview::addBornPoint(const Point &p) {
@@ -104,5 +75,25 @@ void MapPreview::addBornPoint(const Point &p) {
 
 const vector<Point> &MapPreview::getBornPoints() const {
     return bornPoints;
+}
+
+TilePreview MapPreview::fromTerrainAndResource(Terrain t, Resource r) {
+    switch (r) {
+        case Resource::MINE:
+            return TilePreview::Mine;
+        case Resource::GEM:
+            return TilePreview::Gem;
+        default:
+            break;
+    }
+    switch (t) {
+        case Terrain::MOUNTAIN:
+            return TilePreview::Mountain;
+        case Terrain ::WATER:
+            return TilePreview ::Water;
+        default:
+            break;
+    }
+    return TilePreview::Plain;
 }
 }

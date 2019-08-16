@@ -49,6 +49,7 @@ void SoundRepository::initBGMs(File &dir)
         playListInGame->addMedia(getMedia(f));
     }
     playListInGame->setPlaybackMode(QMediaPlaylist::Random);
+    playListInGame->shuffle();
 }
 
 
@@ -57,8 +58,6 @@ SoundRepository::SoundRepository()
 {
     player.reset(new QMediaPlayer);
     updateConfig();
-
-
 }
 
 void SoundRepository::playMainMenuBGM()
@@ -68,6 +67,7 @@ void SoundRepository::playMainMenuBGM()
 
 void SoundRepository::playInGameBGM()
 {
+    playListInGame->shuffle();
     setCurrentPlayList(playListInGame);
 }
 

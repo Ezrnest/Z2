@@ -31,6 +31,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
 
     void wheelEvent(QWheelEvent* event) override;
+
+
 private:
     z2::ImageRepository& repo = z2::ImageRepository::instance();
 
@@ -55,13 +57,19 @@ private:
 
     void rightClickedOn(z2::Point& p);
 
-    void zoom(bool in);
+
     void paintTerrainTextureLost(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
     void paintTerrain(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
 
     void paintResource(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
 
     void paintEntity(QPainter &painter, QBrush &brush, QRect &rect,z2::World& world, z2::Tile &t, bool grey);
+
+    void zoom(bool in,int ,int);
+
+    void makeCenter(const z2::Point& p);
+
+    void makeCenterConstructionBase();
 };
 
 #endif // GAMEFRAME_H

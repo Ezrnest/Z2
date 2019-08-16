@@ -49,7 +49,7 @@ void Farmer::doFarm(const Point &pos, World &world) {
             break;
         }
         case Resource::GEM:{
-            amount = 3 * goldPerTurn;
+            amount = GEM_MULTIPLIER * goldPerTurn;
             break;
         }
         default:{
@@ -59,6 +59,7 @@ void Farmer::doFarm(const Point &pos, World &world) {
     }
     player.addGold(amount);
 //    player.setGold(player.getGold() + goldPerTurn);
+
     //TODO dispatch event
 }
 

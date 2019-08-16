@@ -80,6 +80,8 @@ public slots:
      */
     void refreshAll();
 
+    void gameStarted();
+
     void showGameEnded();
 
 
@@ -129,6 +131,8 @@ private:
 
     shared_ptr<Client>& getClient();
 
+    void dealWithStateEvent(const shared_ptr<StateEvent>& event);
+
     void dealWithInGamePlayerEvent(const shared_ptr<InGamePlayerEvent> &event);
 
     void dealWithEntityEvent(const shared_ptr<EntityEvent>& event);
@@ -170,13 +174,19 @@ private:
     void saveGame();
 
     void exitGame();
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+
 public:
     shared_ptr<QtGui> getGui();
 
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 
 signals:
     void notifyRefreshAll();
+
+    void notifyGameStarted();
 
     void notifyGameEnded();
 

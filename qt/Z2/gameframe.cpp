@@ -24,7 +24,7 @@ GameFrame::GameFrame(QWidget *parent) :
     ui(new Ui::GameFrame)
 {
     ui->setupUi(this);
-    trans.scale(1.5,1.5);
+    trans.scale(2,2);
 }
 
 GameFrame::~GameFrame()
@@ -419,7 +419,7 @@ void GameFrame::makeCenter(const Point &p)
     QPoint qp = trans.map(gameCordToViewCord(p));
     int w = width();
     int h = height();
-    cout << qp.x() << ", " << qp.y() << endl;
+//    cout << qp.x() << ", " << qp.y() << endl;
     qreal dx = w/3 - qp.x();
     qreal dy = h/3 - qp.y();
     QTransform tl(1,0,0,1,dx,dy);

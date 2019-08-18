@@ -51,7 +51,6 @@ GameWindow::GameWindow(MainWindow *parent) :
     connect(this,SIGNAL(notifyGameStarted()),this,SLOT(gameStarted()),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
-
 }
 
 GameWindow::~GameWindow()
@@ -89,7 +88,9 @@ void GameWindow::refreshAll()
 
 void GameWindow::gameStarted()
 {
+    ui->labelGameInfo->hide();
     ui->gameFrame->makeCenterConstructionBase();
+
     refreshAll();
 }
 
@@ -537,7 +538,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event)
 {
     int k = event->key();
     if(k == Qt::Key_C){
-        cout << "Make CCB" << endl;
+//        cout << "Make CCB" << endl;
         ui->gameFrame->makeCenterConstructionBase();
         return;
     }
@@ -577,6 +578,7 @@ void QtGui::onPlayerTurnFinished(int playerId)
 
 void QtGui::onGameStarted()
 {
+//    cout << "QtGui: Game Started" << endl;
     emit window->notifyGameStarted();
 }
 

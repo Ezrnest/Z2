@@ -61,6 +61,12 @@ private slots:
 
     void on_comboBoxPlayerNumber_currentIndexChanged(int index);
 
+    void on_btnDevList_clicked();
+
+    void onPlayerConnected(int pid);
+
+    void on_pushButton_5_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -89,6 +95,8 @@ private:
 
     void startLocalGame(z2::GameInitSetting& setting);
 
+    void initPlayerInfoList(z2::GameInitSetting& setting);
+
     void startOnlineGameServer(z2::GameInitSetting& setting);
 
     void startOnlineGameClient(QString address,int id);
@@ -106,6 +114,8 @@ public:
 
 signals:
     void notifyStartServerGame();
+
+    void notifyPlayerConnected(int pid);
 };
 
 #endif // MAINWINDOW_H

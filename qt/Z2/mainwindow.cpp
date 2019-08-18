@@ -82,7 +82,7 @@ QComboBox* getPlayerTypeComboBox(QWidget* parent,bool localGame){
     if(!localGame){
         comBox->addItem(QObject::tr("局域网玩家"));
     }
-//    comBox->addItem(QObject::tr("关闭"));
+    //    comBox->addItem(QObject::tr("关闭"));
     comBox->setEnabled(true);
 
     return comBox;
@@ -125,8 +125,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
     //    ui->tableWidget->setC
     setupTable(ui->tablePlayer);
+    setupTable(ui->tablePlayerInfoList);
+
     SoundRepository::instance().playMainMenuBGM();
     connect(this,SIGNAL(notifyStartServerGame()),this,SLOT(startServerGame()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyPlayerConnected(int)), this, SLOT(onPlayerConnected(int)),Qt::AutoConnection);
 }
 
 MainWindow::~MainWindow()
@@ -325,9 +328,61 @@ void MainWindow::startLocalGame(z2::GameInitSetting &setting)
     beforeStartingGame(gw);
 }
 
+void MainWindow::initPlayerInfoList(GameInitSetting &setting)
+{
+    auto table = ui->tablePlayerInfoList;
+    table->clearContents();
+    auto& ps = setting.getPlayers();
+    table->setRowCount(ps.size());
+    for(int i=0;i<ps.size();i++){
+        auto* item = new QTableWidgetItem(QString::number(i));
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,0,item);
+        QString s;
+        QString state;
+        switch(ps[i].type){
+        case PlayerType::LOCAL_PLAYER:{
+            s = "本地玩家";
+            state = "就绪";
+            break;
+        }
+        case PlayerType::BOT_PLAYER:{
+            s = "电脑";
+            state = "就绪";
+            break;
+        }
+        case PlayerType::REMOTE_PLAYER:{
+            s = "局域网玩家";
+            state = "未就绪";
+            break;
+        }
+        }
+        item = new QTableWidgetItem(s);
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,1,item);
+        item = new QTableWidgetItem(state);
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,2,item);
+    }
+}
+
 
 
 const int port = 23456;
+
+
+
+void MainWindow::onPlayerConnected(int pid)
+{
+    if(!onlineLobby){
+        return;
+    }
+    auto item = ui->tablePlayerInfoList->item(pid,2);
+    if(!item){
+        return;
+    }
+    item->setText("就绪");
+}
 
 void MainWindow::startOnlineGameServer(GameInitSetting &setting)
 {
@@ -337,12 +392,14 @@ void MainWindow::startOnlineGameServer(GameInitSetting &setting)
     for(auto& p : players){
         ps.push_back(p.type);
     }
+    initPlayerInfoList(setting);
     onlineLobby.reset(new Lobby(port,setting));
     auto listener =  [this](Lobby& lobby,int id){
         if(lobby.isGameReady()){
             emit notifyStartServerGame();
+        }else{
+            emit notifyPlayerConnected(id);
         }
-        //TODO add updates
         return;
     };
     onlineLobby->setOnPlayerConnected(listener);
@@ -425,7 +482,7 @@ void MainWindow::saveGameSetting()
 void MainWindow::beforeStartingGame(GameWindow *gw)
 {
     SoundRepository::instance().playInGameBGM();
-//    this->setVisible(false);
+    //    this->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
     gw->show();
 }
@@ -517,17 +574,29 @@ void MainWindow::on_comboBoxPlayerNumber_currentIndexChanged(int index)
     int column = table->columnCount();
     for(int i=0;i<number;i++){
         table->showRow(i);
-//        for(int j =0;j<column;j++){
-//            auto item = table->item(i,j);
-//            }
-//            item->setFlags(item->flags() & (Qt::ItemIsEnabled));
-//        }
+        //        for(int j =0;j<column;j++){
+        //            auto item = table->item(i,j);
+        //            }
+        //            item->setFlags(item->flags() & (Qt::ItemIsEnabled));
+        //        }
     }
     for(int i=number;i<table->rowCount();i++){
-//        for(int j =0;j<column;j++){
-//            auto item = table->item(i,j);
-//            item->setFlags(item->flags() & (~Qt::ItemIsEnabled));
-//        }
+        //        for(int j =0;j<column;j++){
+        //            auto item = table->item(i,j);
+        //            item->setFlags(item->flags() & (~Qt::ItemIsEnabled));
+        //        }
         table->hideRow(i);
     }
+}
+
+void MainWindow::on_btnDevList_clicked()
+{
+    SoundRepository::instance().playClick();
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
 }

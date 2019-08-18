@@ -9,10 +9,28 @@
 
 namespace z2 {
 class Building : public EntityWithHealth{
-protected:
-    static void deserializeDataPart(istream &input, Building *en);
 public:
     explicit Building(int objectId);
+
+
+    const std::string &getClassName() const override;
+
+    static std::string &className();
+
+    void initialize(const Properties &prop) override;
+
+    static Building *create(int objectId, const Properties &initializer);
+
+protected:
+    static void deserializeDataPart(istream &input, Building *en);
+
+    void serializeDataPart(ostream &output) override;
+
+public:
+
+    void serializeTo(ostream &output) override;
+
+    static Building* loadFrom(istream& input);
 };
 
 }

@@ -73,7 +73,7 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
     auto view = gui.lock();
     switch (message->getControlType()) {
         case ControlMessageType::StartGame: {
-
+            view->onGameStarted();
             break;
         }
         case ControlMessageType::EndGame: {
@@ -85,9 +85,11 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
             break;
         }
         case ControlMessageType::PlayerTurnFinish: {
+            view->onPlayerTurnFinished(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
             break;
         }
         case ControlMessageType::PlayerDefeated: {
+
             break;
         }
         case ControlMessageType::PlayerWin: {

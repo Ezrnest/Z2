@@ -91,6 +91,7 @@ void z2::SerializableRegistry::initSerializableClasses() {
     sr.registerClass<ConstructionBase>();
     sr.registerClass<MeleeUnit>();
     sr.registerClass<RangeUnit>();
+    sr.registerClass<Building>();
 
     z2::initMessageClass(sr);
 }

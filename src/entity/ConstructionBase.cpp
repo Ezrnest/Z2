@@ -26,7 +26,7 @@ z2::ConstructionBase *z2::ConstructionBase::create(int objectId, const Propertie
 }
 
 void z2::ConstructionBase::initialize(const Properties &prop) {
-    EntityWithHealth::initialize(prop);
+    Building::initialize(prop);
 }
 
 void z2::ConstructionBase::deserializeDataPart(istream &input, z2::ConstructionBase *en) {
@@ -45,7 +45,7 @@ void z2::ConstructionBase::serializeTo(ostream &output) {
 }
 
 void z2::ConstructionBase::serializeDataPart(ostream &output) {
-    EntityWithHealth::serializeDataPart(output);
+    z2::Building::serializeDataPart(output);
 }
 
 

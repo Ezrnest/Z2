@@ -177,13 +177,15 @@ void EntityRepository::initEntityClasses() {
 
     //Buildings:
     //ConstructionBase:
+    repo.registerEntityClass(Building::className(), Building::create);
     repo.registerEntityClass(ConstructionBase::className(), ConstructionBase::create);
 
     repo.registerEntityClass(Farmer::className(), Farmer::create);
 
-    //TODO
     repo.registerEntityClass(MeleeUnit::className(), MeleeUnit::create);
     repo.registerEntityClass(RangeUnit::className(), RangeUnit::create);
+    //TODO
+
     PLOG(plog::info) << "[EntityRegistry]: Init entity classes: Done";
 }
 

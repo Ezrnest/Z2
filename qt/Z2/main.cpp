@@ -2,7 +2,7 @@
 #define ASIO_STANDALONE
 
 #include "gamewindow.h"
-#include "ImageRepository.h"
+#include "imagerepository.h"
 #include "SoundRepository.h"
 #include "mainwindow.h"
 #include <QApplication>
@@ -13,19 +13,33 @@
 #include "core/Server.h"
 #include "core/LocalClient.h"
 #include "bot/BotClientPort.h"
+#include <QTranslator>
 using namespace z2;
 
+static QTranslator* trans = nullptr;
+void initLang(QApplication& app){
+    auto& config =  z2::GameConfiguration::instance();
+    string lang = config.getProp().get("language","cn");
+    trans = new QTranslator;
+    if(lang == "cn"){
+        trans->load(":/lang_cn.qm");
+    }else{
+        cout << "Loading en:" << trans->load(":/lang_en.qm") << endl;
+    }
+    app.installTranslator(trans);
+}
 
-void initAboutQT(){
+void initAboutQT(QApplication& app){
+    initLang(app);
     auto resDir = z2::GameConfiguration::getResourceDir();
     z2::ImageRepository::instance().initFromFolder(resDir.subFile("image"));
     z2::SoundRepository::instance().initFromFolder(resDir.subFile("sound"));
     qRegisterMetaType<shared_ptr<GameEvent>>("shared_ptr<GameEvent>");
 }
 
-void initAll(){
+void initAll(QApplication& app){
     z2::GameConfiguration::initAll();
-    initAboutQT();
+    initAboutQT(app);
 }
 
 shared_ptr<z2::World> getWorld(){
@@ -84,7 +98,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    initAll();
+    initAll(a);
 
     return runMainMenu(a);
 

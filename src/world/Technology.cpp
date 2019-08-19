@@ -6,7 +6,7 @@
 
 #include <utility>
 
-
+#include "config/GameConfiguration.h"
 
 const Properties &z2::Technology::getProp() const {
     return prop;
@@ -57,6 +57,11 @@ const set<string> &z2::Technology::getRequires() const {
 }
 
 const string &z2::Technology::getDisplayName() const {
-    return prop.get("displayName", id);
+    auto& config = GameConfiguration::instance();
+    const string& s =  prop.get("displayName", id);
+    if(config.getLanguage() == "en"){
+        return prop.get("displayNameEn",s);
+    }
+    return s;
 }
 

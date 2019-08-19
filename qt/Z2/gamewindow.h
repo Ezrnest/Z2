@@ -112,6 +112,10 @@ private slots:
 
     void on_tableBuy_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
+    void on_btnMenuCancel_2_clicked();
+
+    void on_btnDiplomacy_clicked();
+
 private:
 //    using GameEventProcessor = function<bool(const GameEventPtr&)>;
     Ui::GameWindow *ui;
@@ -145,7 +149,6 @@ private:
 
     void processPlayerResearch(const shared_ptr<TechResearchedEvent>& event);
 
-
     void arrangeUi();
 
     void adjustPosToBorder(QWidget* t, int x,bool toLeft, int y, bool toTop);
@@ -170,6 +173,8 @@ private:
     void refreshPerformAbility(shared_ptr<Entity>& en, World& w, Point& p);
 
     void refreshTileInfo(bool entityInfo,World& w,Point& pos);
+
+    void showMenuPlayerList();
 
     void saveGame();
 

@@ -1,6 +1,7 @@
 #include "gamemapdisplay.h"
 #include "ui_gamemapdisplay.h"
 #include <QPainter>
+#include <algorithm>
 GameMapDisplay::GameMapDisplay(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::GameMapDisplay)
@@ -17,6 +18,7 @@ void GameMapDisplay::paintTile(QPainter &p, TilePreview tp, int cordX, int cordY
 {
     switch (tp){
     case TilePreview::Plain: {
+        p.fillRect(cordX,cordY,tileWidth,tileHeight,Qt::darkGreen);
         break;
     }
     case TilePreview::Mountain: {
@@ -74,16 +76,14 @@ void GameMapDisplay::paintEvent(QPaintEvent *event)
     int mh = mp->getHeight();
     int displayWidth = width();
     int displayHeight = height();
-    pt.fillRect(0,0,displayWidth,displayHeight,Qt::darkGreen);
-    double tileWidth = (double)displayWidth / mw;
-    double tileHeight = (double)displayHeight / mh;
-    int tw = (int) tileWidth;
-    int th = (int) tileHeight;
+    pt.fillRect(0,0,displayWidth,displayHeight,Qt::blue);
+    double tileSize =std::min((double)displayWidth / mw,(double)displayHeight / mh);
+    int ts = (int) tileSize;
     for(int x=0;x<mw;x++){
         for(int y = 0 ; y < mh ; y++){
-            int cordX = gameCordToViewCordX(x,tileWidth,mw);
-            int cordY = gameCordToViewCordY(y,tileHeight,mh);
-            paintTile(pt,mp->getTile(x,y),cordX,cordY,tw,th);
+            int cordX = gameCordToViewCordX(x,tileSize,mw);
+            int cordY = gameCordToViewCordY(y,tileSize,mh);
+            paintTile(pt,mp->getTile(x,y),cordX,cordY,ts,ts);
         }
     }
     auto& bps = mp->getBornPoints();
@@ -92,9 +92,9 @@ void GameMapDisplay::paintEvent(QPaintEvent *event)
     pt.setPen(pen);
     for(size_t i=0;i<bps.size();i++){
         auto& bp = bps[i];
-        int cordX = gameCordToViewCordX(bp.x,tileWidth,mw);
-        int cordY = gameCordToViewCordY(bp.y,tileHeight,mh);
-        pt.drawText(cordX,cordY,tw,th, Qt::AlignCenter,QString::number(i+1));
+        int cordX = gameCordToViewCordX(bp.x,tileSize,mw);
+        int cordY = gameCordToViewCordY(bp.y,tileSize,mh);
+        pt.drawText(cordX,cordY,ts,ts, Qt::AlignCenter,QString::number(i+1));
     }
 }
 

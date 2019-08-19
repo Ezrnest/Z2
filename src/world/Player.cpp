@@ -120,4 +120,11 @@ void Player::setColorCode(int colorCode) {
     Player::colorCode = colorCode;
 }
 
+bool Player::isAlly(int group) const{
+    if(groupId_ == NO_GROUP || group == NO_GROUP){
+        return false;
+    }
+    return groupId_ == group;
+}
+
 

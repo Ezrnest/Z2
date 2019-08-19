@@ -24,6 +24,8 @@ public:
 
     const string& getPlayerName();
 
+    const string& getLanguage();
+
     static void initAll();
 
     static void initRegistration();

@@ -57,7 +57,7 @@ int getPlayerGroupFromComboBox(QWidget* w){
 QComboBox* getPlayerPosComboBox(QWidget* parent, int idx, const shared_ptr<GameMap>& map){
     int maxGroup = map->getMaxPlayerCount();
     QComboBox *comBox = new QComboBox(parent);
-    comBox->addItem("随机");
+    comBox->addItem(QObject::tr("随机"));
     for(int i=1;i<=maxGroup;i++){
         comBox->addItem(QString::number(i));
     }
@@ -99,10 +99,10 @@ QComboBox* getPlayerColorComboBox(QWidget* parent){
 
 QComboBox* getBotDifficultyComboBox(QWidget* parent){
     QComboBox* comBox = new QComboBox();
-    comBox->addItem("无");
-    comBox->addItem("简单");
-    comBox->addItem("中等");
-    comBox->addItem("困难");
+    comBox->addItem(QObject::tr("无"));
+    comBox->addItem(QObject::tr("简单"));
+    comBox->addItem(QObject::tr("中等"));
+    comBox->addItem(QObject::tr("困难"));
     comBox->setEnabled(true);
     return comBox;
 }
@@ -299,9 +299,8 @@ void MainWindow::on_btnStartGame_clicked()
     SoundRepository::instance().playClick();
     auto setting = loadGameSettings();
     if(!setting.isValidLocalSetting(localGame)){
-        QString title= "游戏设置不正确";
-        QString context = "游戏设置不正确\n"
-                          "位置不能重复";
+        QString title= tr("游戏设置不正确");
+        QString context = tr("游戏设置不正确\n位置不能重复");
         QMessageBox::warning(this,title,context);
         return;
     }
@@ -342,18 +341,18 @@ void MainWindow::initPlayerInfoList(GameInitSetting &setting)
         QString state;
         switch(ps[i].type){
         case PlayerType::LOCAL_PLAYER:{
-            s = "本地玩家";
-            state = "就绪";
+            s = tr("本地玩家");
+            state = tr("就绪");
             break;
         }
         case PlayerType::BOT_PLAYER:{
-            s = "电脑";
-            state = "就绪";
+            s = tr("电脑");
+            state = tr("就绪");
             break;
         }
         case PlayerType::REMOTE_PLAYER:{
-            s = "局域网玩家";
-            state = "未就绪";
+            s = tr("局域网玩家");
+            state = tr("未就绪");
             break;
         }
         }
@@ -381,7 +380,7 @@ void MainWindow::onPlayerConnected(int pid)
     if(!item){
         return;
     }
-    item->setText("就绪");
+    item->setText(tr("就绪"));
 }
 
 void MainWindow::startOnlineGameServer(GameInitSetting &setting)
@@ -441,8 +440,8 @@ void MainWindow::startOnlineGameClient(QString address,int id)
     gw->setClient(rc);
 
     if(!RemoteServerProxy::tryConnect(proxy,add, port)){
-        QString title= "连接失败";
-        QString context = "连接失败";
+        QString title= tr("连接失败");
+        QString context = tr("连接失败");
         QMessageBox::warning(this,title,context);
         gw->deleteLater();
         return;
@@ -460,13 +459,18 @@ void MainWindow::initSettingPage()
     auto& prop = gc.getProp();
     ui->sliderBGM->setValue(prop.getInt("volumnBGM",100));
     ui->sliderSoundEffect->setValue(prop.getInt("volumnEff",100));
+    if(gc.getLanguage() == "en"){
+        ui->comboBoxLang->setCurrentIndex(1);
+    }else{
+        ui->comboBoxLang->setCurrentIndex(0);
+    }
 }
 
 void MainWindow::saveGameSetting()
 {
     QString playerName = ui->textInputPlayerName->text();
     if(playerName.contains(' ')){
-        QMessageBox::warning(this,"警告","用户名中不能含有空格!");
+        QMessageBox::warning(this,tr("警告"),tr("用户名中不能含有空格!"));
         return;
     }
     auto& gc = GameConfiguration::instance();
@@ -474,9 +478,17 @@ void MainWindow::saveGameSetting()
     prop.set("playerName",playerName.toStdString());
     prop.setInt("volumnBGM",ui->sliderBGM->value());
     prop.setInt("volumnEff",ui->sliderSoundEffect->value());
+    if(ui->comboBoxLang->currentIndex() == 1){
+        prop.set("language","en");
+    }else{
+        prop.set("language","cn");
+    }
+
     SoundRepository::instance().setVolumn(ui->sliderBGM->value(),ui->sliderSoundEffect->value());
     gc.saveProp();
-    QMessageBox::information(this,"信息","保存成功");
+    auto title = tr("信息");
+    auto text = tr("保存成功\n语言设置需要重启游戏才能生效");
+    QMessageBox::information(this,title,text);
 }
 
 void MainWindow::beforeStartingGame(GameWindow *gw)
@@ -592,7 +604,7 @@ void MainWindow::on_comboBoxPlayerNumber_currentIndexChanged(int index)
 void MainWindow::on_btnDevList_clicked()
 {
     SoundRepository::instance().playClick();
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(5);
 }
 
 

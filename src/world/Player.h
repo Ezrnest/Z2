@@ -52,6 +52,9 @@ public:
 
     void setGroupId(int groupId);
 
+    bool isAlly(int group) const;
+
+
     int getColorCode() const;
 
     void setColorCode(int colorCode);

@@ -30,10 +30,13 @@ SOURCES += *.cpp \
 
 #CONFIG += resources_big
 
-#RESOURCES += \
-#    resources.qrc
+RESOURCES += \
+    resources.qrc
 
 FORMS += *.ui
+
+TRANSLATIONS += lang_cn.ts \
+               lang_en.ts
 
 RC_ICONS = z2.ico
 

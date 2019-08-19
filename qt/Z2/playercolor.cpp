@@ -1,29 +1,30 @@
 #include "playercolor.h"
+#include <QObject>
 namespace z2 {
 PlayerColor::PlayerColor()
 {
-    colorNames.append("红色");
+    colorNames.append(QObject::tr("红色"));
     colors.push_back(QColor(Qt::red));
 
-    colorNames.append("蓝色");
+    colorNames.append(QObject::tr("蓝色"));
     colors.push_back(QColor(Qt::blue));
 
-    colorNames.append("黄色");
+    colorNames.append(QObject::tr("黄色"));
     colors.push_back(QColor(Qt::yellow));
 
-    colorNames.append("绿色");
+    colorNames.append(QObject::tr("绿色"));
     colors.push_back(QColor(Qt::green));
 
-    colorNames.append("紫色");
+    colorNames.append(QObject::tr("紫色"));
     colors.push_back(QColor(Qt::magenta));
 
-    colorNames.append("淡蓝色");
+    colorNames.append(QObject::tr("淡蓝色"));
     colors.push_back(QColor(Qt::cyan));
 
-    colorNames.append("橙色");
+    colorNames.append(QObject::tr("橙色"));
     colors.push_back(QColor(255,165,0));
 
-    colorNames.append("淡绿色");
+    colorNames.append(QObject::tr("淡绿色"));
     colors.push_back(QColor(154,255,154));
 }
 

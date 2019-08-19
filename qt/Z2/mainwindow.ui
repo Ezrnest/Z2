@@ -23,9 +23,42 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Z2</string>
+   <string notr="true">Z2</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">.QWidget, QMessageBox{ 
+	background:rgb(0, 153, 255)
+}
+
+QPushButton { 
+	background: rgb(255, 170, 0);
+	
+}
+
+.QComboBox, .QLineEdit, .QTextBrowser{
+	background:rgb(85, 170, 255)
+}
+.QLabel, .QComboBox, .QLineEdit, .QTextBrowser {
+	color:rgb(255, 255, 255)
+}
+.QScrollBar{
+	background-color:rgb(0, 85, 255)
+}
+.QTableWidget {
+	background-color:rgb(85, 255, 255);
+}
+</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="enabled">
      <bool>true</bool>
@@ -38,8 +71,11 @@
       <height>601</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -51,8 +87,14 @@
         <height>51</height>
        </rect>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>单人游戏</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QPushButton" name="btnMultiple">
@@ -64,6 +106,9 @@
         <height>51</height>
        </rect>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>局域网游戏</string>
       </property>
@@ -71,20 +116,22 @@
      <widget class="QLabel" name="lblZ2">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>180</y>
-        <width>161</width>
-        <height>141</height>
+        <x>60</x>
+        <y>210</y>
+        <width>151</width>
+        <height>131</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>Sylfaen</family>
+        <family>Constantia</family>
         <pointsize>72</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
-       <string>Z2</string>
+       <string notr="true">Z</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnSetting">
@@ -95,6 +142,9 @@
         <width>141</width>
         <height>51</height>
        </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
       <property name="text">
        <string>游戏设置</string>
@@ -109,6 +159,9 @@
         <height>51</height>
        </rect>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>加入游戏</string>
       </property>
@@ -118,12 +171,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>81</width>
+        <width>151</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
-       <string>z2: beta 1.1</string>
+       <string notr="true">z2: beta 1.2</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnExitGame">
@@ -134,6 +187,9 @@
         <width>141</width>
         <height>51</height>
        </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
       <property name="text">
        <string>退出游戏</string>
@@ -148,8 +204,32 @@
         <height>51</height>
        </rect>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>制作名单</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblZ2_2">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>150</y>
+        <width>161</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Consolas</family>
+        <pointsize>48</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string notr="true">2</string>
       </property>
      </widget>
     </widget>
@@ -221,9 +301,9 @@
      <widget class="QComboBox" name="cmbMap">
       <property name="geometry">
        <rect>
-        <x>60</x>
+        <x>70</x>
         <y>10</y>
-        <width>221</width>
+        <width>291</width>
         <height>30</height>
        </rect>
       </property>
@@ -309,9 +389,9 @@
      <widget class="QLabel" name="lblMapName">
       <property name="geometry">
        <rect>
-        <x>60</x>
+        <x>70</x>
         <y>10</y>
-        <width>271</width>
+        <width>371</width>
         <height>31</height>
        </rect>
       </property>
@@ -322,7 +402,7 @@
        </font>
       </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string notr="true">TextLabel</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_4">
@@ -353,15 +433,18 @@
        <rect>
         <x>10</x>
         <y>350</y>
-        <width>111</width>
+        <width>171</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
         <family>微软雅黑</family>
-        <pointsize>16</pointsize>
+        <pointsize>14</pointsize>
        </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>ArrowCursor</cursorShape>
       </property>
       <property name="text">
        <string>玩家人数</string>
@@ -370,7 +453,7 @@
      <widget class="QComboBox" name="comboBoxPlayerNumber">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>210</x>
         <y>350</y>
         <width>71</width>
         <height>31</height>
@@ -433,7 +516,7 @@
        </font>
       </property>
       <property name="text">
-       <string>127.0.0.1:12345</string>
+       <string notr="true">127.0.0.1:12345</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnCancel">
@@ -465,7 +548,7 @@
        </font>
       </property>
       <property name="text">
-       <string>服务器主机名：</string>
+       <string notr="true">服务器主机名：</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_10">
@@ -565,15 +648,15 @@
        </font>
       </property>
       <property name="text">
-       <string>127.0.0.1</string>
+       <string notr="true">127.0.0.1</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_5">
       <property name="geometry">
        <rect>
-        <x>53</x>
+        <x>23</x>
         <y>211</y>
-        <width>161</width>
+        <width>191</width>
         <height>31</height>
        </rect>
       </property>
@@ -592,7 +675,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>191</width>
+        <width>201</width>
         <height>31</height>
        </rect>
       </property>
@@ -622,15 +705,15 @@
        </font>
       </property>
       <property name="text">
-       <string>2</string>
+       <string notr="true">2</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>53</x>
+        <x>23</x>
         <y>251</y>
-        <width>121</width>
+        <width>151</width>
         <height>31</height>
        </rect>
       </property>
@@ -648,7 +731,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>490</y>
+        <y>550</y>
         <width>101</width>
         <height>31</height>
        </rect>
@@ -680,6 +763,14 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;加入一位玩家已经开启的局域网游戏，输入开启局域网游戏的玩家的ip地址或者主机名和你的玩家序号即可连接。要求你输入的玩家序号在对方的游戏设置中是局域网玩家。&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
+     <zorder>pushButton</zorder>
+     <zorder>label_5</zorder>
+     <zorder>label_6</zorder>
+     <zorder>textInputId</zorder>
+     <zorder>label_7</zorder>
+     <zorder>pushButton_3</zorder>
+     <zorder>textBrowser</zorder>
+     <zorder>textInputAddress</zorder>
     </widget>
     <widget class="QWidget" name="settingPage">
      <widget class="QLabel" name="label_8">
@@ -706,8 +797,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>81</width>
-        <height>21</height>
+        <width>231</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -723,9 +814,9 @@ p, li { white-space: pre-wrap; }
      <widget class="QLineEdit" name="textInputPlayerName">
       <property name="geometry">
        <rect>
-        <x>97</x>
-        <y>68</y>
-        <width>161</width>
+        <x>20</x>
+        <y>110</y>
+        <width>191</width>
         <height>41</height>
        </rect>
       </property>
@@ -736,14 +827,14 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string/>
+       <string notr="true"/>
       </property>
      </widget>
      <widget class="QPushButton" name="btnCancel_2">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>490</y>
+        <y>530</y>
         <width>101</width>
         <height>41</height>
        </rect>
@@ -762,7 +853,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>670</x>
-        <y>490</y>
+        <y>530</y>
         <width>101</width>
         <height>41</height>
        </rect>
@@ -781,9 +872,9 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>460</x>
-        <y>70</y>
-        <width>121</width>
-        <height>21</height>
+        <y>60</y>
+        <width>171</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -819,7 +910,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>460</x>
-        <y>190</y>
+        <y>200</y>
         <width>311</width>
         <height>16</height>
        </rect>
@@ -839,8 +930,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>460</x>
         <y>150</y>
-        <width>121</width>
-        <height>21</height>
+        <width>161</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -853,13 +944,52 @@ p, li { white-space: pre-wrap; }
        <string>游戏音效：</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_17">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>260</y>
+        <width>151</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>语言：</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBoxLang">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>300</y>
+        <width>171</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string notr="true">简体中文</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string notr="true">English</string>
+       </property>
+      </item>
+     </widget>
     </widget>
     <widget class="QWidget" name="devPage">
      <widget class="QPushButton" name="pushButton_5">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>560</y>
+        <x>0</x>
+        <y>550</y>
         <width>101</width>
         <height>31</height>
        </rect>
@@ -871,7 +1001,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QTextBrowser" name="textBrowser_2">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>60</y>
         <width>741</width>
         <height>481</height>

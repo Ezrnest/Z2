@@ -6,7 +6,7 @@
 #include "entity/ConstructionBase.h"
 #include "entity/Farmer.h"
 #include "plog/Log.h"
-
+#include "config/GameConfiguration.h"
 using namespace z2;
 
 EntityClassInfo::EntityClassInfo(const string &identifier, const CreatingFunction &creatingFunction) : className(
@@ -99,7 +99,12 @@ const set<string> &EntityInfo::getRequiredTech() const {
 }
 
 const string &EntityInfo::getDisplayName() const {
-    return properties.get("displayName", identifier);
+    auto& config = GameConfiguration::instance();
+    const string& s =  properties.get("displayName", identifier);
+    if(config.getLanguage() == "en"){
+        return properties.get("displayNameEn",s);
+    }
+    return s;
 }
 
 const string &EntityInfo::getImageName() const{

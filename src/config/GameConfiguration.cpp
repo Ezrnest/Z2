@@ -127,6 +127,11 @@ void GameConfiguration::saveProp() {
 
 }
 
+const string &GameConfiguration::getLanguage() {
+    static string lang = "cn";
+    return getProp().get("language",lang);
+}
+
 
 
 

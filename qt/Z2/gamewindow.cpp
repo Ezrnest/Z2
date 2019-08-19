@@ -30,22 +30,22 @@ GameWindow::GameWindow(MainWindow *parent) :
     mainWindow = parent;
 
 
-    QPalette pal = palette();
-    pal.setColor(QPalette::Background, Qt::white);
+
 
     ui->gameFrame->setWindow(this);
     ui->frMenu->setVisible(false);
+    ui->frPlayerList->setVisible(false);
 
     QPalette background;
     background.setColor(QPalette::Background,Qt::white);
     ui->frTurnInfo->setPalette(background);
     ui->frTurnInfo->setAutoFillBackground(true);
-    background.setColor(QPalette::Background,Qt::lightGray);
-    ui->frMenu->setPalette(background);
-    ui->frMenu->setAutoFillBackground(true);
+
 
     setupTable(ui->tableBuy);
     setupTable(ui->tableResearch);
+    setupTable(ui->tablePlayerList);
+
 
     connect(this,SIGNAL(notifyRefreshAll()),this,SLOT(refreshAll()),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameStarted()),this,SLOT(gameStarted()),Qt::AutoConnection);
@@ -100,8 +100,8 @@ void GameWindow::showGameEnded()
         return;
     }
     //    update();
-    QString title= "游戏结束";
-    QString detail = "有玩家退出或者失去连接，游戏结束";
+    QString title= tr("游戏结束");
+    QString detail = tr("有玩家退出或者失去连接，游戏结束");
     QMessageBox::warning(this,title,detail);
     this->close();
 }
@@ -130,8 +130,8 @@ void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
 
 void GameWindow::showGameWin(const shared_ptr<GroupEvent> &event)
 {
-    QString title= "游戏结束";
-    QString context = "游戏结束，玩家组%1获胜";
+    QString title= tr("游戏结束");
+    QString context = tr("游戏结束，玩家组%1获胜");
     QMessageBox::information(this,title,context.arg(event->getGroupId()));
     this->close();
 }
@@ -220,10 +220,13 @@ void GameWindow::processPlayerResearch(const shared_ptr<TechResearchedEvent> &ev
 void GameWindow::arrangeUi()
 {
     adjustPosMid(ui->frMenu,true,false);
+    adjustPosMid(ui->frPlayerList,true,false);
     adjustPosToBorder( ui->btnEndTurn,10,false,10,false);
     adjustPosToBorder( ui->frTurnInfo,70,false,20,false);
     adjustPosToBorder( ui->btnMenu, 5,false,5,true);
+    adjustPosToBorder( ui->btnDiplomacy, 10+ui->btnMenu->width(),false,5,true);
     adjustPosToBorder(ui->tabWidget,2,true, 20, false);
+
     adjustWidgetSize(ui->gameFrame,true,true);
 
 }
@@ -373,10 +376,11 @@ void GameWindow::refreshPlayerInfo()
     auto client = getClient();
     auto w = getWorld();
     Player& player = w->getPlayer(client->getPlayerId());
+
     ui->lblPlayerName->setText(QString::fromStdString(player.getName()));
     ui->lbllGold->setNum(player.getGold());
     ui->lbllTechPoint->setNum(player.getTechPoints());
-    ui->lblGroup->setNum(player.getGroupId());
+//    ui->lblGroup->setNum(player.getGroupId());
     //    ui->lblP
 }
 
@@ -390,7 +394,8 @@ void GameWindow::refreshTurnInfo()
     }else{
         ui->frTurnInfo->show();
         ui->btnEndTurn->setEnabled(false);
-        ui->lblCurrentPlayer->setText(QString::fromStdString(w->getCurrentAsPlayer().getName()));
+        QString text = tr("等待 %1 的回合").arg(QString::fromStdString(w->getCurrentAsPlayer().getName()));
+        ui->lblCurrentPlayer->setText(text);
     }
 
 }
@@ -465,30 +470,30 @@ void GameWindow::refreshTechnology(World &w)
 QString terrainToString(Terrain t){
     switch (t) {
     case Terrain::MOUNTAIN:
-        return "山脉";
+        return QObject::tr("山脉");
     case Terrain::HILL:
-        return "丘陵";
+        return QObject::tr("丘陵");
     case Terrain::WATER:
-        return "水域";
+        return QObject::tr("水域");
     case Terrain::DESERT:
-        return "沙地";
+        return QObject::tr("沙地");
     case Terrain::FOREST:
-        return "森林";
+        return QObject::tr("森林");
     case Terrain::PLAIN:
     default:
-        return "平原";
+        return QObject::tr("平原");
     }
 }
 
 QString resourceToString(Resource r){
     switch (r) {
     case Resource::GEM:
-        return  "钻石";
+        return  QObject::tr("钻石");
     case Resource::MINE:
-        return  "金矿";
+        return  QObject::tr("金矿");
     case Resource::NONE:
     default:
-        return "无";
+        return QObject::tr("无");
     }
 }
 
@@ -508,11 +513,57 @@ void GameWindow::refreshTileInfo(bool entityInfo, World& w, Point& p)
     }
 }
 
+void GameWindow::showMenuPlayerList()
+{
+    auto w = getWorld();
+    auto& ps = w->getPlayers();
+    int pid = getPlayerId();
+    auto& player = ps[pid];
+    auto table = ui->tablePlayerList;
+    table->clearContents();
+    table->setRowCount(ps.size());
+    for(int i=0;i<ps.size();i++){
+        const Player& p = ps[i];
+        auto item = new QTableWidgetItem(QString::number(i));
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,0,item); // order
+
+        item = new QTableWidgetItem(QString::fromStdString(p.getName()));
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,1,item); // name
+
+
+        if(p.isDead()){
+            item = new QTableWidgetItem(tr("战败"));
+        }else{
+            item = new QTableWidgetItem(tr("存活"));
+        }
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,2,item); // state
+
+
+        if(pid == i){
+            item = new QTableWidgetItem(tr("/"));
+        }else if(p.isAlly(player.getGroupId())){
+            item = new QTableWidgetItem(tr("盟友"));
+        }else{
+            item = new QTableWidgetItem(tr("敌人"));
+        }
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+        table->setItem(i,3,item); // diplomacy
+
+
+
+    }
+
+    ui->frPlayerList->show();
+}
+
 void GameWindow::saveGame()
 {
     if(!isCurrentTurn()){
-        QString title = "警告";
-        QString text = "只有在自己的回合才能保存游戏！";
+        QString title = tr("警告");
+        QString text = tr("只有在自己的回合才能保存游戏！");
         QMessageBox::warning(this,title,text);
         return;
     }
@@ -538,7 +589,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event)
 {
     int k = event->key();
     if(k == Qt::Key_C){
-//        cout << "Make CCB" << endl;
+        //        cout << "Make CCB" << endl;
         ui->gameFrame->makeCenterConstructionBase();
         return;
     }
@@ -578,7 +629,7 @@ void QtGui::onPlayerTurnFinished(int playerId)
 
 void QtGui::onGameStarted()
 {
-//    cout << "QtGui: Game Started" << endl;
+    //    cout << "QtGui: Game Started" << endl;
     emit window->notifyGameStarted();
 }
 
@@ -705,4 +756,15 @@ void GameWindow::on_tableBuy_currentCellChanged(int currentRow, int currentColum
         ui->btnBuy->setEnabled(false);
     }
 
+}
+
+
+void GameWindow::on_btnMenuCancel_2_clicked()
+{
+    ui->frPlayerList->hide();
+}
+
+void GameWindow::on_btnDiplomacy_clicked()
+{
+    showMenuPlayerList();
 }

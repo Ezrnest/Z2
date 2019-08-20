@@ -406,7 +406,7 @@ void GameWindow::refreshPerformAbility(shared_ptr<Entity> &en, World &w, Point &
 
     if(w.canPerform( pos,getClient()->getPlayerId())){
         btn->show();
-        const string& pText = en->getEntityInfo().getProperties().get("displayPerformText","perform");
+        const string& pText = en->getEntityInfo().getDisplayPerformText();
         btn->setText(QString::fromStdString(pText));
     }else{
         btn->hide();

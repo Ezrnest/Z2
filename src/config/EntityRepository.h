@@ -77,9 +77,14 @@ public:
 
     const set<string> &getRequiredTech() const;
 
+    /**
+     * Gets the real localized display name.
+     */
     const string& getDisplayName() const;
 
     const string& getImageName() const;
+
+    const string& getDisplayPerformText() const;
 };
 
 /**

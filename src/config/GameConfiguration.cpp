@@ -10,7 +10,7 @@
 #include "plog/Appenders/ConsoleAppender.h"
 #include "MapRepository.h"
 #include "TechRepository.h"
-
+#include "TextRepository.h"
 using namespace z2;
 
 ancono::File getDirNamed(const string &name) {
@@ -52,6 +52,7 @@ void GameConfiguration::initRegistration() {
 
     MapRepository::initFromFolder(resDir.subFile("map"));
 
+    TextRepository::instance().initFromFolder(resDir.subFile("text"));
 
 
     //TODO load from file
@@ -82,8 +83,8 @@ void initLogger() {
 
 void GameConfiguration::initAll() {
     initLogger();
-    initRegistration();
     initGameConfig();
+    initRegistration();
 }
 
 void GameConfiguration::disposeAll() {

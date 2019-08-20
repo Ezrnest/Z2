@@ -58,6 +58,8 @@ public:
 
     void saveToFile(const string &) const;
 
+    const map<string,string> &getBackingMap() const;
+
 private:
     map<string, string> m;
 };

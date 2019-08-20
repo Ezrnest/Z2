@@ -150,6 +150,10 @@ bool Properties::getBool(const string &key, bool defaultValue) const {
     return parseBool(k, defaultValue);
 }
 
+const map<string, string> &Properties::getBackingMap() const {
+    return m;
+}
+
 
 
 int parseInt(const string &str, int defaultValue) {

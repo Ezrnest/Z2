@@ -15,6 +15,7 @@ public:
 
     void initialize(const Properties &prop) override;
 
+    virtual int getTileRMP(const Tile& t) ;
 protected:
     void serializeDataPart(ostream &output) override;
 

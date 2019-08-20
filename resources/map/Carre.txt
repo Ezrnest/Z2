@@ -1,0 +1,42 @@
+name=Carre
+description=
+width=24
+height=20
+maxPlayerCount=4
+setupBornPoints=true
+# The first line of the file is the name of the map, and the second line is the description.
+# Following lines which start with '#' will be ignored.
+# Then the data of the map are:
+# width, height, maxPlayerCount
+# Then it is the map. Here are the representations:
+# ' ' for plain
+# 'M' for mountain.
+# 'W' for water
+# 'D' for desert/sand
+# 'H' for hill
+# 'F' for forest
+# <number> for born point.
+# 'm' for mine
+# 'g' for gem
+# There must be an indicator line ($) before the map
+$$$$
+MMMMMMMMMMMMMMMMMMMMMMMM
+Mm       F F F        mM
+M  0      Fmm       1  M
+M    m     F     m     M
+WWW             H      M
+MHW                    M
+MHWW                   M
+M  WWF  H    F     m   M
+M   WF  H     F        M
+M   m      gg  F       M
+M       F  gg      m   M
+M        F     H  FW   M
+M   m     F    H  FWW  M
+M                   WWHM
+M                    WHM
+M       H            WWW
+M      m     F    m    M
+M  2       mmF      3  M
+Mm        F F F       mM
+MMMMMMMMMMMMMMMMMMMMMMMM

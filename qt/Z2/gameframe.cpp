@@ -173,6 +173,16 @@ void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect,World&
     }
 }
 
+QRectF GameFrame::getDisplayRect()
+{
+    auto world = win->getWorld();
+    Point gtl = Point(0,world->getHeight()-1);
+    QPoint vtl = gameCordToViewCord(gtl);
+    int width = world->getWidth() * TILE_SIZE;
+    int height = world->getHeight() * TILE_SIZE;
+    return trans.mapRect(QRectF(vtl,QSize(width,height)));
+}
+
 
 
 void GameFrame::paintTerrainTextureLost(QPainter& painter,QBrush& brush,QRect& rect, Tile& t){
@@ -331,9 +341,9 @@ void GameFrame::mouseMoveEvent(QMouseEvent *event)
     qreal dy = pos.y() - clickedPos.y();
 
     clickedPos = pos;
-    dx /= trans.m11();
-    dy /= trans.m22();
-    trans.translate(dx,dy);
+//    dx /= trans.m11();
+//    dy /= trans.m22();
+    translate(dx,dy);
     update();
 }
 
@@ -377,7 +387,7 @@ void GameFrame::rightClickedOn(Point &p)
 
 }
 
-void shearWithPivot(QTransform& trans,double multiplier, double pivotX, double pivotY){
+void GameFrame::scaleWithPivot(QTransform& trans,double multiplier, double pivotX, double pivotY){
 //    auto v = trans.map(QPointF(pivotX,pivotY));
 //    cout << pivotX << "," << pivotY << endl;
 
@@ -387,6 +397,8 @@ void shearWithPivot(QTransform& trans,double multiplier, double pivotX, double p
     QTransform sc(multiplier,0,0,multiplier,0,0);
     QTransform tl2(1,0,0,1,pivotX,pivotY);
     trans = trans * tl1 * sc * tl2;
+    fitToSize();
+//    translate(pivotX,pivotY);
 //    auto inv = trans.inverted();
 //    auto p = inv.map(QPointF(pivotX,pivotY));
 //    cout << p.x() << "," << p.y() << endl;
@@ -394,7 +406,8 @@ void shearWithPivot(QTransform& trans,double multiplier, double pivotX, double p
 //    cout << trans.m11() << endl;
 //    trans.translate(pivotX / trans.m11(),pivotY /trans.m22());
 }
-
+const static double MAX_ZOOM = 8;
+const static double MIN_ZOOM = 1;
 void GameFrame::zoom(bool in, int mouseX, int mouseY)
 {
     double mul;
@@ -403,7 +416,11 @@ void GameFrame::zoom(bool in, int mouseX, int mouseY)
     }else{
         mul = 0.8;
     }
-    shearWithPivot(trans,mul,mouseX,mouseY);
+    double reMultiplier = trans.m11() * mul;
+    if(reMultiplier >MAX_ZOOM || reMultiplier < MIN_ZOOM){
+        return;
+    }
+    scaleWithPivot(trans,mul,mouseX,mouseY);
 //    if(selPos.x < 0){
 //        trans.scale(mul,mul);
 //    }else{
@@ -414,16 +431,55 @@ void GameFrame::zoom(bool in, int mouseX, int mouseY)
     update();
 }
 
+void GameFrame::translate(double dx, double dy)
+{
+    QRectF current = getDisplayRect();
+    // adjust to border
+    if(dx > 0){
+        dx = max(min(dx,-current.left()),0.0);
+    }else{
+        dx = min(max(dx,width() - current.right()),0.0);
+    }
+    if(dy > 0){
+        dy = max(min(dy,-current.top()),0.0);
+    }else{
+        dy = min(max(dy,height() - current.bottom()),0.0);
+    }
+    QTransform tl(1,0,0,1,dx,dy);
+
+    trans = trans * tl;
+    //    trans.translate(dx,dy);
+}
+
+void GameFrame::fitToSize()
+{
+    QRectF current = getDisplayRect();
+    double dx = 0,dy = 0;
+    if(current.left() > 0){
+        dx = -current.left();
+    }else if(current.right() < width()){
+        dx = width() - current.right();
+    }
+    if(current.top() > 0){
+        dy = -current.top();
+    }else if(current.bottom() < height()){
+        dy = height() - current.bottom();
+    }
+    QTransform tl(1,0,0,1,dx,dy);
+    trans = trans * tl;
+}
+
 void GameFrame::makeCenter(const Point &p)
 {
     QPoint qp = trans.map(gameCordToViewCord(p));
     int w = width();
     int h = height();
 //    cout << qp.x() << ", " << qp.y() << endl;
-    qreal dx = w/3 - qp.x();
-    qreal dy = h/3 - qp.y();
-    QTransform tl(1,0,0,1,dx,dy);
-    trans = trans * tl;
+    qreal dx = w/2 - qp.x();
+    qreal dy = h/2 - qp.y();
+    translate(dx,dy);
+//    QTransform tl(1,0,0,1,dx,dy);
+//    trans = trans * tl;
     update();
 }
 

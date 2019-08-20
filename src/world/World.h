@@ -60,9 +60,13 @@ private:
     Tile **data;
 
     /**
-     * volatile
+     * transient
      */
     EventDispatcher dispatcher;
+    /**
+     * transient, temp
+     */
+    mutable int **distanceMap = nullptr;
 
     // NOTE: updates `initPlainDataFrom` if new fields are added!
 
@@ -70,7 +74,7 @@ private:
 
     void initPlainDataFrom(const World &world);
 
-
+    void initDistanceMap() const;
 
     void resetVisibility(int playerId);
 

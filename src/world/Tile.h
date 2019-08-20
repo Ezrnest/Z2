@@ -36,6 +36,8 @@ enum class Terrain {
  */
 bool isBlocking(Terrain t);
 
+
+
 using namespace std;
 using namespace ancono;
 
@@ -92,6 +94,10 @@ public:
     void resetVisibility(int playerId);
 
     void setPlayerCount(int count);
+
+    int getBaseRMP() const;
+
+    static int getTerrainRMP(Terrain t);
 
     friend class World;
 };

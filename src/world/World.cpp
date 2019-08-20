@@ -66,6 +66,8 @@ World &World::operator=(const World &world) {
 World::World(World &&world) noexcept {
     data = world.data;
     world.data = nullptr;
+    distanceMap = world.distanceMap;
+    world.distanceMap = nullptr;
     initPlainDataFrom(world);
 }
 
@@ -73,8 +75,10 @@ World &World::operator=(World &&world) noexcept {
     deleteMatrix(data, width);
 
     data = world.data;
+    distanceMap = world.distanceMap;
     initPlainDataFrom(world);
 
+    world.distanceMap = nullptr;
     world.data = nullptr;
 
     return *this;
@@ -759,16 +763,28 @@ bool World::checkReady() {
     return true;
 }
 
+void World::initDistanceMap() const{
+    if (distanceMap == nullptr) {
+        distanceMap = initMatrix(width, height, INT32_MAX);
+    }else{
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                distanceMap[i][j] = INT32_MAX;
+            }
+        }
+    }
+}
+
 int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
 //    int** length
-    int **distanceMap = initMatrix(width, height, INT32_MAX);
+    initDistanceMap();
     distanceMap[start.x][start.y] = 0;
     stack<Point> s;
     s.push(start);
     while (!s.empty()) {
         Point p = s.top();
         s.pop();
-        int nDistance = distanceMap[p.x][p.y] + 1;
+        int nDistance = distanceMap[p.x][p.y] + unit->getTileRMP(getTile(p));
         for (const Point &d : Point::directions()) {
             Point next = p + d;
             if (!isInside(next)) {
@@ -786,7 +802,6 @@ int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit
         }
     }
     int distance = distanceMap[dest.x][dest.y];
-    deleteMatrix(distanceMap, width);
     return distance;
 }
 
@@ -987,6 +1002,8 @@ const string &World::getMapName() const {
 void World::setMapName(const string &mapName) {
     World::mapName = mapName;
 }
+
+
 
 
 }

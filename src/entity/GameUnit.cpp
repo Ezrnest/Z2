@@ -4,7 +4,7 @@
 
 #include "GameUnit.h"
 #include "Entity.h"
-
+#include "world/Tile.h"
 z2::GameUnit::GameUnit(unsigned int objectId) : EntityWithHealth(objectId) {}
 
 
@@ -19,6 +19,10 @@ void z2::GameUnit::serializeDataPart(ostream &output) {
 
 void z2::GameUnit::deserializeDataPart(istream &input, z2::GameUnit *en) {
     EntityWithHealth::deserializeDataPart(input, en);
+}
+
+int z2::GameUnit::getTileRMP(const z2::Tile &t) {
+    return t.getBaseRMP();
 }
 
 

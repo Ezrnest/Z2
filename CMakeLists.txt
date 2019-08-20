@@ -31,12 +31,13 @@ set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLin
 #        )
 
 add_library(Z2Core ${Z2_Sources})
-install(TARGETS Z2Core DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core)
-install(DIRECTORY src/ lib/ DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core/include
+install(TARGETS Z2Core DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core CONFIGURATIONS Release)
+install(DIRECTORY src/ lib/  DESTINATION ${PROJECT_SOURCE_DIR}/../api/z2Core/include CONFIGURATIONS Release
         FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.ipp"
-        PATTERN "*.hpp")
+        PATTERN "*.hpp"
+        )
 
 
 

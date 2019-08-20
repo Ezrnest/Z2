@@ -37,6 +37,7 @@ bool z2::isBlocking(const Terrain t) {
         case Terrain::PLAIN:
             return false;
         case Terrain::MOUNTAIN:
+        case Terrain::WATER:
             return true;
         default:
             return false;
@@ -79,6 +80,24 @@ void Tile::setPlayerCount(int count) {
 
 bool Tile::canPassThrough(const shared_ptr<GameUnit> &unit) {
     return (!isBlocking(terrain)) && (!hasEntity() || entity->getOwnerId() == unit->getOwnerId());
+}
+
+int Tile::getTerrainRMP(Terrain t) {
+    switch (t) {
+        case Terrain::PLAIN:
+        case Terrain::DESERT:
+            return 1;
+        case Terrain::FOREST:
+        case Terrain::HILL:
+            return 2;
+        case Terrain::MOUNTAIN:
+        case Terrain::WATER:
+            return 1000; // not passable
+    }
+}
+
+int Tile::getBaseRMP() const {
+    return getTerrainRMP(terrain);
 }
 
 Tile::Tile() = default;

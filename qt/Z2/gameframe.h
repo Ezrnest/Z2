@@ -65,11 +65,18 @@ private:
 
     void paintEntity(QPainter &painter, QBrush &brush, QRect &rect,z2::World& world, z2::Tile &t, bool grey);
 
+    QRectF getDisplayRect();
+
     void zoom(bool in,int ,int);
+
+    void translate(double dx,double dy);
+
+    void fitToSize();
 
     void makeCenter(const z2::Point& p);
 
     void makeCenterConstructionBase();
+    void scaleWithPivot(QTransform &trans, double multiplier, double pivotX, double pivotY);
 };
 
 #endif // GAMEFRAME_H

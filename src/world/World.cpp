@@ -176,6 +176,7 @@ int World::nextPlayerFromCurrent() {
 
 
 void World::initPlainDataFrom(const World &world) {
+    mapName = world.mapName;
     height = world.height;
     width = world.width;
     players = world.players;

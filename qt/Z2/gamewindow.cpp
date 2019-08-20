@@ -385,9 +385,9 @@ void GameWindow::refreshSelection(bool playerClicked)
             hpBar->setEnabled(false);
         }
     }
-    auto melee = dynamic_pointer_cast<MeleeUnit>(en);
-    if(melee){
-        ui->lblAttack->setText(QString::number(melee->getAttackStrength()));
+    auto bu = dynamic_pointer_cast<BattleUnit>(en);
+    if(bu){
+        ui->lblAttack->setText(QString::number(bu->getAttackStrength()));
     }else{
         ui->lblAttack->setText("0");
     }

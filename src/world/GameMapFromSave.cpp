@@ -39,6 +39,7 @@ void GameMapFromSave::saveTo(ostream &output) {
 
 shared_ptr<World> GameMapFromSave::buildWorld(const vector<PlayerSetting> &players) {
     return std::make_shared<World>(*world);
+
 }
 
 shared_ptr<GameMapFromSave> GameMapFromSave::loadGameSaving(const string &path) {

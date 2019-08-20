@@ -127,4 +127,8 @@ bool Player::isAlly(int group) const{
     return groupId_ == group;
 }
 
+bool Player::isAlly(const Player &player) const {
+    return isAlly(player.getGroupId());
+}
+
 

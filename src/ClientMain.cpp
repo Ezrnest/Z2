@@ -29,14 +29,14 @@ using namespace z2;
 const int port = 23456;
 int main(){
     GameConfiguration::initAll();
-    shared_ptr<RemoteClient> rc(new RemoteClient(2));
+    shared_ptr<RemoteClient> rc(new RemoteClient(1));
 
     shared_ptr<RemoteServerProxy> proxy(new RemoteServerProxy(rc));
     rc->setServerProxy(proxy);
 
     shared_ptr<CommandLineGameGui> gui(new CommandLineGameGui());
     rc->setView(gui);
-    if(!RemoteServerProxy::tryConnect(proxy,"desktop-lyc", port)){
+    if(!RemoteServerProxy::tryConnect(proxy,"127.0.0.1", port)){
         cout << "failure, return";
         return 0;
     }

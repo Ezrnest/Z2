@@ -17,7 +17,8 @@ enum class StateEventType{
     PlayerTurnStarted,
     PlayerTurnEnded,
     PlayerDefeated,
-    GroupWon
+    GroupWon,
+    PlayersWon,
 };
 
 class StateEvent : public GameEvent{

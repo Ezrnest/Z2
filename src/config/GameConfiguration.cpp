@@ -100,8 +100,8 @@ void GameConfiguration::initFromFolder(const ancono::File &dir) {
 }
 
 const string &GameConfiguration::getPlayerName() {
-
-    const string &name = prop.get("playerName", "player");
+    const static string pn = "player";
+    const string &name = prop.get("playerName", pn);
     if (name.find_first_of(' ') == std::__cxx11::string::npos) {
         return name;
     }

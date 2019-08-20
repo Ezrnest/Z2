@@ -70,8 +70,8 @@ GameInitSetting getSetting(){
     auto map = MapRepository::instance().getMap("TestMap");
     GameInitSetting gis(3,map);
     gis.setupPlayer(0, PlayerSetting(0, 0, 0, PlayerType::LOCAL_PLAYER));
-    gis.setupPlayer(1, PlayerSetting(1, 1, 1, PlayerType::BOT_PLAYER));
-    gis.setupPlayer(2, PlayerSetting(2, 2, 2, PlayerType::BOT_PLAYER));
+    gis.setupPlayer(1, PlayerSetting(1, 1, 1, PlayerType::REMOTE_PLAYER));
+    gis.setupPlayer(2, PlayerSetting(2, 2, 2, PlayerType::REMOTE_PLAYER));
     return gis;
 }
 

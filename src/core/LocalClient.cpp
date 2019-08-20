@@ -88,19 +88,18 @@ void z2::LocalClient::dealWithControlMessage(const shared_ptr<ControlMessage> &m
             view->onPlayerTurnFinished(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
             break;
         }
-        case ControlMessageType::PlayerDefeated: {
 
-            break;
-        }
-        case ControlMessageType::PlayerWin: {
-            break;
-        }
         case ControlMessageType::RegisterPlayer:
             break;
         case ControlMessageType::SyncWorld:
             break;
         case ControlMessageType::Signal:
             break;
+        case ControlMessageType::PlayerQuit: {
+            auto msg = static_pointer_cast<PlayerMessage>(message);
+            view->onPlayerQuit(msg->getPlayerId());
+            break;
+        }
     }
 }
 

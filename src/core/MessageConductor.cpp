@@ -57,7 +57,7 @@ void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageCo
     service.reset(new io_service);
     ip::tcp::endpoint ep(ip::tcp::v4(), port);
     acceptor.reset(new ip::tcp::acceptor(*service, ep));
-//    server = std::make_shared<ip::tcp::socket>(service); // the
+    acceptor->listen(count);
     connections = vector<socket_ptr>(count);
     buffers = vector<asio::streambuf>(count);
     for (int i = 0; i < count; i++) {
@@ -140,7 +140,7 @@ void MessageConductor::handleReceive(const error_code &error, size_t length, int
     auto msg = MessageConductor::readMessageFromSocket(buf);
     {
         std::lock_guard<mutex> guard(processorMutex);
-        processor(msg);
+        processor(msg,id);
     }
 
 
@@ -150,7 +150,8 @@ void MessageConductor::handleReceive(const error_code &error, size_t length, int
     });
 }
 
-asio::error_code MessageConductor::sendMessageToSocket(socket_ptr socket, const MessagePtr &message) {
+asio::error_code MessageConductor::sendMessageToSocket(const socket_ptr& socket, const MessagePtr &message) {
+    PLOG(plog::info) << "Sending message: " << message->getClassName();
     std::stringstream ss;
     message->serializeTo(ss);
     ss << '\n';

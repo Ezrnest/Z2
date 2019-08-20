@@ -54,7 +54,7 @@ void Lobby::openLobby() {
        return;
     }
     latch.reset(new CountDownLatch(requiredCount));
-    function<void(const MessagePtr &)> listener = [this](const MessagePtr &msg) {
+    auto listener = [this](const MessagePtr &msg,int cid) {
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
         if (!rp) {
             return;
@@ -66,13 +66,14 @@ void Lobby::openLobby() {
         }
 
         const string &name = rp->getPlayerName();
-        auto *cp = new RemoteClientProxy(conductor, connectionCount++);
+        auto *cp = new RemoteClientProxy(conductor, cid);
+        PLOG_INFO << "[Lobby] RemoteClientProxy created, cid=" << cid;
         cp->sendMessage(make_shared<SignalMessage>(SignalMessage::GOOD));
         pair<shared_ptr<ClientProxy>, string> pair(shared_ptr<ClientProxy>(cp), name);
         clients[id] = pair;
         latch->countDown();
         onPlayerConnected(*this, id);
-        PLOG(plog::info) << "[Lobby] Player connected!";
+        PLOG(plog::info) << "[Lobby] Player: "<<name << " connected!";
         return;
     };
     conductor = std::make_shared<MessageConductor>(listener);
@@ -83,7 +84,7 @@ void Lobby::openLobby() {
 
 
 
-void Lobby::initNames(shared_ptr<World>& world) {
+void Lobby::initNames(const shared_ptr<World>& world) {
     auto& players = gis.getPlayers();
     for (int i = 0; i < players.size(); i++) {
         switch (players[i].type) {
@@ -139,13 +140,14 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     }
     auto pair = gis.buildLocalGame();
     auto server = pair.first;
+    initNames(server->getWorld());
     auto localClient = pair.second;
     setGameGui(gui, localClient);
     auto& players = gis.getPlayers();
     setupRemoteClients(server, players);
 
     weak_ptr<Server> ws = server;
-    function<void(const MessagePtr &)> listener = [ws](const MessagePtr &msg) {
+    auto listener = [ws](const MessagePtr &msg,int) {
         if (!msg) {
             PLOG_WARNING << "[Lobby] Failed to accept message!";
             return;
@@ -156,9 +158,17 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
         }
     };
     conductor->setProcessor(listener);
-    FailureProcessor fp = [ws](asio::error_code ec, int) {
+    FailureProcessor fp = [ws](asio::error_code ec, int cid) {
         if (!ws.expired()) {
-            ws.lock()->exceptionalEndGame(ec.message());
+            auto s = ws.lock();
+            for (auto &c : s->getClients()) {
+                auto rc = dynamic_pointer_cast<RemoteClientProxy>(c);
+                if (rc && cid == rc->getCondId()) {
+                    s->clientQuit(rc->getClientId(), "");
+                    return;
+                }
+            }
+            s->exceptionalEndGame(ec.message());
         }
     };
     conductor->setFailureProcessor(fp);

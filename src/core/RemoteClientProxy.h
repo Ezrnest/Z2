@@ -20,7 +20,7 @@ public:
 
     void sendMessage(const shared_ptr<Message> &command) override;
 
-
+    int getCondId() const;
 
     bool syncWorld(const shared_ptr<World> &world) override;
 };

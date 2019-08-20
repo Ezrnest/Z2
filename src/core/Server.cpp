@@ -163,10 +163,12 @@ void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage> &messag
         }
         case ControlMessageType::PlayerTurnStart:
             break;
-        case ControlMessageType::PlayerDefeated:
+        case ControlMessageType::PlayerQuit:{
+            auto pq = static_pointer_cast<PlayerMessage>(message);
+            broadcastMessage(message);
+            clientQuit(pq->getPlayerId(), "Received player quit message.");
             break;
-        case ControlMessageType::PlayerWin:
-            break;
+        }
         case ControlMessageType::StartGame:
             break;
         case ControlMessageType::RegisterPlayer:
@@ -194,6 +196,20 @@ void Server::exceptionalEndGame(const string &cause) {
     gameState = GameState::PAUSED;
     PLOG(plog::info) << "Game ended, cause: " << cause;
     broadcastMessage(make_shared<ControlMessage>(ControlMessageType::EndGame));
+}
+
+void Server::clientQuit(int clientId,const string &cause) {
+    if(!world){
+        return;
+    }
+    if (world->getPlayer(clientId).isDead()) {
+        return;
+    }
+    exceptionalEndGame(cause);
+}
+
+const vector<shared_ptr<ClientProxy>> &Server::getClients() const {
+    return clients;
 }
 
 

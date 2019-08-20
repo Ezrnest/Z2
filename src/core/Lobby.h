@@ -30,7 +30,7 @@ private:
 
     bool closed = false;
 
-    int connectionCount = 0;
+//    int connectionCount = 0;
 
     int port;
 
@@ -40,7 +40,7 @@ private:
 
 
 
-    void initNames(shared_ptr<World>& world);
+    void initNames(const shared_ptr<World>& world);
 
     void openLocalLobby();
 

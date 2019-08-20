@@ -117,11 +117,11 @@ private:
     /**
      * May call `onPlayerGroupWon`.
      */
-    void checkPlayerGroupWin();
+    void checkPlayersWin();
 
     void onPlayerDefeated(int playerId);
 
-    void onPlayerGroupWon(int groupId);
+    void onPlayersWon(vector<int>& winners);
 
 
 public:

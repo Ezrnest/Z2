@@ -9,6 +9,7 @@
 #include <config/TechRepository.h>
 #include <event/InGamePlayerEvent.h>
 #include <core/messages/SetPlayerData.h>
+#include <event/PlayersWon.h>
 #include "event/GameEvent.h"
 #include "event/StateEvent.h"
 #include "World.h"
@@ -614,12 +615,12 @@ void World::onPlayerDefeated(int playerId) {
     PLOG(plog::info) << "Player" << playerId << " is defeated";
     shared_ptr<GameEvent> event(new PlayerEvent(StateEventType::PlayerDefeated, playerId));
     dispatcher.publish(event);
-    checkPlayerGroupWin();
+    checkPlayersWin();
 }
 
-void World::onPlayerGroupWon(int groupId) {
-    PLOG(plog::info) << "Player group " << groupId << " won!";
-    shared_ptr<GameEvent> event(new GroupEvent(StateEventType::GroupWon, groupId));
+void World::onPlayersWon(vector<int>& winners) {
+    PLOG(plog::info) << "Players leading by " << winners[0] << " won!";
+    shared_ptr<GameEvent> event(new PlayersWon(winners));
     dispatcher.publish(event);
 }
 
@@ -939,20 +940,24 @@ bool World::checkPlayerLostAllUnit(int playerId) {
     return lostAll;
 }
 
-void World::checkPlayerGroupWin() {
-    int group = Player::NO_GROUP;
+void World::checkPlayersWin() {
+    // check for one player remaining
+    vector<int> winners;
     for (Player &p : players) {
         if (p.isDead()) {
             continue;
         }
-        if (group == Player::NO_GROUP) {
-            group = p.getGroupId();
-        } else if (group != p.getGroupId()) {
-            return;
+        if (winners.empty()) {
+            winners.push_back(p.getPlayerId());
+        }else{
+            Player &rep = players[winners[0]];
+            if (!rep.isAlly(p)) {
+                return;//there is a player alive but he is not an ally.
+            }
+            winners.push_back(p.getPlayerId());
         }
     }
-
-    onPlayerGroupWon(group);
+    onPlayersWon(winners);
 }
 
 void World::addEventListener(const EventListener &listener) {

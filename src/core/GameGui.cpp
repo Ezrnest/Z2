@@ -16,6 +16,7 @@ void z2::GameGui::setControllerAndView(const shared_ptr<z2::Client> &c) {
 
 void z2::GameGui::onWorldLoaded(const shared_ptr<World> &w) {
     attachListener(w);
+    update();
 }
 
 void z2::GameGui::attachListener(const shared_ptr<World> &w) {
@@ -25,5 +26,9 @@ void z2::GameGui::attachListener(const shared_ptr<World> &w) {
     if(w) {
         w->addEventListener(listener);
     }
+}
+
+void z2::GameGui::onPlayerQuit(int playerId) {
+
 }
 

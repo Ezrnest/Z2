@@ -12,7 +12,9 @@
 #include "core/messages/UnitBuy.h"
 #include "core/messages/TechResearch.h"
 #include "core/messages/EntityPerform.h"
+#include "core/messages/PlayerMessage.h"
 #include "event/StateEvent.h"
+#include "event/PlayersWon.h"
 #include "event/InGamePlayerEvent.h"
 #include "world/Technology.h"
 #include "core/messages/ControlMessage.h"
@@ -51,6 +53,7 @@ GameWindow::GameWindow(MainWindow *parent) :
     connect(this,SIGNAL(notifyGameStarted()),this,SLOT(gameStarted()),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyPlayerQuit(int)),this,SLOT(showPlayerQuit(int)),Qt::AutoConnection);
 }
 
 GameWindow::~GameWindow()
@@ -80,6 +83,9 @@ void GameWindow::setLobby(const shared_ptr<Lobby> &lb)
 
 void GameWindow::refreshAll()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     refreshSelection();
     refreshPlayerInfo();
     refreshTurnInfo();
@@ -90,20 +96,21 @@ void GameWindow::gameStarted()
 {
     ui->labelGameInfo->hide();
     ui->gameFrame->makeCenterConstructionBase();
-
+    gameState = GameState::RUNNING;
     refreshAll();
 }
 
 void GameWindow::showGameEnded()
 {
-    if(gameState == 1){
+    if(gameState != RUNNING){
         return;
     }
+    gameState = ENDING;
     //    update();
     QString title= tr("游戏结束");
     QString detail = tr("有玩家退出或者失去连接，游戏结束");
     QMessageBox::warning(this,title,detail);
-    this->close();
+    exitGame();
 }
 
 void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
@@ -128,12 +135,31 @@ void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
 
 }
 
-void GameWindow::showGameWin(const shared_ptr<GroupEvent> &event)
+void GameWindow::showGameWin(const shared_ptr<PlayersWon> &event)
 {
     QString title= tr("游戏结束");
-    QString context = tr("游戏结束，玩家组%1获胜");
-    QMessageBox::information(this,title,context.arg(event->getGroupId()));
-    this->close();
+    QString context = tr("游戏结束，玩家 %1 获胜");
+    QStringList playerNames;
+    auto w = getWorld();
+    for(int id : event->getPlayerIds()){
+        playerNames.append(QString::fromStdString(w->getPlayer(id).getName()));
+    }
+    QMessageBox::information(this,title,context.arg(playerNames.join(", ")));
+    gameState = ENDED;
+    close();
+    deleteLater();
+    if(mainWindow){
+        mainWindow->afterGameEnded();
+    }
+}
+
+void GameWindow::showPlayerQuit(int playerId)
+{
+    QString title= tr("信息");
+    QString context = tr("玩家 %1 退出了游戏");
+    auto w = getWorld();
+    auto& pName = w->getPlayer(playerId).getName();
+    QMessageBox::information(this,title,context.arg(QString::fromStdString(pName)));
 }
 
 
@@ -152,11 +178,17 @@ shared_ptr<Client>& GameWindow::getClient()
 void GameWindow::dealWithStateEvent(const shared_ptr<StateEvent> &event)
 {
     switch(event->getSType()){
-    case StateEventType::GroupWon:{
-        auto we = dynamic_pointer_cast<GroupEvent>(event);
+    case StateEventType::PlayersWon:{
+        auto we = dynamic_pointer_cast<PlayersWon>(event);
         if(we){
             showGameWin(we);
-            return;
+        }
+        break;
+    }
+    case StateEventType::PlayerDefeated:{
+        auto pe = dynamic_pointer_cast<PlayerEvent>(event);
+        if(pe){
+            showPlayerDefeated(pe);
         }
         break;
     }
@@ -306,6 +338,9 @@ void GameWindow::closeEvent(QCloseEvent *event)
 
 void GameWindow::refreshSelection(bool playerClicked)
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     auto pos = getSelectedPos();
 
     auto world = getWorld();
@@ -380,7 +415,7 @@ void GameWindow::refreshPlayerInfo()
     ui->lblPlayerName->setText(QString::fromStdString(player.getName()));
     ui->lbllGold->setNum(player.getGold());
     ui->lbllTechPoint->setNum(player.getTechPoints());
-//    ui->lblGroup->setNum(player.getGroupId());
+    //    ui->lblGroup->setNum(player.getGroupId());
     //    ui->lblP
 }
 
@@ -505,11 +540,13 @@ void GameWindow::refreshTileInfo(bool entityInfo, World& w, Point& p)
     ui->lblTileTerrain->setText(terrainToString(t.getTerrain()));
     ui->lblTileResource->setText(resourceToString(t.getResource()));
     if(entityInfo){
-        ui->tabWidget->setCurrentIndex(1); // set to tile info
+        ui->tabWidget->setCurrentIndex(1); // set to entity info
         ui->tabEntityInfo->show();
+        ui->widgetEntityInfo->show();
     }else{
         ui->tabWidget->setCurrentIndex(0); // set to tile info
         ui->tabEntityInfo->hide();
+        ui->widgetEntityInfo->hide();
     }
 }
 
@@ -572,17 +609,34 @@ void GameWindow::saveGame()
 
 void GameWindow::exitGame()
 {
-    if(gameState == 1){
+    if(gameState != RUNNING && gameState != ENDING){
         return;
     }
-    cout << "Game Exited!" << endl;
-    gameState = 1;
-    MessagePtr msg(new ControlMessage(ControlMessageType::EndGame));
+    gameState = ENDED;
+    close();
+    MessagePtr msg(new PlayerMessage(ControlMessageType::PlayerQuit,getPlayerId()));
     getClient()->sendMessageToServer(msg);
+
+    cout << "Game Exited!" << endl;
     deleteLater();
     if(mainWindow){
         mainWindow->afterGameEnded();
     }
+}
+
+void GameWindow::showPlayerDefeated(const shared_ptr<PlayerEvent> &event)
+{
+
+    QString title = tr("玩家战败");
+    QString text;
+    if(event->getPlayerId() == getPlayerId()){
+        text = tr("你战败了！");
+    }else{
+        auto world = getWorld();
+        string pName = world->getPlayer(event->getPlayerId()).getName();
+        text = tr("玩家 %1 战败了").arg(QString::fromStdString(pName));
+    }
+    QMessageBox::information(this,title,text);
 }
 
 void GameWindow::keyPressEvent(QKeyEvent *event)
@@ -660,11 +714,17 @@ void GameWindow::on_btnPerform_clicked()
 
 void GameWindow::on_btnEndTurn_clicked()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     getClient()->sendTurnFinishMessage();
 }
 
 void GameWindow::on_btnBuy_clicked()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     auto table = ui->tableBuy;
     int row = table->currentRow();
     if(row < 0 || row >= table->rowCount()){
@@ -681,6 +741,9 @@ void GameWindow::on_btnBuy_clicked()
 
 void GameWindow::on_btnResearch_clicked()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     auto table = ui->tableResearch;
     int row = table->currentRow();
     if(row < 0 || row >= table->rowCount()){
@@ -706,7 +769,7 @@ void GameWindow::on_btnMenu_clicked()
 
 void GameWindow::on_btnExitGame_clicked()
 {
-    close();
+    exitGame();
 }
 
 void GameWindow::on_btnMenuCancel_clicked()
@@ -716,11 +779,17 @@ void GameWindow::on_btnMenuCancel_clicked()
 
 void GameWindow::on_btnSaveGame_clicked()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     saveGame();
 }
 
 void GameWindow::on_tableResearch_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     auto table = ui->tableResearch;
     int row = currentRow;
     if(row < 0 || row >= table->rowCount()){
@@ -739,6 +808,9 @@ void GameWindow::on_tableResearch_currentCellChanged(int currentRow, int current
 
 void GameWindow::on_tableBuy_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     auto table = ui->tableBuy;
     int row = currentRow;
     if(row < 0 || row >= table->rowCount()){
@@ -766,5 +838,8 @@ void GameWindow::on_btnMenuCancel_2_clicked()
 
 void GameWindow::on_btnDiplomacy_clicked()
 {
+    if(gameState != GameWindow::RUNNING){
+        return;
+    }
     showMenuPlayerList();
 }

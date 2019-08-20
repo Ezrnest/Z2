@@ -286,6 +286,9 @@ void GameFrame::paintHighlightedTile(QPainter &painter, const shared_ptr<World> 
 
 void GameFrame::paintEvent(QPaintEvent *event)
 {
+    if(win->gameState != GameWindow::RUNNING){
+        return;
+    }
     QPainter painter(this);
     painter.setTransform(trans);
     auto world = win->getWorld();
@@ -307,6 +310,9 @@ void GameFrame::setWindow(GameWindow *w)
 void GameFrame::mousePressEvent(QMouseEvent *event)
 {
 //    cout << "Event" << endl;
+    if(win->gameState != GameWindow::RUNNING){
+        return;
+    }
     switch(event->button()){
     case Qt::MouseButton::LeftButton:{
         auto pos = event->pos();
@@ -328,6 +334,9 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
 const int MinTimeGapMilliseconds = 100;
 void GameFrame::mouseMoveEvent(QMouseEvent *event)
 {
+    if(win->gameState != GameWindow::RUNNING){
+        return;
+    }
     if(dragState == 0){
         return;
     }
@@ -349,6 +358,9 @@ void GameFrame::mouseMoveEvent(QMouseEvent *event)
 
 void GameFrame::mouseReleaseEvent(QMouseEvent *event)
 {
+    if(win->gameState != GameWindow::RUNNING){
+        return;
+    }
     switch(event->button()){
     case Qt::MouseButton::LeftButton:{
         if(dragState != 2){
@@ -410,6 +422,9 @@ const static double MAX_ZOOM = 8;
 const static double MIN_ZOOM = 1;
 void GameFrame::zoom(bool in, int mouseX, int mouseY)
 {
+    if(win->gameState != GameWindow::RUNNING){
+        return;
+    }
     double mul;
     if(in){
         mul = 1.25;

@@ -43,7 +43,12 @@ public:
 
     virtual void onGameStarted() = 0;
 
+    /**
+     * Deprecated!
+     */
     virtual void onPlayerWin(int playerId) = 0;
+
+    virtual void onPlayerQuit(int playerId);
 
     /**
      * Called when the game is stopped.

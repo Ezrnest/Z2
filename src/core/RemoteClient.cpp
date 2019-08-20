@@ -3,15 +3,19 @@
 //
 
 #include <core/messages/PlayerMessage.h>
+#include <plog/Log.h>
 #include "RemoteClient.h"
 #include "world/World.h"
 #include "GameGui.h"
+#include "config/GameConfiguration.h"
 using namespace z2;
 
 RemoteClient::RemoteClient(int playerId) : playerId(playerId){
-    stringstream ss;
-    ss << "player" << playerId;
-    playerName = ss.str();
+//    stringstream ss;
+//    ss << "player" << playerId;
+    auto& conf = GameConfiguration::instance();
+    playerName = conf.getPlayerName();
+//    playerName = ss.str();
 }
 
 
@@ -104,15 +108,17 @@ void RemoteClient::dealWithControlMessage(const shared_ptr<ControlMessage> &mess
             view->onPlayerTurnFinished(msg->getPlayerId());
             break;
         }
-        case ControlMessageType::PlayerDefeated:{
-            break;
-        }
-        case ControlMessageType::PlayerWin:{
-            view->onPlayerWin(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
-            break;
-        }
+//        case ControlMessageType::PlayerWin:{
+//            view->onPlayerWin(static_pointer_cast<PlayerMessage>(message)->getPlayerId());
+//            break;
+//        }
         case ControlMessageType::Signal:
             break;
+        case ControlMessageType::PlayerQuit:{
+            auto msg = static_pointer_cast<PlayerMessage>(message);
+            view->onPlayerQuit(msg->getPlayerId());
+            break;
+        }
     }
 }
 

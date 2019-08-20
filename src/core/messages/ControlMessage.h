@@ -26,10 +26,7 @@ enum class ControlMessageType {
     ///class PlayerMessage
     PlayerTurnFinish,
     ///class PlayerMessage
-    PlayerDefeated,
-    ///class PlayerMessage
-    PlayerWin,
-
+    PlayerQuit
 };
 
 /**

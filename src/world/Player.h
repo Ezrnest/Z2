@@ -55,6 +55,8 @@ public:
     bool isAlly(int group) const;
 
 
+    bool isAlly(const Player& player) const;
+
     int getColorCode() const;
 
     void setColorCode(int colorCode);

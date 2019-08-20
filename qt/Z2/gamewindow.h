@@ -6,6 +6,7 @@
 #include <event/InGamePlayerEvent.h>
 #include <event/EntityEvent.h>
 #include <event/StateEvent.h>
+#include <event/PlayersWon.h>
 #include "world/World.h"
 #include "core/GameGui.h"
 #include "core/Lobby.h"
@@ -87,8 +88,9 @@ public slots:
 
     void dealWithGameEvent(const shared_ptr<GameEvent> &event);
 
-    void showGameWin(const shared_ptr<GroupEvent> &event);
+    void showGameWin(const shared_ptr<PlayersWon> &event);
 
+    void showPlayerQuit(int playerId);
 private slots:
     void on_btnPerform_clicked();
 
@@ -126,9 +128,15 @@ private:
 
     shared_ptr<Lobby> lobby;
 
+    enum GameState{
+        NOT_STARTED,
+        RUNNING,
+        ENDING,
+        ENDED
+    };
 
     QRect viewport;
-    int gameState = 0;
+    GameState gameState = NOT_STARTED;
 
 
     shared_ptr<World> getWorld();
@@ -180,6 +188,8 @@ private:
 
     void exitGame();
 
+    void showPlayerDefeated(const shared_ptr<PlayerEvent>& event);
+
 protected:
     void keyPressEvent(QKeyEvent* event) override;
 
@@ -194,6 +204,8 @@ signals:
     void notifyGameStarted();
 
     void notifyGameEnded();
+
+    void notifyPlayerQuit(int pid);
 
     void notifyGameEvent(const shared_ptr<GameEvent> &event);
 };

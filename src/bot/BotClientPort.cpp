@@ -28,15 +28,13 @@ void z2::BotClientPort::sendMessage(const std::shared_ptr<z2::Message> &command)
             }
             case ControlMessageType::PlayerTurnFinish:
                 break;
-            case ControlMessageType::PlayerDefeated:
-                break;
-            case ControlMessageType::PlayerWin:
-                break;
             case ControlMessageType::RegisterPlayer:
                 break;
             case ControlMessageType::SyncWorld:
                 break;
             case ControlMessageType::Signal:
+                break;
+            case ControlMessageType::PlayerQuit:
                 break;
         }
     }

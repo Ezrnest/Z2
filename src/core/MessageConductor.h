@@ -20,7 +20,7 @@ using namespace asio;
 namespace z2 {
 typedef shared_ptr<ip::tcp::socket> socket_ptr;
 
-using MessageProcessor = function<void(const MessagePtr &)>;
+using MessageProcessor = function<void(const MessagePtr &,int)>;
 using FailureProcessor = function<void(asio::error_code, int)>;
 
 class MessageConductor {
@@ -71,7 +71,7 @@ public:
 
     string getLocalHostNameInfo();
 
-    static asio::error_code sendMessageToSocket(socket_ptr socket, const MessagePtr &message);
+    static asio::error_code sendMessageToSocket(const socket_ptr& socket, const MessagePtr &message);
 
 
     static MessagePtr readMessageFromSocket(asio::streambuf &buffer);

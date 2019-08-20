@@ -7,17 +7,21 @@
 #include <core/messages/SignalMessage.h>
 
 #include "Client.h"
+#include "MessageConductor.h"
 
 using namespace asio;
 using namespace z2;
 
 void z2::RemoteServerProxy::sendMessageToServer(const shared_ptr<z2::Message> &message) {
-    PLOG(plog::info) << "Sending message: " << message->getClassName();
-    stringstream ss;
-    message->serializeTo(ss);
-    ss << '\n';
-    string data = ss.str();
-    socket->send(buffer(data));
+    if(socket){
+        auto ec = MessageConductor::sendMessageToSocket(socket, message);
+        if(ec){
+            PLOG_WARNING << "[RemoteServerProxy] Failed to send message, error code = " << ec.value();
+            if(!client.expired()){
+                client.lock()->onConnectionLost();
+            }
+        }
+    }
 }
 
 bool z2::RemoteServerProxy::handleConnect() {
@@ -49,6 +53,7 @@ inline MessagePtr readMessageFromBuf(asio::streambuf &buf) {
 void RemoteServerProxy::handleReceive(const asio::error_code &err, size_t length) {
     if (err) {
         PLOG_WARNING << "[RemoteServerProxy] Failed to receive!";
+//        stop();
         if(!client.expired()){
             client.lock()->onConnectionLost();
         }
@@ -70,7 +75,6 @@ void RemoteServerProxy::handleReceive(const asio::error_code &err, size_t length
 
 bool RemoteServerProxy::waitForGoodMessage() {
     asio::error_code err;
-
     read_until(*socket, buf, '\n', err);
     if (err) {
         PLOG_WARNING << "[RemoteServerProxy] Failed to wait for good!";
@@ -158,20 +162,21 @@ bool RemoteServerProxy::tryConnect(const shared_ptr<RemoteServerProxy> &self, co
 }
 
 void RemoteServerProxy::stop() {
-    if(service.stopped()){
-        return;
+    if(socket){
+        socket->close();
+        socket.reset();
+        PLOG_INFO << "[RemoteServerProxy] Socket reset";
     }
-    service.stop();
+    if(!service.stopped()){
+        service.stop();
+    }
+
     if(workingThread.joinable()){
         workingThread.join();
     }
 }
 
 RemoteServerProxy::~RemoteServerProxy() {
-    if(socket){
-        socket->close();
-        socket.reset();
-    }
     stop();
 }
 

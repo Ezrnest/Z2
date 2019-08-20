@@ -23,7 +23,7 @@ private:
 
     int playerId;
 
-    string playerName = "remote";
+    string playerName = "None";
 
     void dealWithSyncWorld(const shared_ptr<SyncWorld> &msg);
 

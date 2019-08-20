@@ -95,6 +95,7 @@ private:
     void dealWithControlMessage(const shared_ptr<z2::ControlMessage> &message);
 
     void attachListeners(const shared_ptr<World> &world);
+
 public:
 
     virtual ~Server();
@@ -121,11 +122,15 @@ public:
 
     void localEndGame(int winnerGroupId);
 
-    void exceptionalEndGame(const string& cause);
+    void clientQuit(int clientId, const string &cause);
+
+    void exceptionalEndGame(const string &cause);
 
     const shared_ptr<World> &getWorld() const;
 
     void setWorld(const shared_ptr<World> &world);
+
+    const vector<shared_ptr<ClientProxy>> &getClients() const;
 
     GameState getGameState() const;
 

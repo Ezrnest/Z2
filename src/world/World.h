@@ -93,7 +93,7 @@ private:
                           const shared_ptr<EntityWithHealth> &receiver,
                           int &damage);
 
-    void removeEntity(const Point &pos);
+
 
 
 
@@ -142,6 +142,8 @@ public:
      * modified directly, such as through `getTile(...).setEntity(...)`
      */
     void configure();
+
+    void shrinkPlayerCount(int newCount);
 
     const string &getClassName()const  override;
 
@@ -291,33 +293,56 @@ public:
 
     /**
      * Moves the entity at the tile of the point `from` to `dest`, if `dest` is not occupied.
-     * Otherwise, returns `false`
+     * Otherwise, returns `false`.
+     * <br>This is an game operation.
      */
     bool moveEntity(const Point &from, const Point &dest);
 
     bool canBuy(int playerId, const Point& pos, const string& entityName);
 
+    /**
+     * Buy an entity for a player.
+     * <br>This is an game operation.
+     */
     void buyEntity(int playerId, const Point &pos, const string &entityName);
 
 
+    /**
+     * Makes the entity at `from` attack the entity at `dest`.
+     * <br>This is an game operation.
+     */
     void attackEntity(const Point &from, const Point &dest);
 
     /**
      * Performs a melee attack.
+     * <br>This is an game operation.
      */
     void attackEntityMelee(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &range,
                            const shared_ptr<EntityWithHealth> &victim);
 
     /**
      * Performs a range attack.
+     * <br>This is an game operation.
      */
     void attackEntityRange(const Point &from, const Point &dest, const shared_ptr<RangeUnit> &range,
                            const shared_ptr<EntityWithHealth> &victim);
 
     /**
      * Performs the entity at the target position.
+     * <br>This is a game operation.
      */
     void performEntity(const Point& target);
+
+    /**
+     * Removes the entity at the point.
+     * <br>This is a game operation.
+     */
+    void removeEntity(const Point &pos);
+
+    /**
+     * Simply removes the entity from the world. This method will not dispatch any event.
+     */
+    shared_ptr<Entity> removeEntitySimply(unsigned int objectId);
 
     /**
      * Creates an entity at the given tile.
@@ -326,6 +351,7 @@ public:
 
     /**
      * Creates an entity at the given tile with no properties.
+     *
      */
     shared_ptr<Entity> createEntity(const Point &, const string &entityId);
 
@@ -334,6 +360,10 @@ public:
      */
     bool canResearchTechnology(int playerId, const string& techId);
 
+    /**
+     * Research the given technology for the player.
+     * <br>This is an game operation.
+     */
     bool researchTechnology(int playerId, const string& techId);
 
     void addEventListener(const EventListener &listener);

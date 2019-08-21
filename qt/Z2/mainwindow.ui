@@ -75,7 +75,7 @@ QPushButton {
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="mainMenu">
      <widget class="QPushButton" name="btnSingle">
@@ -176,7 +176,7 @@ QPushButton {
        </rect>
       </property>
       <property name="text">
-       <string notr="true">z2: beta 1.2</string>
+       <string notr="true">z2: beta 0.2</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnExitGame">

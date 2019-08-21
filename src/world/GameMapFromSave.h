@@ -25,6 +25,8 @@ public:
 
     shared_ptr<World> buildWorld(const vector<PlayerSetting> &players) override;
 
+    bool isValidPlayerCount(int count) const override;
+
     static shared_ptr<GameMapFromSave> loadFrom(istream &input);
 
     static shared_ptr<GameMapFromSave> loadGameSaving(const string& path);

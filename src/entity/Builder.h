@@ -28,6 +28,10 @@ public:
 
     static Entity* create(int objectId, const Properties& initializer);
 
+    void performAbility(const Point &pos, World &world) override;
+
+    bool canPerformAbility(const Point &pos, World &world) override;
+
 protected:
     void serializeDataPart(ostream &output) override;
 

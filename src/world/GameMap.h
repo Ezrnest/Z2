@@ -38,6 +38,8 @@ public:
 
     const string &getName() const;
 
+    virtual bool isValidPlayerCount(int count) const;
+
     static bool saveWorldTo(const string &path, const string& description, const shared_ptr<World> &world);
 
     static shared_ptr<GameMap> loadWorldFrom(const string& path);

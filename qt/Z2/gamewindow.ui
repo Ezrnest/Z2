@@ -416,7 +416,7 @@ QPushButton {
          <x>5</x>
          <y>90</y>
          <width>101</width>
-         <height>31</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="font">
@@ -439,7 +439,7 @@ QPushButton {
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>125</y>
+         <y>115</y>
          <width>101</width>
          <height>21</height>
         </rect>
@@ -464,7 +464,7 @@ QPushButton {
        <property name="geometry">
         <rect>
          <x>90</x>
-         <y>120</y>
+         <y>110</y>
          <width>101</width>
          <height>31</height>
         </rect>
@@ -558,7 +558,57 @@ QPushButton {
        <property name="geometry">
         <rect>
          <x>90</x>
-         <y>90</y>
+         <y>85</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string notr="true">0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lbl4">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>140</y>
+         <width>101</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>射程：</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblAtkRange">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>135</y>
          <width>101</width>
          <height>31</height>
         </rect>
@@ -587,8 +637,8 @@ QPushButton {
      <rect>
       <x>5</x>
       <y>0</y>
-      <width>141</width>
-      <height>21</height>
+      <width>195</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -601,7 +651,7 @@ QPushButton {
      <string notr="true">0</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="btnEndTurn">
@@ -1239,8 +1289,8 @@ background:rgb(85, 255, 255)
    <zorder>frTurnInfo</zorder>
    <zorder>btnMenu</zorder>
    <zorder>line</zorder>
-   <zorder>frPlayerList</zorder>
    <zorder>btnDiplomacy</zorder>
+   <zorder>frPlayerList</zorder>
    <zorder>frMenu</zorder>
   </widget>
   <action name="actionPlayerInfo">

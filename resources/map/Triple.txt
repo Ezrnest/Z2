@@ -1,8 +1,8 @@
-name=InfinityIsland
-description=对称的1v1地图
+name=Triple
+description=
 width=23
-height=13
-maxPlayerCount=2
+height=21
+maxPlayerCount=3
 setupBornPoints=true
 # The first line of the file is the name of the map, and the second line is the description.
 # Following lines which start with '#' will be ignored.
@@ -21,15 +21,23 @@ setupBornPoints=true
 # There must be an indicator line ($) before the map
 $$$$
 WWWWWWWWWWWWWWWWWWWWWWW
-WWWDDDDMWWWWWWMMDDDDWWW
-WWD m   MWWWWM      DWW
-WWD     DDDDD    m   DW
-WD        mMM        DW
-WDm          M    m  DW
-WD0     Mm g mM     1DW
-WD  m    M          mDW
-WD        MMm        DW
-WD    m   DDDDD     DWW
-WWD      MWWWWM m   DWW
-WWWDDDDMMWWWWWWMDDDDWWW
+WWWWD    mmm    WWWWWWW
+WWD              DWWWWW
+WD        0       DWWWW
+Wm    H     DD     mWWW
+WWD        m      DWWWW
+WWW               WWWWW
+WWWW    D        WWWWWW
+WWW    DWD      WWWWWWW
+WW  g DWWWD  g    WWWWW
+W  H   DDD    H    WWWW
+Wmm    g g g       mmWW
+WW       WWWH       WWW
+WWWWFg   DWD   g F WWWW
+WW  FF    D     FF  WWW
+Wm      WWDDDW       WW
+W        WWDWWm   DD  W
+W  m1  D  WWWm        W
+W        WWW     2    W
+WW  mm  WWWWW    mm  WW
 WWWWWWWWWWWWWWWWWWWWWWW

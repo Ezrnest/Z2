@@ -2,6 +2,7 @@
  * Created by liyicheng on 2019/7/5.
  */
 
+#include <entity/Builder.h>
 #include "EntityRepository.h"
 #include "entity/ConstructionBase.h"
 #include "entity/Farmer.h"
@@ -53,7 +54,7 @@ const Properties &EntityInfo::getProperties() const {
 EntityInfo::EntityInfo(const string &identifier, const shared_ptr<EntityClassInfo> &entityClassInfo,
                        const Properties &prop) : identifier(identifier), entityClassInfo(entityClassInfo),
                                                        properties(prop) {
-    properties.set("name", identifier);
+    properties.set("entityName", identifier);
     properties.set("className", entityClassInfo->getClassName());
     initEntityTypeInfo();
 }
@@ -111,7 +112,8 @@ const string &EntityInfo::getImageName() const{
 
 const string &EntityInfo::getDisplayPerformText() const {
     static const string none = "None";
-    return properties.get("displayPerformText", none);
+    auto& tr = TextRepository::instance();
+    return tr.getText(properties.get("displayPerformText", none));
 }
 
 
@@ -189,6 +191,7 @@ void EntityRepository::initEntityClasses() {
     repo.registerEntityClass(ConstructionBase::className(), ConstructionBase::create);
 
     repo.registerEntityClass(Farmer::className(), Farmer::create);
+    repo.registerEntityClass(Builder::className(), Builder::create);
 
     repo.registerEntityClass(MeleeUnit::className(), MeleeUnit::create);
     repo.registerEntityClass(RangeUnit::className(), RangeUnit::create);
@@ -233,7 +236,7 @@ void EntityRepository::initFromFolder(const ancono::File &dir) {
         ifstream in;
         f.inStream(in);
         p.loadFrom(in);
-        eName = p.get("name", f.getFileNameWithoutExtension());
+        eName = p.get("entityName", f.getFileNameWithoutExtension());
         repo.registerFromProp(eName, p);
         in.close();
     }

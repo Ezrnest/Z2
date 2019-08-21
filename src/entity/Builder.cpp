@@ -3,7 +3,7 @@
  */
 
 #include "Builder.h"
-
+#include "world/World.h"
 z2::Builder::Builder(unsigned int objectId) : GameUnit(objectId) {}
 
 void z2::Builder::initialize(const Properties &prop) {
@@ -46,4 +46,17 @@ void z2::Builder::serializeDataPart(ostream &output) {
 void z2::Builder::deserializeDataPart(istream &input, z2::Builder *en) {
     GameUnit::deserializeDataPart(input, en);
     input >> en->buildingName;
+}
+
+void z2::Builder::performAbility(const z2::Point &pos, z2::World &world) {
+//    Entity::performAbility(pos, world);
+    //first remove this
+    auto pointer = world.removeEntitySimply(objectId);
+    world.createEntity(pos, buildingName, ownerId_);
+//    world->re
+}
+
+bool z2::Builder::canPerformAbility(const z2::Point &pos, z2::World &world) {
+    auto& tile =  world.getTile(pos);
+    return true;
 }

@@ -26,7 +26,8 @@ namespace z2 {
 //        : players(players), clients(players.size()), world(std::move(world)), port(port) {
 //    openLobby(port);
 //}
-Lobby::Lobby(int port, const GameInitSetting &gameInitSetting) : port(port), gis(gameInitSetting), clients(gameInitSetting.getPlayerCount()){
+Lobby::Lobby(int port, const GameInitSetting &gameInitSetting) : port(port), gis(gameInitSetting),
+                                                                 clients(gameInitSetting.getPlayerCount()) {
 }
 
 int getRemoteClientCount(const GameInitSetting &gis) {
@@ -49,19 +50,23 @@ void Lobby::openLocalLobby() {
 
 void Lobby::openLobby() {
     int requiredCount = getRemoteClientCount(gis);
-    if(requiredCount == 0){
-       openLocalLobby();
-       return;
+    if (requiredCount == 0) {
+        openLocalLobby();
+        return;
     }
     latch.reset(new CountDownLatch(requiredCount));
-    auto listener = [this](const MessagePtr &msg,int cid) {
+    auto listener = [this](const MessagePtr &msg, int cid) {
         shared_ptr<RegisterPlayer> rp = dynamic_pointer_cast<RegisterPlayer>(msg);
         if (!rp) {
+            conductor->sendMessage(make_shared<SignalMessage>(SignalMessage::BAD), cid);// reject it
             return;
         }
         int id = rp->getPlayerId();
-        if (id < 0 || id >= gis.getPlayers().size() || gis.getPlayers()[id].type != PlayerType::REMOTE_PLAYER) {
+        if (id < 0 || id >= gis.getPlayers().size() ||
+            gis.getPlayers()[id].type != PlayerType::REMOTE_PLAYER ||
+            clients[id].first) {
             PLOG_WARNING << "[Lobby] Invalid remote player id = " << id;
+            conductor->sendMessage(make_shared<SignalMessage>(SignalMessage::BAD), cid); // reject it
             return;
         }
 
@@ -73,7 +78,7 @@ void Lobby::openLobby() {
         clients[id] = pair;
         latch->countDown();
         onPlayerConnected(*this, id);
-        PLOG(plog::info) << "[Lobby] Player: "<<name << " connected!";
+        PLOG(plog::info) << "[Lobby] Player: " << name << " connected!";
         return;
     };
     conductor = std::make_shared<MessageConductor>(listener);
@@ -82,10 +87,8 @@ void Lobby::openLobby() {
 }
 
 
-
-
-void Lobby::initNames(const shared_ptr<World>& world) {
-    auto& players = gis.getPlayers();
+void Lobby::initNames(const shared_ptr<World> &world) {
+    auto &players = gis.getPlayers();
     for (int i = 0; i < players.size(); i++) {
         switch (players[i].type) {
             case PlayerType::LOCAL_PLAYER: {
@@ -105,16 +108,17 @@ void Lobby::initNames(const shared_ptr<World>& world) {
     }
 }
 
-void setGameGui(const weak_ptr<GameGui> &gui, shared_ptr<LocalClient>& lc){
+void setGameGui(const weak_ptr<GameGui> &gui, shared_ptr<LocalClient> &lc) {
     auto view = gui.lock();
     view->setControllerAndView(lc);
     lc->setView(view);
 }
+
 void Lobby::setupRemoteClients(shared_ptr<Server> &server, const vector<PlayerSetting> &players) const {
     for (int i = 0; i < players.size(); i++) {
-        if (players[i].type == PlayerType::REMOTE_PLAYER ) {
+        if (players[i].type == PlayerType::REMOTE_PLAYER) {
             auto &p = clients[i];
-            server->registerClient(p.first,players[i].playerId);
+            server->registerClient(p.first, players[i].playerId);
         }
     }
 }
@@ -130,7 +134,7 @@ shared_ptr<Server> Lobby::startLocalGame(const weak_ptr<GameGui> &gui) {
 
 
 shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
-    if(getRemoteClientCount(gis) == 0){
+    if (getRemoteClientCount(gis) == 0) {
         return startLocalGame(gui);
     }
     bool waitRe = latch->await(std::chrono::milliseconds(timeOut));
@@ -143,11 +147,11 @@ shared_ptr<Server> Lobby::startGame(const weak_ptr<GameGui> &gui, int timeOut) {
     initNames(server->getWorld());
     auto localClient = pair.second;
     setGameGui(gui, localClient);
-    auto& players = gis.getPlayers();
+    auto &players = gis.getPlayers();
     setupRemoteClients(server, players);
 
     weak_ptr<Server> ws = server;
-    auto listener = [ws](const MessagePtr &msg,int) {
+    auto listener = [ws](const MessagePtr &msg, int) {
         if (!msg) {
             PLOG_WARNING << "[Lobby] Failed to accept message!";
             return;
@@ -199,7 +203,7 @@ void Lobby::setOnPlayerConnected(const function<void(Lobby &, int)> &onPlayerCon
 }
 
 string Lobby::getAddressInfo() {
-    if(conductor){
+    if (conductor) {
         return conductor->getLocalAddressInfo();
     }
     return "127.0.0.1";
@@ -218,7 +222,7 @@ Lobby::~Lobby() {
 }
 
 string Lobby::getHostNameInfo() {
-    if(conductor){
+    if (conductor) {
         return conductor->getLocalHostNameInfo();
     }
     return "Unknown";

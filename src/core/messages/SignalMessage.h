@@ -22,7 +22,7 @@ public:
 
     void deserializeData(istream &input) override;
 
-    enum {GOOD = 0};
+    enum {GOOD = 0, BAD};
 
 protected:
     void serializeData(ostream &output) override;

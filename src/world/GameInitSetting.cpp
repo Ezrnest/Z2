@@ -70,6 +70,7 @@ bool GameInitSetting::isValidLocalSetting(bool isLocalGame) {
 
     }
     return hasPlayer;
+    //    return true;// it is not required that there must be one local player( further supports on the GameGui are needed)
 }
 
 GameInitSetting::GameInitSetting(vector<PlayerSetting> players, shared_ptr<GameMap> map) : players(std::move(

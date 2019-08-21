@@ -58,6 +58,7 @@ void z2::MessageConductor::start(int port, int count, const shared_ptr<MessageCo
     ip::tcp::endpoint ep(ip::tcp::v4(), port);
     acceptor.reset(new ip::tcp::acceptor(*service, ep));
     acceptor->listen(count);
+//    acceptor->close().
     connections = vector<socket_ptr>(count);
     buffers = vector<asio::streambuf>(count);
     for (int i = 0; i < count; i++) {

@@ -653,6 +653,23 @@ void World::removeEntity(const Point &pos) {
     onEntityRemoved(pos, entity);
 }
 
+shared_ptr<Entity> World::removeEntitySimply(unsigned int objectId) {
+    auto it = entityMap.find(objectId);
+    if (it == entityMap.end()) {
+        return shared_ptr<Entity>();
+    }
+    auto en = it->second;
+    auto& pos = en->getPos();
+    if (isInside(pos)) {
+        auto &t = getTile(pos);
+        if (t.getEntity() == en) {
+            t.removeEntity();
+        }
+    }
+    entityMap.erase(en->getObjectId());
+    return en;
+}
+
 Player &World::getPlayer(int playerId) {
     return players[playerId];
 }
@@ -1007,6 +1024,30 @@ const string &World::getMapName() const {
 
 void World::setMapName(const string &mapName) {
     World::mapName = mapName;
+}
+
+void World::shrinkPlayerCount(int newCount) {
+    if(newCount >=playerCount){
+        return;
+    }
+    newCount = max(1, newCount);
+    playerCount = newCount;
+    players.resize(newCount);
+    currentPlayer %= playerCount;
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            Tile &t = getTile(i, j);
+            if (!t.hasEntity()) {
+                continue;
+            }
+            auto en = t.getEntity();
+            if (en->getOwnerId() >= playerCount) {
+                //remove it
+                entityMap.erase(en->getObjectId());
+                t.removeEntity();
+            }
+        }
+    }
 }
 
 

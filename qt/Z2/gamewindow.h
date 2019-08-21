@@ -174,6 +174,8 @@ private:
 
     void closeEvent(QCloseEvent* event) override;
 
+    void refreshEntityProps(shared_ptr<Entity>& en, World& w);
+
     void refreshContruction(shared_ptr<Entity>& en, World& w, Point& p);
 
     void refreshTechnology(World& w);

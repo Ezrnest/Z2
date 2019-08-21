@@ -43,4 +43,9 @@ shared_ptr<GameMap> GameMap::loadWorldFrom(const string &path) {
     return GameMapFromSave::loadGameSaving(path);
 }
 
+bool GameMap::isValidPlayerCount(int count) const {
+    return count > 0 && count <= maxPlayerCount;
+}
+
+
 }

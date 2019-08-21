@@ -21,11 +21,11 @@ setupBornPoints=true
 # There must be an indicator line ($) before the map
 $$$$
 MMMMMMMMMMMMMMMMMMMMMMMM
-Mm       F F F        mM
+Mm     m F F F        mM
 M  0      Fmm       1  M
 M    m     F     m     M
 WWW             H      M
-MHW                    M
+MHW         g          M
 MHWW                   M
 M  WWF  H    F     m   M
 M   WF  H     F        M
@@ -34,9 +34,9 @@ M       F  gg      m   M
 M        F     H  FW   M
 M   m     F    H  FWW  M
 M                   WWHM
-M                    WHM
+M          g         WHM
 M       H            WWW
-M      m     F    m    M
+M      m    F     m    M
 M  2       mmF      3  M
-Mm        F F F       mM
+Mm        F F F m     mM
 MMMMMMMMMMMMMMMMMMMMMMMM

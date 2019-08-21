@@ -333,6 +333,50 @@ void GameWindow::closeEvent(QCloseEvent *event)
     exitGame();
 }
 
+void GameWindow::refreshEntityProps(shared_ptr<Entity> &en, World &w)
+{
+    auto& enRepo = EntityRepository::instance();
+    auto& enInfo = enRepo.getEntityInfo(en->getEntityName());
+
+    ui->lblEntityName->setText(QString::fromStdString(enInfo.getDisplayName()));
+    int ownerId = en->getOwnerId();
+    ui->lblOwner->setText(QString::fromStdString(w.getPlayer(ownerId).getName()));
+    ui->lblMoves->setNum(en->getRemainingMoves());
+
+    {
+        auto hpBar = ui->barHP;
+        auto wh = dynamic_pointer_cast<EntityWithHealth>(en);
+        if(wh){
+            hpBar->setEnabled(true);
+            hpBar->setMaximum(wh->getMaxHealth());
+            hpBar->setValue(wh->getHealth());
+        }else{
+            hpBar->setEnabled(false);
+        }
+    }
+
+    {
+        auto bu = dynamic_pointer_cast<BattleUnit>(en);
+        if(bu){
+            ui->lblAttack->setNum(bu->getAttackStrength());
+        }else{
+            ui->lblAttack->setText("0");
+        }
+        auto range = dynamic_pointer_cast<RangeUnit>(bu);
+        if(range){
+            ui->lbl4->show();
+            ui->lblAtkRange->setNum(range->getRange());
+            ui->lblAtkRange->show();
+        }else{
+            ui->lbl4->hide();
+            ui->lblAtkRange->hide();
+//            ui->lb
+        }
+    }
+
+
+}
+
 
 
 
@@ -365,34 +409,9 @@ void GameWindow::refreshSelection(bool playerClicked)
     }
     refreshTileInfo(true,*world,pos);
 
-    auto& enRepo = EntityRepository::instance();
-    auto& enInfo = enRepo.getEntityInfo(en->getEntityName());
+    refreshEntityProps(en,*world);
 
-    ui->lblEntityName->setText(QString::fromStdString(enInfo.getDisplayName()));
-    int ownerId = en->getOwnerId();
-    ui->lblOwner->setText(QString::fromStdString(world->getPlayer(ownerId).getName()));
-    ui->lblMoves->setText(QString::number(en->getRemainingMoves()));
-
-
-    auto hpBar = ui->barHP;
-    {
-        auto wh = dynamic_pointer_cast<EntityWithHealth>(en);
-        if(wh){
-            hpBar->setEnabled(true);
-            hpBar->setMaximum(wh->getMaxHealth());
-            hpBar->setValue(wh->getHealth());
-        }else{
-            hpBar->setEnabled(false);
-        }
-    }
-    auto bu = dynamic_pointer_cast<BattleUnit>(en);
-    if(bu){
-        ui->lblAttack->setText(QString::number(bu->getAttackStrength()));
-    }else{
-        ui->lblAttack->setText("0");
-    }
-
-    if(playerClicked && ownerId == getPlayerId()){
+    if(playerClicked && en->getOwnerId() == getPlayerId()){
         clickedOnOwnedEntity(en);
     }
 

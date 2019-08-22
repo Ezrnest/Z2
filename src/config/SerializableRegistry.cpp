@@ -5,6 +5,7 @@
 #include <core/messages/SignalMessage.h>
 #include <core/messages/PlayerMessage.h>
 #include <core/messages/SetPlayerData.h>
+#include <entity/Builder.h>
 
 #include "SerializableRegistry.h"
 #include "world/World.h"
@@ -88,11 +89,11 @@ void z2::SerializableRegistry::initSerializableClasses() {
     auto &sr = instance();
     sr.registerClass<World>();
     sr.registerClass<Farmer>();
+    sr.registerClass<Builder>();
     sr.registerClass<ConstructionBase>();
     sr.registerClass<MeleeUnit>();
     sr.registerClass<RangeUnit>();
     sr.registerClass<Building>();
-
     z2::initMessageClass(sr);
 }
 

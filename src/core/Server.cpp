@@ -9,6 +9,7 @@
 #include "messages/ControlMessage.h"
 #include "plog/Log.h"
 #include "event/StateEvent.h"
+#include "LocalClient.h"
 
 using namespace z2;
 
@@ -78,10 +79,18 @@ void Server::sendMessage(const shared_ptr<Message> &message, int clientId) {
 }
 
 void Server::broadcastMessage(const shared_ptr<Message> &message) {
+    shared_ptr<LocalClient> lc;
     for (auto &c : clients) {
         if (c) {
-            c->sendMessage(message);
+            if(!lc && dynamic_pointer_cast<LocalClient>(c)){
+                lc = dynamic_pointer_cast<LocalClient>(c);
+            }else{
+                c->sendMessage(message);
+            }
         }
+    }
+    if(lc){ // send to local client last
+        lc->sendMessage(message);
     }
 }
 

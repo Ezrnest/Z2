@@ -224,28 +224,83 @@ void GameWindow::dealWithEntityEvent(const shared_ptr<EntityEvent> &event)
         processEntityPerform(event);
         break;
     }
+    case EntityEventType::EntityDamaging:{
+        processEntityAttacking(static_pointer_cast<EEntityDamaging>(event));
+        break;
     }
+    case EntityEventType::EntityRemoved:{
+        processEntityDied(event);
+        break;
+    }
+    }
+}
+
+bool GameWindow::isEntityVisible(const shared_ptr<Entity> &en)
+{
+    auto& pos = en->getPos();
+    auto w = getWorld();
+    return w->isInside(pos) && w->getTile(pos).getVisibility(getPlayerId()) == Visibility::CLEAR;
+}
+
+inline void playSound(const string& soundName){
+    SoundRepository::instance().playSound(soundName);
+}
+
+inline void playEntitySound(const shared_ptr<Entity>& en, const string& soundName){
+    playSound(en->getEntityInfo().getProperties().get(soundName,"none"));
 }
 
 void GameWindow::processEntityPerform(const shared_ptr<EntityEvent> &event)
 {
     auto& en = event->getEntity();
-    SoundRepository::instance().playSound(en->getEntityInfo().getProperties().get("soundOnPerform","none"));
+    if(en->getOwnerId() != getPlayerId()){
+        return;
+    }
+    playEntitySound(en,"soundOnPerform");
 }
 
 void GameWindow::processEntityMove(const shared_ptr<EEntityMoved> &event)
 {
-
+    auto& en = event->getEntity();
+    if(en->getOwnerId() != getPlayerId()){
+        return;
+    }
+    playEntitySound(en,"soundOnMove");
 }
 
 void GameWindow::processEntityCreated(const shared_ptr<EntityEvent> &event)
 {
+    auto& en = event->getEntity();
+    if(en->getOwnerId() != getPlayerId()){
+        return;
+    }
+    playEntitySound(en,"soundOnCreate");
+}
 
+void GameWindow::processEntityAttacking(const shared_ptr<EEntityDamaging> &event)
+{
+    auto& en = event->getAttacker();
+    if(en->getOwnerId() != getPlayerId()){
+        return;
+    }
+    playEntitySound(en,"soundOnAttack");
+}
+
+void GameWindow::processEntityDied(const shared_ptr<EntityEvent> &event)
+{
+    auto& en = event->getEntity();
+    if(en->getOwnerId() != getPlayerId()){
+        return;
+    }
+    playEntitySound(en,"soundOnDie");
 }
 
 void GameWindow::processPlayerResearch(const shared_ptr<TechResearchedEvent> &event)
 {
-
+    if(event->getPlayerId() != getPlayerId()){
+        return;
+    }
+    playSound("Research.wav");
 }
 
 
@@ -411,17 +466,17 @@ void GameWindow::refreshSelection(bool playerClicked)
 
     refreshEntityProps(en,*world);
 
+    refreshContruction(en,*world,pos);
+    refreshPerformAbility(en,*world,pos);
+
     if(playerClicked && en->getOwnerId() == getPlayerId()){
         clickedOnOwnedEntity(en);
     }
-
-    refreshContruction(en,*world,pos);
-    refreshPerformAbility(en,*world,pos);
 }
 
 void GameWindow::clickedOnOwnedEntity(const shared_ptr<Entity> &en)
 {
-    SoundRepository::instance().playSound(en->getEntityInfo().getProperties().get("soundOnClick","none"));
+    playEntitySound(en,"soundOnClick");
 }
 
 void GameWindow::refreshPlayerInfo()

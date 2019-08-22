@@ -48,7 +48,7 @@ private:
 
 public:
     /**
-     * Creates and opens a lobby.
+     * Creates a lobby, `openLobby` will not be invoked.
      */
     explicit Lobby(int port, const GameInitSetting& gameInitSetting);
 

@@ -149,11 +149,17 @@ private:
 
     void dealWithEntityEvent(const shared_ptr<EntityEvent>& event);
 
+    bool isEntityVisible(const shared_ptr<Entity>& en);
+
     void processEntityPerform(const shared_ptr<EntityEvent>& event);
 
     void processEntityMove(const shared_ptr<EEntityMoved>& event);
 
     void processEntityCreated(const shared_ptr<EntityEvent>& event);
+
+    void processEntityAttacking(const shared_ptr<EEntityDamaging>& event);
+
+    void processEntityDied(const shared_ptr<EntityEvent>& event);
 
     void processPlayerResearch(const shared_ptr<TechResearchedEvent>& event);
 

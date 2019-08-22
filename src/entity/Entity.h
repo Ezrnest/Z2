@@ -41,7 +41,7 @@ namespace z2 {
  * of the corresponding entity type.
  *
  * <h2>Implementation Notes</h2>
- * A concrete sub-class of entity should always define a static function <code>getIdentifier()</code>
+ * A concrete sub-class of entity should always define a static function <code>getClassName()</code>
  * to return the unique identifier.
  *
  *

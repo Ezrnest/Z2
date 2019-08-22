@@ -14,7 +14,7 @@ namespace z2 {
 enum class GeneralMessageType {
     ControlMessage,
     GameMessage,
-    ChatMessage,
+    ChatMessage, // Not implemented
 };
 
 /**

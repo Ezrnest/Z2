@@ -14,6 +14,8 @@ namespace z2 {
  * <h2>Serializing</h2>
  * When serializing, the serializable object should firstly save its class name.
  * <h2>Deserializing</h2>
+ * The Serializable class should be registered to `SerializableRegistry` so that proper creating method
+ * can be invoked.
  */
 class Serializable {
 public:

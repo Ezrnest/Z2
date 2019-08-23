@@ -10,6 +10,7 @@
 #include <event/InGamePlayerEvent.h>
 #include <core/messages/SetPlayerData.h>
 #include <event/PlayersWon.h>
+#include <entity/ConstructionBase.h>
 #include "event/GameEvent.h"
 #include "event/StateEvent.h"
 #include "World.h"
@@ -87,6 +88,9 @@ World &World::operator=(World &&world) noexcept {
 
 World::~World() {
     deleteMatrix(data, width);
+    if (distanceMap != nullptr) {
+        deleteMatrix(distanceMap, width);
+    }
 }
 
 const string &World::className() {
@@ -130,6 +134,14 @@ shared_ptr<Entity> World::getEntity(const Point &point) {
         return shared_ptr<Entity>();
     }
     return getTile(point).getEntity();
+}
+
+shared_ptr<Entity> World::getEntity(unsigned int entityId){
+    auto it = entityMap.find(entityId);
+    if (it == entityMap.end()) {
+        return shared_ptr<Entity>();
+    }
+    return it->second;
 }
 
 
@@ -282,7 +294,7 @@ bool World::moveEntity(const Point &from, const Point &dest) {
     return true;
 }
 
-bool World::canBuy(int playerId, const Point& pos, const string& entityName){
+bool World::canBuy(int playerId, const Point &pos, const string &entityName) {
     const Point &whereToPlace = getAdjacentEmptyPos(pos);
     if (whereToPlace.x < 0) {
         return false;
@@ -294,11 +306,15 @@ bool World::canBuy(int playerId, const Point& pos, const string& entityName){
             return false;
         }
         auto &info = repo.getEntityInfo(entityName);
-        if(!info.isBuyableByPlayer(p)){
+        if (!info.isBuyableByPlayer(p)) {
             return false;
         }
         int cost = info.getProperties().getInt("price", 0);
         if (p.getGold() < cost) {
+            return false;
+        }
+        auto en = dynamic_pointer_cast<ConstructionBase>(getEntity(pos));
+        if(!en || en->getOwnerId() != playerId){
             return false;
         }
     }
@@ -306,31 +322,39 @@ bool World::canBuy(int playerId, const Point& pos, const string& entityName){
 }
 
 void World::buyEntity(int playerId, const Point &pos, const string &entityName) {
-    const Point &whereToPlace = getAdjacentEmptyPos(pos);
-    if (whereToPlace.x < 0) {
-        PLOG_WARNING << "Nowhere to place the bought unit.";
+//    const Point &whereToPlace = getAdjacentEmptyPos(pos);
+//    if (whereToPlace.x < 0) {
+//        PLOG_WARNING << "Nowhere to place the bought unit.";
+//        return;
+//    }
+//    if (playerId != Player::NO_PLAYER) {
+//        Player &p = players[playerId];
+//        auto &repo = EntityRepository::instance();
+//        if (!repo.hasEntity(entityName)) {
+//            PLOG_WARNING << ("Unknown entity: " + entityName);
+//            return;
+//        }
+//        auto &info = repo.getEntityInfo(entityName);
+//        if (!info.isBuyableByPlayer(p)) {
+//            PLOG_WARNING << "Entity: " << entityName << " is not buyable for player " << p.getPlayerId();
+//            return;
+//        }
+//        int cost = info.getProperties().getInt("price", 0);
+//        if (!p.requireGold(cost)) {
+//            PLOG_WARNING << "Not enough gold!";
+//            return;
+//        }
+//    }
+    if (!canBuy(playerId, pos, entityName)) {
+        PLOG_WARNING << "Entity: " << entityName << " is not buyable for player " << playerId;
         return;
     }
-    if (playerId != Player::NO_PLAYER) {
-        Player &p = players[playerId];
-        auto &repo = EntityRepository::instance();
-        if (!repo.hasEntity(entityName)) {
-            PLOG_WARNING << ("Unknown entity: " + entityName);
-            return;
-        }
-        auto &info = repo.getEntityInfo(entityName);
-        if(!info.isBuyableByPlayer(p)){
-            PLOG_WARNING << "Entity: " << entityName << " is not buyable for player " << p.getPlayerId();
-            return;
-        }
-        int cost = info.getProperties().getInt("price", 0);
-        if (!p.requireGold(cost)) {
-            PLOG_WARNING << "Not enough gold!";
-            return;
-        }
+    auto en = dynamic_pointer_cast<ConstructionBase>(getEntity(pos));
+    if(!en){
+        return;
     }
-
-    createEntity(whereToPlace, entityName, playerId);
+    en->buyEntity(pos, entityName, *this);
+//    createEntity(whereToPlace, entityName, playerId);
 
 }
 
@@ -619,7 +643,7 @@ void World::onPlayerDefeated(int playerId) {
     checkPlayersWin();
 }
 
-void World::onPlayersWon(vector<int>& winners) {
+void World::onPlayersWon(vector<int> &winners) {
     PLOG(plog::info) << "Players leading by " << winners[0] << " won!";
     shared_ptr<GameEvent> event(new PlayersWon(winners));
     dispatcher.publish(event);
@@ -630,12 +654,16 @@ void World::onPlayersWon(vector<int>& winners) {
 
 
 shared_ptr<Entity> World::createEntity(const Point &pos, const string &entityId, int playerId) {
+    if (!isInside(pos)) {
+        return shared_ptr<Entity>();
+    }
     Tile &tile = getTile(pos);
     auto entity = EntityRepository::instance().createEntity(entityId, getNextObjectId());
     if (entity == nullptr) {
         PLOG_WARNING << "Unable to create entity named: " << entityId;
         return shared_ptr<Entity>();
     }
+    entity->setPos(pos);
     tile.setEntity(entity);
     entityMap.insert(make_pair(entity->getObjectId(), entity));
     entity->setOwnerId(playerId);
@@ -659,7 +687,7 @@ shared_ptr<Entity> World::removeEntitySimply(unsigned int objectId) {
         return shared_ptr<Entity>();
     }
     auto en = it->second;
-    auto& pos = en->getPos();
+    auto &pos = en->getPos();
     if (isInside(pos)) {
         auto &t = getTile(pos);
         if (t.getEntity() == en) {
@@ -782,29 +810,30 @@ bool World::checkReady() {
     return true;
 }
 
-void World::initDistanceMap() const{
+void World::initDistanceMap() const {
     if (distanceMap == nullptr) {
-        distanceMap = initMatrix(width, height, INT32_MAX);
-    }else{
+        distanceMap = initMatrix(width, height, PathRecord{Direction::NONE, INT32_MAX});
+    } else {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                distanceMap[i][j] = INT32_MAX;
+                distanceMap[i][j].d = INT32_MAX;
+                distanceMap[i][j].from = Direction::NONE;
             }
         }
     }
 }
 
-int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
-//    int** length
-    initDistanceMap();
-    distanceMap[start.x][start.y] = 0;
+void World::computeDistanceMap(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
     stack<Point> s;
     s.push(start);
+    auto &directions = Point::directions();
     while (!s.empty()) {
         Point p = s.top();
         s.pop();
-        int nDistance = distanceMap[p.x][p.y] + unit->getTileRMP(getTile(p));
-        for (const Point &d : Point::directions()) {
+        int nDistance = distanceMap[p.x][p.y].d + unit->getTileRMP(getTile(p));
+
+        for (int i = 0; i < directions.size(); i++) {
+            const Point &d = directions[i];
             Point next = p + d;
             if (!isInside(next)) {
                 continue;
@@ -813,15 +842,41 @@ int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit
             if (!t.canPassThrough(unit)) {
                 continue;
             }
-            if (nDistance >= distanceMap[next.x][next.y]) {
+            if (nDistance >= distanceMap[next.x][next.y].d) {
                 continue;
             }
-            distanceMap[next.x][next.y] = nDistance;
+            distanceMap[next.x][next.y].d = nDistance;
+            distanceMap[next.x][next.y].from = (Direction) i;
             s.push(next);
         }
     }
-    int distance = distanceMap[dest.x][dest.y];
-    return distance;
+
+}
+
+int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
+    initDistanceMap();
+    distanceMap[start.x][start.y].d = 0;
+    computeDistanceMap(start, dest, unit);
+    return distanceMap[dest.x][dest.y].d;
+}
+
+vector<pair<Point, int>> World::findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const{
+    initDistanceMap();
+    distanceMap[start.x][start.y].d = 0;
+    computeDistanceMap(start, dest, unit);
+    if(distanceMap[dest.x][dest.y].from == Direction::NONE){
+        return vector<pair<Point, int>>();
+    }
+    Point cur = dest;
+    vector<pair<Point, int>> re;
+    while (!(cur == start)) {
+        auto& t = distanceMap[cur.x][cur.y];
+        int dis = t.d;
+        re.emplace_back(cur, dis);
+        cur = cur - Point::directions()[(int) t.from];
+    }
+    re.emplace_back(start, 0);
+    return re;
 }
 
 void World::serializeTo(ostream &output) {
@@ -967,7 +1022,7 @@ void World::checkPlayersWin() {
         }
         if (winners.empty()) {
             winners.push_back(p.getPlayerId());
-        }else{
+        } else {
             Player &rep = players[winners[0]];
             if (!rep.isAlly(p)) {
                 return;//there is a player alive but he is not an ally.
@@ -1027,7 +1082,7 @@ void World::setMapName(const string &mapName) {
 }
 
 void World::shrinkPlayerCount(int newCount) {
-    if(newCount >=playerCount){
+    if (newCount >= playerCount) {
         return;
     }
     newCount = max(1, newCount);
@@ -1049,8 +1104,6 @@ void World::shrinkPlayerCount(int newCount) {
         }
     }
 }
-
-
 
 
 }

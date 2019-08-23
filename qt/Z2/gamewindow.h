@@ -19,6 +19,7 @@ class GameWindow;
 class GameWindow;
 class GameFrame;
 const static int TILE_SIZE = 64;
+const static int HALF_TILE_SIZE = TILE_SIZE / 2;
 const static int PLAYER_COLOR_BLOCK_SIZE = 8;
 using namespace std;
 using namespace z2;

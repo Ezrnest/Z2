@@ -13,7 +13,7 @@
 using namespace std;
 namespace z2 {
 
-using BotProvider = function<shared_ptr<Bot>()>;
+using BotProvider = function<shared_ptr<Bot>(BotDifficulty)>;
 
 class BotRepository : public RepositoryTemplate<BotRepository> {
 private:
@@ -50,8 +50,8 @@ public:
 template<typename BotClass>
 void BotRepository::registerBotClass(BotDifficulty difficulty) {
     static_assert(is_base_of<Bot,BotClass>::value, "The registered bot class must be subclass of Bot!");
-    BotProvider provider = []() {
-        return shared_ptr<Bot>(new BotClass());
+    BotProvider provider = [](BotDifficulty d) {
+        return shared_ptr<Bot>(new BotClass(d));
     };
     addProvider(provider, difficulty);
 }

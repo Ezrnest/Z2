@@ -2,6 +2,7 @@
 #define GAMEFRAME_H
 
 #include <QFrame>
+#include <entity/ConstructionBase.h>
 #include <world/World.h>
 #include "world/Point.h"
 #include "ImageRepository.h"
@@ -64,6 +65,8 @@ private:
     void paintResource(QPainter &painter, QBrush &brush, QRect &rect, z2::Tile &t);
 
     void paintEntity(QPainter &painter, QBrush &brush, QRect &rect,z2::World& world, z2::Tile &t, bool grey);
+
+    void paintConstructionBaseIndicator(QPainter& painter, z2::World &world);
 
     QRectF getDisplayRect();
 

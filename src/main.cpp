@@ -14,6 +14,7 @@
 #include "config/SerializableRegistry.h"
 #include "config/MapRepository.h"
 #include "world/GameInitSetting.h"
+
 using namespace std;
 using namespace z2;
 
@@ -22,8 +23,7 @@ void init() {
     GameConfiguration::initAll();
 }
 
-void m1(){
-    EventType  t;
+shared_ptr<World> getWorld() {
     shared_ptr<World> w(new World(8, 8, 2));
     w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
 //    w->createEntity(Point(1, 1), Farmer::className(), 0);
@@ -31,12 +31,19 @@ void m1(){
     w->createEntity(Point(1, 1), "Killer", 0);
     w->createEntity(Point(3, 3), Farmer::className(), 1);
     w->getTile(0, 3).setResource(Resource::MINE);
-    w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
-    w->getTile(2,1).setTerrain(Terrain::MOUNTAIN);
-    w->getTile(2,2).setTerrain(Terrain::MOUNTAIN);
+    w->getTile(2, 0).setTerrain(Terrain::MOUNTAIN);
+    w->getTile(2, 1).setTerrain(Terrain::MOUNTAIN);
+    w->getTile(2, 2).setTerrain(Terrain::MOUNTAIN);
 //    w->getTile(2,0).setTerrain(Terrain::MOUNTAIN);
 //    w->createEntity(Point(1,2), )
 //    w->configure();
+    return w;
+}
+
+void m1() {
+    EventType t;
+    auto w = getWorld();
+
 
     shared_ptr<Server> server(new Server());
     server->setWorld(w);
@@ -66,13 +73,13 @@ void m1(){
 //    gui->mainLoop();
 }
 
-void m2(){
-    vector<PlayerSetting> players{PlayerSetting(0,-1,0,PlayerType::LOCAL_PLAYER),
-                                  PlayerSetting(1,-1,1,PlayerType::BOT_PLAYER),
-                                  PlayerSetting(2,-1,2,PlayerType::BOT_PLAYER),
-                                  PlayerSetting(3,-1,2,PlayerType::BOT_PLAYER)};
+void m2() {
+    vector<PlayerSetting> players{PlayerSetting(0, -1, 0, PlayerType::LOCAL_PLAYER),
+                                  PlayerSetting(1, -1, 1, PlayerType::BOT_PLAYER),
+                                  PlayerSetting(2, -1, 2, PlayerType::BOT_PLAYER),
+                                  PlayerSetting(3, -1, 2, PlayerType::BOT_PLAYER)};
     auto map = MapRepository::instance().getMaps()[0];
-    GameInitSetting setting(players,map);
+    GameInitSetting setting(players, map);
     auto world = setting.buildWorld();
     CommandLineGameGui::printWorld(*world);
 //    File f = File::currentDirectory();
@@ -83,7 +90,17 @@ void m2(){
 //    CommandLineGameGui::printWorld(*w2);
 }
 
+void m3() {
+    auto w = getWorld();
+    auto en = static_pointer_cast<GameUnit>(w->createEntity(Point(1, 0), "Scout", 0));
+    auto path = w->findPath(Point(1, 0), Point(3, 0), en);
+    CommandLineGameGui::printWorld(*w);
+    for (auto &it : path) {
+        cout << it.first.x << ", " << it.first.y << endl;
+    }
+}
+
 int main() {
     init();
-    m2();
+    m3();
 }

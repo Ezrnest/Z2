@@ -23,7 +23,7 @@ private:
     Point from;
     Point dest;
 public:
-    UnitMove(const z2::Point &from, const z2::Point &dest);
+    UnitMove(z2::Point from, z2::Point dest);
 
     UnitMove();
 

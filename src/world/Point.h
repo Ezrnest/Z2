@@ -21,6 +21,10 @@ public:
 
     Point operator+(const Point &p) const;
 
+    Point operator-(const Point& p) const;
+
+    bool operator==(const Point& p) const;
+
     /**
      * Returns the gird distance from
      */

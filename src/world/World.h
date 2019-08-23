@@ -16,10 +16,29 @@
 #include <vector>
 #include <unordered_map>
 #include "event/EventDispatcher.h"
+
 namespace z2 {
 class CommandLineGameGui;
+
 class EntityInfo;
+
 class Technology;
+
+enum class Direction{
+    RIGHT,
+    UP,
+    LEFT,
+    DOWN,
+    NONE,
+};
+
+struct PathRecord{
+public:
+    Direction from;
+    int d;
+
+};
+
 /**
  * 记录游戏中的世界，左下角坐标为(0,0)。
  */
@@ -52,7 +71,7 @@ private:
      */
     unsigned int objectUID = 1;
 
-    unordered_map<int, shared_ptr<Entity>> entityMap;
+    unordered_map<unsigned int, shared_ptr<Entity>> entityMap;
 
     /**
      * The map of the world.
@@ -66,7 +85,7 @@ private:
     /**
      * transient, temp
      */
-    mutable int **distanceMap = nullptr;
+    mutable PathRecord **distanceMap = nullptr;
 
     // NOTE: updates `initPlainDataFrom` if new fields are added!
 
@@ -94,13 +113,10 @@ private:
                           int &damage);
 
 
-
-
-
     void onEntityRemoved(const Point &pos, const shared_ptr<Entity> &entity);
 //    void removeEntity(int entityId);
 
-    void onEntityPerformed(const Point &pos, const shared_ptr<Entity> & entityPtr);
+    void onEntityPerformed(const Point &pos, const shared_ptr<Entity> &entityPtr);
 
     /**
      *
@@ -109,7 +125,7 @@ private:
     bool performMeleeAttack(const Point &from, const Point &dest, const shared_ptr<MeleeUnit> &melee,
                             const shared_ptr<EntityWithHealth> &victim);
 
-    void onPlayerResearchedTech(int playerId, const string& techId);
+    void onPlayerResearchedTech(int playerId, const string &techId);
 
 
     bool checkPlayerLostAllUnit(int playerId);
@@ -121,7 +137,7 @@ private:
 
     void onPlayerDefeated(int playerId);
 
-    void onPlayersWon(vector<int>& winners);
+    void onPlayersWon(vector<int> &winners);
 
 
 public:
@@ -145,7 +161,7 @@ public:
 
     void shrinkPlayerCount(int newCount);
 
-    const string &getClassName()const  override;
+    const string &getClassName() const override;
 
     const string &getMapName() const;
 
@@ -165,7 +181,7 @@ public:
      */
     bool isValidLivingPlayer(int playerId);
 
-    Player& getCurrentAsPlayer();
+    Player &getCurrentAsPlayer();
 
     bool checkReady();
 
@@ -185,6 +201,8 @@ public:
 
     shared_ptr<Entity> getEntity(const Point &point);
 
+    shared_ptr<Entity> getEntity(unsigned int entityId);
+
     /**
      * Determines whether the given coordinate is inside the map.
      */
@@ -196,12 +214,19 @@ public:
     bool isInside(const Point &pos) const;
 
     bool isOccupied(int x, int y) const;
-
+private:
+    void computeDistanceMap(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const;
+public:
     /**
      * Computes the path length from `start` to `dest`.
      */
-    int pathLength(const Point &start, const Point &dest,shared_ptr<GameUnit>& unit) const;
+    int pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const;
 
+    /**
+     * Finds the path for the unit. The returned vector contains the points and the required movement points in
+     * reversed order. The first element in the vector is the destination and the last element is the starting point.
+     */
+    vector<pair<Point, int>> findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const;
 
     /**
      * Gets an adjacent empty tile from the point.
@@ -236,9 +261,9 @@ public:
      * Called when the current player starts his turn.
      */
     void onPlayerTurnStart();
-    
+
     void onPlayerTurnStart(int playerId);
-    
+
     /**
      * Called when the current player finishes his turn.
      */
@@ -248,17 +273,17 @@ public:
      * Applies the given function to all the entities of the player.
      * @param f a function which accepts the x,y coordinates and the entity in order.
      */
-    void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity>&)> &f);
+    void forEachEntitiesOf(int playerId, const function<void(int, int, shared_ptr<Entity> &)> &f);
 
     /**
      * Searches the map for the first entity of the given `entityName`.
      */
-    Point searchFor(int playerId, const string& entityName);
+    Point searchFor(int playerId, const string &entityName);
 
     /**
      * Determines whether the two entities are of the same group.
      */
-    bool isOfSameGroup(const shared_ptr<Entity>& e1, const shared_ptr<Entity>& e2);
+    bool isOfSameGroup(const shared_ptr<Entity> &e1, const shared_ptr<Entity> &e2);
 
     /**
      * Updates the visibility of a player. If the player id is not valid, this method will do nothing.
@@ -283,13 +308,13 @@ public:
     /**
      * Gets the entities that the player can choose to buy, not considering the price.
      */
-    vector<const EntityInfo*> getAvailableEntitiesFor(int playerId);
+    vector<const EntityInfo *> getAvailableEntitiesFor(int playerId);
 
-    vector<const Technology*> getResearchableTechFor(int playerId);
+    vector<const Technology *> getResearchableTechFor(int playerId);
 
     bool canAttack(const Point &from, const Point &dest, int playerId = Player::NO_PLAYER);
 
-    bool canPerform(const Point& target, int playerId = Player::NO_PLAYER);
+    bool canPerform(const Point &target, int playerId = Player::NO_PLAYER);
 
     /**
      * Moves the entity at the tile of the point `from` to `dest`, if `dest` is not occupied.
@@ -298,7 +323,7 @@ public:
      */
     bool moveEntity(const Point &from, const Point &dest);
 
-    bool canBuy(int playerId, const Point& pos, const string& entityName);
+    bool canBuy(int playerId, const Point &pos, const string &entityName);
 
     /**
      * Buy an entity for a player.
@@ -331,7 +356,7 @@ public:
      * Performs the entity at the target position.
      * <br>This is a game operation.
      */
-    void performEntity(const Point& target);
+    void performEntity(const Point &target);
 
     /**
      * Removes the entity at the point.
@@ -358,13 +383,13 @@ public:
     /**
      * Determines whether the player can research the tech.
      */
-    bool canResearchTechnology(int playerId, const string& techId);
+    bool canResearchTechnology(int playerId, const string &techId);
 
     /**
      * Research the given technology for the player.
      * <br>This is an game operation.
      */
-    bool researchTechnology(int playerId, const string& techId);
+    bool researchTechnology(int playerId, const string &techId);
 
     void addEventListener(const EventListener &listener);
 

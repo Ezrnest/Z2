@@ -13,13 +13,11 @@ const string &Dummy::getBotName() {
     return name;
 }
 
-BotDifficulty Dummy::getDifficulty() {
-    return BotDifficulty::NONE;
-}
-
 void Dummy::doBotTurn() {
     sleepFor(1500);
 }
+
+Dummy::Dummy(BotDifficulty difficulty) : Bot(difficulty) {}
 
 Dummy::~Dummy() = default;
 }

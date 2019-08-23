@@ -15,11 +15,11 @@ public:
 protected:
 
 public:
+    explicit Dummy(BotDifficulty difficulty = BotDifficulty::NONE);
+
     void doBotTurn() override;
 
     const string &getBotName() override;
-
-    BotDifficulty getDifficulty() override;
 
     ~Dummy() override;
 };

@@ -202,6 +202,7 @@ void initBot(shared_ptr<Server> &server, shared_ptr<World> &w, PlayerSetting &ps
     bc->setServer(server);
     server->registerClient(bc,ps.playerId);
     //make the name
+    w->getPlayer(ps.playerId).setName("");
     string name = generateBotName(w, bot);
     w->getPlayer(ps.playerId).setName(name);
 }

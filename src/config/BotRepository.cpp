@@ -12,19 +12,19 @@ namespace z2 {
 shared_ptr<Bot> BotRepository::getBot(BotDifficulty difficulty) {
     if(providers.find(difficulty) == providers.end()){
         PLOG_WARNING << "No bot available for difficulty: " << (int)difficulty;
-        return dummyProvider();
+        return dummyProvider(difficulty);
     }else{
         auto &vec = providers[difficulty];
 
         uniform_int_distribution<int> distribution(0, vec.size() - 1);
         int select = distribution(randomEngine);
-        return vec[select]();
+        return vec[select](difficulty);
     }
 }
 
 BotRepository::BotRepository(){
-    dummyProvider = [](){
-        return shared_ptr<Bot>(new Dummy());
+    dummyProvider = [](BotDifficulty d){
+        return shared_ptr<Bot>(new Dummy(d));
     };
 }
 

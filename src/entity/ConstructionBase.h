@@ -13,12 +13,24 @@ using namespace std;
 namespace z2 {
 
 class ConstructionBase : public Building {
+private:
+    /**
+     * Determines the relative position of the unit created through this construction base.
+     */
+    int productionDirection = 0;
 protected:
 
 
 public:
     explicit ConstructionBase(unsigned int objectId);
 
+    void performAbility(const Point &pos, World &world) override;
+
+    bool canPerformAbility(const Point &pos, World &world) override;
+
+    int getProductionDirection() const;
+
+    void buyEntity(const Point &pos,const string& name,World &world);
 
     const std::string &getClassName() const override;
 
@@ -27,6 +39,8 @@ public:
     void initialize(const Properties &prop) override;
 
     static ConstructionBase *create(int objectId, const Properties &initializer);
+
+
 
 protected:
     static void deserializeDataPart(istream &input, ConstructionBase *en);

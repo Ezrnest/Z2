@@ -12,6 +12,10 @@ z2::Point::Point(int x, int y) noexcept : x(x), y(y) {}
 z2::Point z2::Point::operator+(const z2::Point &p) const {
     return {x + p.x, y + p.y};
 }
+Point Point::operator-(const Point &p) const {
+    return {x - p.x, y - p.y};
+}
+
 
 Point::Point() noexcept : Point(-1,-1){
 
@@ -54,5 +58,10 @@ int Point::distanceSq(const Point &p) const {
     int dy = y - p.y;
     return dx*dx + dy * dy;
 }
+
+bool Point::operator==(const Point &p) const {
+    return x == p.x && y == p.y;
+}
+
 
 

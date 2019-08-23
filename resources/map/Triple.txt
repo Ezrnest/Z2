@@ -27,15 +27,15 @@ WD        0       DWWWW
 Wm    H     DD     mWWW
 WWD        m      DWWWW
 WWW               WWWWW
-WWWW    D        WWWWWW
-WWW    DWD      WWWWWWW
+WWWWW   D        WWWWWW
+WWW    DWD     WWWWWWWW
 WW  g DWWWD  g    WWWWW
 W  H   DDD    H    WWWW
 Wmm    g g g       mmWW
 WW       WWWH       WWW
 WWWWFg   DWD   g F WWWW
 WW  FF    D     FF  WWW
-Wm      WWDDDW       WW
+Wm     WWWDDDWW      WW
 W        WWDWWm   DD  W
 W  m1  D  WWWm        W
 W        WWW     2    W

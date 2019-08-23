@@ -172,6 +172,26 @@ void GameFrame::paintEntity(QPainter &painter, QBrush &brush, QRect &rect,World&
         painter.fillRect(sr,brush);
     }
 }
+void GameFrame::paintConstructionBaseIndicator(QPainter &painter, World& world)
+{
+    if(!world.isInside(selPos)){
+        return;
+    }
+    auto cb = dynamic_pointer_cast<ConstructionBase>(world.getEntity(selPos));
+    auto ul = gameCordToViewCord(selPos);
+    QPoint center(ul.x() + TILE_SIZE /2, ul.y() + TILE_SIZE/2);
+    auto& dirs = Point::directions();
+    const Point& d = dirs[cb->getProductionDirection() % dirs.size()];
+    QPoint points[3]{
+                QPoint(center.x() + (HALF_TILE_SIZE+4) * d.x , center.y() - (HALF_TILE_SIZE+4) * d.y),
+                QPoint(center.x() + (HALF_TILE_SIZE-4) * d.x + 4 * d.y, center.y() - (HALF_TILE_SIZE-4) * d.y + 4 * d.x),
+                QPoint(center.x() + (HALF_TILE_SIZE-4) * d.x - 4 * d.y, center.y() - (HALF_TILE_SIZE-4) * d.y - 4 * d.x)
+    };
+    QPen pen;
+    pen.setColor(Qt::blue);
+    painter.setPen(pen);
+    painter.drawPolygon(points,3);
+}
 
 QRectF GameFrame::getDisplayRect()
 {
@@ -207,8 +227,8 @@ void GameFrame::paintTerrainTextureLost(QPainter& painter,QBrush& brush,QRect& r
         brush.setColor(Qt::darkGreen);
         break;
     }
-//    case Terrain::HILL:{
-//    }
+        //    case Terrain::HILL:{
+        //    }
     default:{
         brush.setColor(Qt::black);
         break;
@@ -298,6 +318,7 @@ void GameFrame::paintEvent(QPaintEvent *event)
     paintTiles(painter,world);
     paintLines(painter,world);
     paintHighlightedTile(painter,world);
+    paintConstructionBaseIndicator(painter,*world);
 }
 
 void GameFrame::setWindow(GameWindow *w)
@@ -309,7 +330,7 @@ void GameFrame::setWindow(GameWindow *w)
 
 void GameFrame::mousePressEvent(QMouseEvent *event)
 {
-//    cout << "Event" << endl;
+    //    cout << "Event" << endl;
     if(win->gameState != GameWindow::RUNNING){
         return;
     }
@@ -325,7 +346,7 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
         auto pos = event->pos();
         auto pGame = viewCordToGameCord(pos);
         rightClickedOn(pGame);
-//        win->update();
+        //        win->update();
         break;
     }
 
@@ -350,8 +371,8 @@ void GameFrame::mouseMoveEvent(QMouseEvent *event)
     qreal dy = pos.y() - clickedPos.y();
 
     clickedPos = pos;
-//    dx /= trans.m11();
-//    dy /= trans.m22();
+    //    dx /= trans.m11();
+    //    dy /= trans.m22();
     translate(dx,dy);
     update();
 }
@@ -366,7 +387,7 @@ void GameFrame::mouseReleaseEvent(QMouseEvent *event)
         if(dragState != 2){
             auto pos = event->pos();
             selPos = viewCordToGameCord(pos);
-//            cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
+            //            cout << "Selected pos: " << selPos.x << ' ' << selPos.y << endl;
             win->refreshSelection(true);
             update();
         }
@@ -394,14 +415,14 @@ void GameFrame::rightClickedOn(Point &p)
     if(operated){
         selPos = Point(-1,-1);
         win->refreshSelection();
-//        win->refreshAll();
+        //        win->refreshAll();
     }
 
 }
 
 void GameFrame::scaleWithPivot(QTransform& trans,double multiplier, double pivotX, double pivotY){
-//    auto v = trans.map(QPointF(pivotX,pivotY));
-//    cout << pivotX << "," << pivotY << endl;
+    //    auto v = trans.map(QPointF(pivotX,pivotY));
+    //    cout << pivotX << "," << pivotY << endl;
 
 
 
@@ -410,13 +431,13 @@ void GameFrame::scaleWithPivot(QTransform& trans,double multiplier, double pivot
     QTransform tl2(1,0,0,1,pivotX,pivotY);
     trans = trans * tl1 * sc * tl2;
     fitToSize();
-//    translate(pivotX,pivotY);
-//    auto inv = trans.inverted();
-//    auto p = inv.map(QPointF(pivotX,pivotY));
-//    cout << p.x() << "," << p.y() << endl;
-//    trans.scale(multiplier,multiplier);
-//    cout << trans.m11() << endl;
-//    trans.translate(pivotX / trans.m11(),pivotY /trans.m22());
+    //    translate(pivotX,pivotY);
+    //    auto inv = trans.inverted();
+    //    auto p = inv.map(QPointF(pivotX,pivotY));
+    //    cout << p.x() << "," << p.y() << endl;
+    //    trans.scale(multiplier,multiplier);
+    //    cout << trans.m11() << endl;
+    //    trans.translate(pivotX / trans.m11(),pivotY /trans.m22());
 }
 const static double MAX_ZOOM = 8;
 const static double MIN_ZOOM = 1;
@@ -436,12 +457,12 @@ void GameFrame::zoom(bool in, int mouseX, int mouseY)
         return;
     }
     scaleWithPivot(trans,mul,mouseX,mouseY);
-//    if(selPos.x < 0){
-//        trans.scale(mul,mul);
-//    }else{
+    //    if(selPos.x < 0){
+    //        trans.scale(mul,mul);
+    //    }else{
 
-//        shearWithPivot(trans,mul,selPos.x,selPos.y);
-//    }
+    //        shearWithPivot(trans,mul,selPos.x,selPos.y);
+    //    }
 
     update();
 }
@@ -489,12 +510,12 @@ void GameFrame::makeCenter(const Point &p)
     QPoint qp = trans.map(gameCordToViewCord(p));
     int w = width();
     int h = height();
-//    cout << qp.x() << ", " << qp.y() << endl;
+    //    cout << qp.x() << ", " << qp.y() << endl;
     qreal dx = w/2 - qp.x();
     qreal dy = h/2 - qp.y();
     translate(dx,dy);
-//    QTransform tl(1,0,0,1,dx,dy);
-//    trans = trans * tl;
+    //    QTransform tl(1,0,0,1,dx,dy);
+    //    trans = trans * tl;
     update();
 }
 

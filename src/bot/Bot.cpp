@@ -4,8 +4,9 @@
 
 #include "Bot.h"
 #include <chrono>
+#include <memory>
 #include <thread>
-
+#include <core/messages/UnitMove.h>
 
 
 namespace z2 {
@@ -27,7 +28,7 @@ void Bot::doInit() {
 }
 
 void Bot::makeOperation(const shared_ptr<GameMessage> &msg) {
-    if(server){
+    if (server) {
         server->acceptMessage(msg);
     }
 }
@@ -41,8 +42,52 @@ void Bot::sleepFor(long millisecond) {
     std::this_thread::sleep_for(std::chrono::milliseconds(millisecond));
 }
 
-Bot::Bot(){
+Bot::Bot() {
     randomEngine();
+
+}
+
+BotDifficulty Bot::getDifficulty() {
+    return difficulty;
+}
+
+Bot::Bot(BotDifficulty difficulty) : difficulty(difficulty) {}
+
+bool Bot::moveToward(unsigned int unitId, const Point &dest) {
+    if (!world->isInside(dest)) {
+        return false;
+    }
+    auto en = world->getEntity(unitId);
+    if (en->getOwnerId() != playerId) {
+        return false;
+    }
+    auto unit = dynamic_pointer_cast<GameUnit>(en);
+    if (!unit) {
+        return false;
+    }
+    auto &from = unit->getPos();
+    if (from == dest) {
+        return true;
+    }
+    int moves = unit->getRemainingMoves();
+    if (moves == 0) {
+        return false;
+    }
+    auto path = world->findPath(from, dest, unit);
+    if (path.empty()) {
+        return false;
+    }
+    for (size_t i = path.size() - 1; i >= 0; i--) {
+        auto t = path[i];
+        if (t.second <= moves) {
+            makeOperation(std::make_shared<UnitMove>(from, t.first));
+            if (t.first == dest) {
+                return true;
+            }
+            break;
+        }
+    }
+    return false;
 }
 
 Bot &Bot::operator=(const Bot &bot) = default;

@@ -4,9 +4,11 @@
 
 #include "UnitMove.h"
 
-z2::UnitMove::UnitMove(const z2::Point &from, const z2::Point &dest)
+#include <utility>
+
+z2::UnitMove::UnitMove(z2::Point from, z2::Point dest)
         : GameMessage(GameMessageType::UnitMove),
-          from(from), dest(dest) {}
+          from(std::move(from)), dest(std::move(dest)) {}
 
 z2::UnitMove::UnitMove() : GameMessage(GameMessageType::UnitMove) {
 

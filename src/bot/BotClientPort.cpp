@@ -73,6 +73,6 @@ void z2::BotClientPort::performTurn() {
 
 z2::BotClientPort::BotClientPort(shared_ptr<Bot> bot) : bot(std::move(bot)) {}
 
-z2::BotClientPort::BotClientPort() : bot(new Dummy){
+z2::BotClientPort::BotClientPort() : bot(new Dummy()){
 
 }

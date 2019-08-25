@@ -178,6 +178,12 @@ void GameFrame::paintConstructionBaseIndicator(QPainter &painter, World& world)
         return;
     }
     auto cb = dynamic_pointer_cast<ConstructionBase>(world.getEntity(selPos));
+    if(!cb){
+        return;
+    }
+    if(cb->getOwnerId() != win->getPlayerId()){
+        return;
+    }
     auto ul = gameCordToViewCord(selPos);
     QPoint center(ul.x() + TILE_SIZE /2, ul.y() + TILE_SIZE/2);
     auto& dirs = Point::directions();

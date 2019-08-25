@@ -8,7 +8,7 @@
 
 using namespace z2;
 
-Entity::Entity(const unsigned int objectId) : objectId(objectId) {}
+Entity::Entity(EntityId objectId) : objectId(objectId) {}
 
 Entity::~Entity() = default;
 
@@ -20,7 +20,7 @@ void Entity::setOwnerId(int ownerId) {
     Entity::ownerId_ = ownerId;
 }
 
-int Entity::getObjectId() const {
+EntityId Entity::getObjectId() const {
     return objectId;
 }
 

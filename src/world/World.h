@@ -199,9 +199,15 @@ public:
      */
     Tile &getTile(const Point &pos) const;
 
+    const unordered_map<EntityId ,shared_ptr<Entity>>& getEntityMap() const;
+
     shared_ptr<Entity> getEntity(const Point &point);
 
     shared_ptr<Entity> getEntity(unsigned int entityId);
+
+
+
+    Player* getOwner(const shared_ptr<Entity>& en);
 
     /**
      * Determines whether the given coordinate is inside the map.
@@ -215,7 +221,7 @@ public:
 
     bool isOccupied(int x, int y) const;
 private:
-    void computeDistanceMap(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const;
+
 public:
     /**
      * Computes the path length from `start` to `dest`.
@@ -228,6 +234,7 @@ public:
      */
     vector<pair<Point, int>> findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const;
 
+    PathRecord const*const* computeDistanceMap(const Point &start, const shared_ptr<GameUnit> &unit) const;
     /**
      * Gets an adjacent empty tile from the point.
      */
@@ -238,6 +245,8 @@ public:
      * no such point, returns a point (-1,-1).
      */
     Point getAdjacentEmptyPos(const Point &pos) const;
+
+    Point getNearestAdjacentEmptyPos(const Point &pos, const shared_ptr<GameUnit> &unit);
 
     /**
      * Gets the next object id of this world. Multiple calls of this method will

@@ -2,6 +2,7 @@
 #define ASIO_STANDALONE
 
 #include <iostream>
+#include <bot/BasicBot.h>
 #include "world/World.h"
 #include "core/Server.h"
 #include "config/EntityRepository.h"
@@ -25,11 +26,11 @@ void init() {
 
 shared_ptr<World> getWorld() {
     shared_ptr<World> w(new World(8, 8, 2));
-    w->createEntity(Point(0, 0), ConstructionBase::className(), 0);
+    w->createEntity(Point(0, 0), ConstructionBase::className(), 1);
 //    w->createEntity(Point(1, 1), Farmer::className(), 0);
 //    w->createEntity(Point(0, 1), "Archer", 0);
     w->createEntity(Point(1, 1), "Killer", 0);
-    w->createEntity(Point(3, 3), Farmer::className(), 1);
+//    w->createEntity(Point(3, 3), Farmer::className(), 1);
     w->getTile(0, 3).setResource(Resource::MINE);
     w->getTile(2, 0).setTerrain(Terrain::MOUNTAIN);
     w->getTile(2, 1).setTerrain(Terrain::MOUNTAIN);
@@ -52,7 +53,9 @@ void m1() {
     local->setRealServer(server);
     server->registerClient(local);
 
-    shared_ptr<BotClientPort> bot(new BotClientPort());
+    shared_ptr<BotClientPort> bot(
+            new BotClientPort(shared_ptr<Bot>(
+                    new z2::bot::BasicBot(BotDifficulty::EASY, "bot"))));
     bot->setServer(server);
     server->registerClient(bot);
 
@@ -61,16 +64,16 @@ void m1() {
     gui->setControllerAndView(static_pointer_cast<Client>(local));
 
 //    w->nextPlayer();
-    gui->printWorld();
-    cout << " -------------- \n";
-    stringstream ss;
-    w->serializeTo(ss);
-    cout << ss.str() << endl;
-    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
-    CommandLineGameGui::printWorld(*w2);
+//    gui->printWorld();
+//    cout << " -------------- \n";
+//    stringstream ss;
+//    w->serializeTo(ss);
+//    cout << ss.str() << endl;
+//    shared_ptr<World> w2((World *) SerializableRegistry::instance().deserialize(ss));
+//    CommandLineGameGui::printWorld(*w2);
 
-//    server->startGame();
-//    gui->mainLoop();
+    server->startGame();
+    gui->mainLoop();
 }
 
 void m2() {
@@ -102,5 +105,5 @@ void m3() {
 
 int main() {
     init();
-    m3();
+    m1();
 }

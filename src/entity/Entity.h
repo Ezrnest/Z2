@@ -20,7 +20,7 @@ class EntityInfo;
 
 using namespace ancono;
 namespace z2 {
-
+using EntityId = unsigned int;
 /**
  * Represents a type of entity in the game.
  * <h2>Entity Classes and Entities</h2>
@@ -58,7 +58,7 @@ protected:
      *
      * This id is also used for serialization.
      */
-    unsigned int objectId;
+    EntityId objectId;
 
     /**
      * The current position of this entity.
@@ -92,7 +92,7 @@ protected:
 
 public:
 
-    explicit Entity(unsigned int objectId);
+    explicit Entity(EntityId objectId);
 
     const string &getEntityName() const;
 
@@ -104,7 +104,7 @@ public:
 
     void setVisibility(int visibility);
 
-    int getObjectId() const;
+    EntityId getObjectId() const;
 
     /**
      * Gets the class name of this entity.

@@ -129,6 +129,10 @@ Tile &World::getTile(const Point &pos) const {
     return getTile(pos.x, pos.y);
 }
 
+const unordered_map<EntityId, shared_ptr<Entity>> &World::getEntityMap() const {
+    return entityMap;
+}
+
 shared_ptr<Entity> World::getEntity(const Point &point) {
     if (!isInside(point)) {
         return shared_ptr<Entity>();
@@ -136,12 +140,20 @@ shared_ptr<Entity> World::getEntity(const Point &point) {
     return getTile(point).getEntity();
 }
 
-shared_ptr<Entity> World::getEntity(unsigned int entityId){
+shared_ptr<Entity> World::getEntity(unsigned int entityId) {
     auto it = entityMap.find(entityId);
     if (it == entityMap.end()) {
         return shared_ptr<Entity>();
     }
     return it->second;
+}
+
+Player *World::getOwner(const shared_ptr<Entity> &en) {
+    int pid = en->getOwnerId();
+    if (pid < 0 || pid >= playerCount) {
+        return nullptr;
+    }
+    return &(players[pid]);
 }
 
 
@@ -314,7 +326,7 @@ bool World::canBuy(int playerId, const Point &pos, const string &entityName) {
             return false;
         }
         auto en = dynamic_pointer_cast<ConstructionBase>(getEntity(pos));
-        if(!en || en->getOwnerId() != playerId){
+        if (!en || en->getOwnerId() != playerId) {
             return false;
         }
     }
@@ -349,8 +361,18 @@ void World::buyEntity(int playerId, const Point &pos, const string &entityName) 
         PLOG_WARNING << "Entity: " << entityName << " is not buyable for player " << playerId;
         return;
     }
+    if (playerId != Player::NO_PLAYER) {
+        Player &p = players[playerId];
+        auto &repo = EntityRepository::instance();
+        if (!repo.hasEntity(entityName)) {
+            return;
+        }
+        auto &info = repo.getEntityInfo(entityName);
+        int cost = info.getProperties().getInt("price", 0);
+        p.requireGold(cost);
+    }
     auto en = dynamic_pointer_cast<ConstructionBase>(getEntity(pos));
-    if(!en){
+    if (!en) {
         return;
     }
     en->buyEntity(pos, entityName, *this);
@@ -742,6 +764,26 @@ Point World::getAdjacentEmptyPos(const Point &pos) const {
     return {-1, -1};
 }
 
+Point World::getNearestAdjacentEmptyPos(const Point &pos, const shared_ptr<GameUnit> &unit) {
+    if (!isInside(pos) || !unit) {
+        return {};
+    }
+    computeDistanceMap(unit->getPos(), unit);
+    int minDis = INT32_MAX;
+    Point re;
+    for (auto &d : Point::directions()) {
+        Point p = d + pos;
+        if (!isInside(p) || getTile(p).isOccupied()) {
+            continue;
+        }
+        if (distanceMap[p.x][p.y].d < minDis) {
+            minDis = distanceMap[p.x][p.y].d;
+            re = p;
+        }
+    }
+    return re;
+}
+
 
 void World::resetVisibility(int playerId) {
     for (int i = 0; i < width; i++) {
@@ -823,7 +865,7 @@ void World::initDistanceMap() const {
     }
 }
 
-void World::computeDistanceMap(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
+PathRecord const *const *World::computeDistanceMap(const Point &start, const shared_ptr<GameUnit> &unit) const {
     stack<Point> s;
     s.push(start);
     auto &directions = Point::directions();
@@ -850,27 +892,27 @@ void World::computeDistanceMap(const Point &start, const Point &dest, shared_ptr
             s.push(next);
         }
     }
-
+    return distanceMap;
 }
 
 int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
     initDistanceMap();
     distanceMap[start.x][start.y].d = 0;
-    computeDistanceMap(start, dest, unit);
+    computeDistanceMap(start, unit);
     return distanceMap[dest.x][dest.y].d;
 }
 
-vector<pair<Point, int>> World::findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const{
+vector<pair<Point, int>> World::findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
     initDistanceMap();
     distanceMap[start.x][start.y].d = 0;
-    computeDistanceMap(start, dest, unit);
-    if(distanceMap[dest.x][dest.y].from == Direction::NONE){
+    computeDistanceMap(start, unit);
+    if (distanceMap[dest.x][dest.y].from == Direction::NONE) {
         return vector<pair<Point, int>>();
     }
     Point cur = dest;
     vector<pair<Point, int>> re;
     while (!(cur == start)) {
-        auto& t = distanceMap[cur.x][cur.y];
+        auto &t = distanceMap[cur.x][cur.y];
         int dis = t.d;
         re.emplace_back(cur, dis);
         cur = cur - Point::directions()[(int) t.from];

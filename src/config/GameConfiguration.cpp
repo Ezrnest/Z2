@@ -11,6 +11,7 @@
 #include "MapRepository.h"
 #include "TechRepository.h"
 #include "TextRepository.h"
+#include "BotRepository.h"
 using namespace z2;
 
 ancono::File getDirNamed(const string &name) {
@@ -54,7 +55,8 @@ void GameConfiguration::initRegistration() {
 
     TextRepository::instance().initFromFolder(resDir.subFile("text"));
 
-
+    BotRepository::initBots();
+    BotRepository::instance().initFromFolder(resDir.subFile("bot"));
     //TODO load from file
 }
 

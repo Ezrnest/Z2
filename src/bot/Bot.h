@@ -18,7 +18,14 @@ enum class BotDifficulty {
     NORMAL,
     HARD
 };
-
+namespace bot{
+class EntityTask;
+class TaskMine;
+class TaskGuard;
+class TaskMoveAttack;
+class TaskResearch;
+class TaskCaptureResource;
+}
 
 class Bot {
 private:
@@ -50,26 +57,60 @@ protected:
     int randomIntBetween(int downerInclusive, int upperExclusive);
 
 
-    void sleepFor(long millisecond);
 
+    void sleepFor(long millisecond);
 
     /**
      * Do some initialization. The `server`, `world` is non-null when this method is invoked.
      */
     virtual void doInit();
 
+    void setData(int gold, int techPoints);
 
     /**
      * Calls this function to make an operation.
      */
-    void makeOperation(const shared_ptr<GameMessage> &msg);
+    virtual void makeOperation(const shared_ptr<GameMessage> &msg);
 
-//    bool buyUnit(const Point& basePoint, const string& name);
+    shared_ptr<Entity> buyUnit(const Point& pos,const string& name);
+
+    shared_ptr<Entity> buyLatestBattleUnit(const Point &pos, bool buyRangeUnit);
+
 
     /**
      * Makes
      */
     bool moveToward(unsigned int entityId, const Point &dest);
+
+    bool clearPos(const Point& pos);
+
+    /**
+     * Makes
+     */
+    virtual bool moveToward(const shared_ptr<Entity>& en, const Point &dest);
+
+    virtual bool attack(const Point& from, const Point& dest);
+
+    virtual void perform(const shared_ptr<Entity>& en);
+
+    const Player& getPlayer();
+
+    vector<shared_ptr<Entity>> getFarmers();
+
+    shared_ptr<Entity> getConstructionBase();
+
+    vector<shared_ptr<Entity>> getAllOwnedEntities();
+
+    vector<shared_ptr<BattleUnit>> getBattleUnits();
+
+    vector<shared_ptr<Entity>> getEnemiesAround(const Point &pos, int d);
+
+    vector<Point> findResources();
+
+    vector<shared_ptr<Entity>> findEnemyEntities(const string& enName);
+
+    vector<shared_ptr<Entity>> findAllEnemies();
+
 
 public:
 
@@ -80,6 +121,15 @@ public:
     Bot &operator=(const Bot &bot);
 
     virtual ~Bot();
+
+
+    friend class bot::EntityTask;
+    friend class bot::TaskMine;
+    friend class bot::TaskGuard;
+    friend class bot::TaskMoveAttack;
+    friend class bot::TaskResearch;
+    friend class bot::TaskCaptureResource;
+
 
 };
 

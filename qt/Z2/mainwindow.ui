@@ -176,7 +176,7 @@ QPushButton {
        </rect>
       </property>
       <property name="text">
-       <string notr="true">z2: beta 0.3</string>
+       <string notr="true">z2: beta 0.4</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnExitGame">

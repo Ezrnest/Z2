@@ -20,7 +20,7 @@ private:
     BotProvider dummyProvider;
     map<BotDifficulty, vector<BotProvider>> providers;
 
-    default_random_engine randomEngine{1 + (unsigned int) time(nullptr)};
+    default_random_engine randomEngine{static_cast<unsigned int>(currentTimeMillis())};
 
 public:
 

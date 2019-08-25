@@ -104,6 +104,7 @@ QComboBox* getBotDifficultyComboBox(QWidget* parent){
     comBox->addItem(QObject::tr("中等"));
     comBox->addItem(QObject::tr("困难"));
     comBox->setEnabled(true);
+    comBox->setCurrentIndex(2);
     return comBox;
 }
 

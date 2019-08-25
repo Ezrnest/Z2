@@ -135,7 +135,7 @@ char getTileChar(Tile &t) {
             }
         }
     } else {
-        c = t.getEntity()->getClassName()[0];
+        c = t.getEntity()->getEntityName()[0];
     }
     return c;
 }

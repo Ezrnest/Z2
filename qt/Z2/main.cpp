@@ -12,7 +12,7 @@
 #include "entity/ConstructionBase.h"
 #include "core/Server.h"
 #include "core/LocalClient.h"
-#include "bot/BotClientPort.h"
+#include "bot/BotClientProxy.h"
 #include <QTranslator>
 using namespace z2;
 
@@ -67,7 +67,7 @@ void buildTestGame(shared_ptr<Server>& server, shared_ptr<LocalClient>& client){
     local->setRealServer(server);
     server->registerClient(local);
     client = local;
-    shared_ptr<BotClientPort> bot(new BotClientPort());
+    shared_ptr<BotClientProxy> bot(new BotClientProxy());
     bot->setServer(server);
     server->registerClient(bot);
 

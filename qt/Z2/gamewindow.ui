@@ -158,14 +158,21 @@ QPushButton {
      </property>
      <property name="font">
       <font>
-       <family>Adobe 繁黑體 Std B</family>
+       <family>微软雅黑</family>
        <pointsize>48</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgba(255, 255, 255, 0);
+color:rgb(0, 0, 0)</string>
      </property>
      <property name="text">
       <string>请等待游戏开始</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>

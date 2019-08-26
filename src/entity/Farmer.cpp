@@ -45,11 +45,11 @@ void Farmer::doFarm(const Point &pos, World &world) {
             return;
         }
         case Resource::MINE:{
-            amount = goldPerTurn;
+            amount = goldOfMine;
             break;
         }
         case Resource::GEM:{
-            amount = GEM_MULTIPLIER * goldPerTurn;
+            amount = goldOfGem;
             break;
         }
         default:{
@@ -69,8 +69,9 @@ void Farmer::performAbility(const Point &pos, World &world) {
 
 void Farmer::initialize(const Properties &prop) {
     GameUnit::initialize(prop);
-    goldPerTurn = prop.getInt("goldPerTurn",goldPerTurn);
-
+//    goldPerTurn = prop.getInt("goldPerTurn",goldPerTurn);
+    goldOfMine = prop.getInt("goldOfMine",goldOfMine);
+    goldOfGem = prop.getInt("goldOfGem",goldOfGem);
 }
 
 
@@ -78,13 +79,13 @@ void Farmer::initialize(const Properties &prop) {
 
 void Farmer::serializeDataPart(ostream &output) {
     GameUnit::serializeDataPart(output);
-    output << goldPerTurn << ' ';
+    output << goldOfMine << ' ' << goldOfGem;
 }
 
 
 void Farmer::deserializeDataPart(istream &input, Farmer *en) {
     GameUnit::deserializeDataPart(input, en);
-    input >> en->goldPerTurn;
+    input >> en->goldOfMine >> en->goldOfGem;
 }
 
 void Farmer::serializeTo(ostream &output) {
@@ -97,5 +98,13 @@ Farmer *Farmer::loadFrom(istream &input) {
     auto* f = new Farmer(0);
     Farmer::deserializeDataPart(input, f);
     return f;
+}
+
+int Farmer::getGoldOfGem() const {
+    return goldOfGem;
+}
+
+int Farmer::getGoldOfMine() const {
+    return goldOfMine;
 }
 

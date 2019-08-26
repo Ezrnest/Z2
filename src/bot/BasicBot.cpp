@@ -7,10 +7,14 @@
 #include "TaskGuard.h"
 #include "TaskResearch.h"
 #include "TaskMoveAttack.h"
+#include "TaskMine.h"
+#include "world/Technology.h"
 #include <algorithm>
 #include <memory>
 #include <plog/Log.h>
-
+#include <core/messages/TechResearch.h>
+#include <config/EntityRepository.h>
+#include "config/GameConfiguration.h"
 namespace z2 {
 namespace bot {
 
@@ -22,6 +26,19 @@ void BasicBot::doInit() {
         conBase = cb->getPos();
     }
     research.reset(new TaskResearch(this));
+    //load all unit
+    auto farmers = getFarmers();
+    for (auto &f : farmers) {
+        assignFarmer(f);
+    }
+    auto units = getBattleUnits();
+    for (auto &en : units) {
+        assignStandBy(en->getObjectId());
+    }
+    auto& config = GameConfiguration::instance();
+    operationInterval = config.getBotOperationInterval();
+//    auto resources = findResources();
+
 }
 
 void BasicBot::performMine(const Point &pos) {
@@ -68,7 +85,7 @@ void BasicBot::doBasicProduction() {
             tcr->addGuardian(en->getObjectId());
         }
     }
-    while (farming.size() < desiredFarmerCount) {
+    while (farming.size() < minFarmerCount) {
         if (!planForNewResource()) {
             break;
         }
@@ -78,10 +95,26 @@ void BasicBot::doBasicProduction() {
 
 void BasicBot::doResearch() {
     PLOG_INFO << "[Bot] Research";
-    if (!research) {
-        research.reset(new TaskResearch(this));
+    auto techList = world->getResearchableTechFor(playerId);
+    if (techList.empty()) {
+        return;
     }
-    research->perform();
+    auto it = min_element(techList.begin(), techList.end(), [](const Technology *t1, const Technology *t2) {
+        return t1->getPrice() < t2->getPrice();
+    });
+    auto tech = (*it);
+    if (tech->getPrice() > getPlayer().getGold()) {
+        int income = computeIncomePerTurn();
+        if (income > 0 && (double) tech->getPrice() / income <= maxNumOfTurnsToWaitForResearch) {
+            saveMoneyThisTurn = true;
+        }
+    } else {
+        makeOperation(make_shared<TechResearch>(tech->getId(), playerId));
+    }
+//    if (!research) {
+//        research.reset(new TaskResearch(this));
+//    }
+//    research->perform();
 }
 
 void BasicBot::doCommandUnits() {
@@ -150,10 +183,24 @@ void BasicBot::doCombat() {
         }
         launchAttackToAll();
     }
+    if (!extraBattleUnits.empty()) {
+        int defendIdx = randomIntBetween(0, 20);
+        if (defendIdx < 10) {
+            Point pos = findRandomEmptyTile(0);
+            if (world->isInside(pos)) {
+                auto task = extraBattleUnits.front();
+                extraBattleUnits.erase(extraBattleUnits.begin());
+                guarding.push_back(make_shared<TaskGuard>(this, task->getEntityId(), pos));
+            }
+        }
+    }
     for (auto &tg : combating) {
         tg->perform();
     }
-    guarding = Task::performAndFilter(guarding);
+    for (auto &task : guarding) {
+        task->perform();
+    }
+//    guarding = Task::performAndFilter(guarding);
     for (auto &tg : extraBattleUnits) {
         tg->perform();
     }
@@ -168,7 +215,7 @@ void BasicBot::refreshInfo() {
         if (tg->isActive()) {
             ncb.push_back(tg);
         } else {
-            extraBattleUnits.push_back(make_shared<TaskGuard>(this, tg->getEntityId()));
+            assignStandBy(tg->getEntityId());
         }
     }
     combating = ncb;
@@ -180,23 +227,28 @@ void BasicBot::refreshInfo() {
         if (tg->isActive()) {
             ngd.push_back(tg);
         } else {
-            extraBattleUnits.push_back(make_shared<TaskGuard>(this, tg->getEntityId()));
+            assignStandBy(tg->getEntityId());
         }
     }
     guarding = ngd;
 
-    while (farming.size() > desiredFarmerCount) {
+    while (farming.size() > minFarmerCount) {
         auto tcr = farming.back();
         if (!tcr->isFarmerAlive() && tcr->getGuardianCount() == 0) {
+            PLOG_INFO << "[BasicBot] Cleared a farming task.";
             farming.pop_back();
+        }else{
+            break;
         }
-        PLOG_INFO << "[BasicBot] Cleared a farming task.";
     }
+
+    saveMoneyThisTurn = false;
 
 }
 
 void BasicBot::doBotTurn() {
     Bot::doBotTurn();
+    refreshInfo();
     doCommandUnits();
     doBasicProduction();
     doResearch();
@@ -209,13 +261,13 @@ const string &BasicBot::getBotName() {
     return name;
 }
 
-Point BasicBot::findNextNearestResource() {
+Point BasicBot::findNextNearestResource(const Point& start) {
     auto res = findResources();
     if (res.empty()) {
         return {};
     }
-    sort(res.begin(), res.end(), [this](const Point &p1, const Point &p2) {
-        return p1.girdDistance(conBase) < p2.girdDistance(conBase);
+    sort(res.begin(), res.end(), [this,&start](const Point &p1, const Point &p2) {
+        return p1.girdDistance(start) < p2.girdDistance(start);
     });
     for (auto &p : res) {
         bool used = false;
@@ -233,22 +285,16 @@ Point BasicBot::findNextNearestResource() {
 }
 
 bool BasicBot::planForNewResource() {
-    Point p = findNextNearestResource();
-    PLOG_INFO << "[Bot] Next resource: (" << p.x << "," << p.y << ")";
-    if (!world->isInside(p)) {
-        return false;
-    }
     auto f = buyUnit(conBase, "Farmer");
     if (!f) {
         return false;
     }
-    farming.push_back(std::make_shared<TaskCaptureResource>(this, p, f->getObjectId()));
-    return true;
+    return assignFarmer(f);
 }
 
 void BasicBot::doExtraProduction() {
     int saveMoneyIdx = randomIntBetween(0, 100);
-    if (saveMoneyIdx < 60) {
+    if (saveMoneyIdx < 90 && saveMoneyThisTurn) {
         return;
     }
     int expandIdx = randomIntBetween(0, 100);
@@ -327,6 +373,44 @@ Point BasicBot::findRandomEmptyTile(int d) {
         return {x, y};
     }
     return {};
+}
+
+int BasicBot::computeIncomePerTurn() {
+    int total = 0;
+    for (auto &task : farming) {
+        auto &mineTask = task->getMine();
+        auto en = dynamic_pointer_cast<Farmer>(world->getEntity(mineTask->getEntityId()));
+        if (!en) {
+            continue;
+        }
+        switch (task->getResource()) {
+            case Resource::NONE:
+                break;
+            case Resource::MINE: {
+                total += en->getGoldOfMine();
+                break;
+            }
+            case Resource::GEM: {
+                total += en->getGoldOfGem();
+                break;
+            }
+        }
+    }
+    return total;
+}
+
+bool BasicBot::assignFarmer(const shared_ptr<Entity> &f) {
+    Point p = findNextNearestResource(f->getPos());
+    PLOG_INFO << "[Bot] Next resource: (" << p.x << "," << p.y << ")";
+    if (!world->isInside(p)) {
+        return false;
+    }
+    farming.push_back(std::make_shared<TaskCaptureResource>(this, p, f->getObjectId()));
+    return true;
+}
+
+bool BasicBot::assignStandBy(EntityId unit){
+    extraBattleUnits.push_back(make_shared<TaskGuard>(this,unit,unit));
 }
 
 

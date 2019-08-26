@@ -48,8 +48,8 @@ public:
     BotDifficulty getDifficulty();
 
 protected:
-    Server *server = nullptr;
-    World *world = nullptr;
+    shared_ptr<Server> server;
+    shared_ptr<World> world;
     int playerId = 0;
     BotDifficulty difficulty = BotDifficulty::NONE;
     default_random_engine randomEngine{(unsigned int) (ancono::currentTimeMillis())};

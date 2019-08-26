@@ -13,10 +13,10 @@ using namespace std;
 namespace z2 {
 class Farmer : public GameUnit{
 private:
-    int goldPerTurn = 10;
+//    int goldPerTurn = 10;
+    int goldOfMine = 25;
+    int goldOfGem = 100;
 
-
-    static const int GEM_MULTIPLIER = 10;
 public:
 
 
@@ -29,6 +29,10 @@ public:
     static Entity* create(int objectId, const Properties& initializer);
 
     void doFarm(const Point& pos, World& world);
+
+    int getGoldOfGem() const;
+
+    int getGoldOfMine() const;
 
     void performAbility(const Point &pos, World &world) override;
 

@@ -26,6 +26,8 @@ public:
 
     const string& getLanguage();
 
+    int getBotOperationInterval();
+
     static void initAll();
 
     static void initRegistration();

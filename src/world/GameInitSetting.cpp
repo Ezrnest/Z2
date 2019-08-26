@@ -14,7 +14,7 @@
 #include <plog/Log.h>
 #include "GameMap.h"
 #include "core/Server.h"
-#include "bot/BotClientPort.h"
+#include "bot/BotClientProxy.h"
 #include "config/BotRepository.h"
 #include "config/GameConfiguration.h"
 using namespace std;
@@ -197,7 +197,7 @@ string generateBotName(const shared_ptr<World> &w, shared_ptr<Bot> &bot) {
 void initBot(shared_ptr<Server> &server, shared_ptr<World> &w, PlayerSetting &ps) {
     BotDifficulty diff = ps.diff;
     auto bot = BotRepository::instance().getBot(diff);
-    shared_ptr<BotClientPort> bc(new BotClientPort(bot));
+    shared_ptr<BotClientProxy> bc = make_shared<BotClientProxy>(bot);
     bc->setClientId(ps.playerId);
     bc->setServer(server);
     server->registerClient(bc,ps.playerId);

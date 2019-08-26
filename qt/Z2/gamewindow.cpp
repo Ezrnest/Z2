@@ -51,9 +51,12 @@ GameWindow::GameWindow(MainWindow *parent) :
 
     connect(this,SIGNAL(notifyRefreshAll()),this,SLOT(refreshAll()),Qt::AutoConnection);
     connect(this,SIGNAL(notifyGameStarted()),this,SLOT(gameStarted()),Qt::AutoConnection);
-    connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),Qt::AutoConnection);
-    connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),Qt::AutoConnection);
-    connect(this,SIGNAL(notifyPlayerQuit(int)),this,SLOT(showPlayerQuit(int)),Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameEvent(const shared_ptr<GameEvent>&)),this,SLOT(dealWithGameEvent(const shared_ptr<GameEvent>&)),
+            Qt::AutoConnection);
+    connect(this,SIGNAL(notifyGameEnded()),this,SLOT(showGameEnded()),
+            Qt::AutoConnection);
+    connect(this,SIGNAL(notifyPlayerQuit(int)),this,SLOT(showPlayerQuit(int)),
+            Qt::AutoConnection);
 }
 
 GameWindow::~GameWindow()
@@ -83,7 +86,7 @@ void GameWindow::setLobby(const shared_ptr<Lobby> &lb)
 
 void GameWindow::refreshAll()
 {
-    if(gameState != GameWindow::RUNNING){
+    if(gameState != GameWindow::RUNNING && gameState != GameWindow::ENDING){
         return;
     }
     refreshSelection();
@@ -137,20 +140,31 @@ void GameWindow::dealWithGameEvent(const shared_ptr<GameEvent> &event)
 
 void GameWindow::showGameWin(const shared_ptr<PlayersWon> &event)
 {
-    QString title= tr("游戏结束");
-    QString context = tr("游戏结束，玩家 %1 获胜");
+//    QString title= tr("游戏结束");
+//    QString context = tr("游戏结束，玩家 %1 获胜");
     QStringList playerNames;
     auto w = getWorld();
+    bool wins = false;
     for(int id : event->getPlayerIds()){
-        playerNames.append(QString::fromStdString(w->getPlayer(id).getName()));
+        if(getPlayerId() == id){
+            wins = true;
+            break;
+        }
     }
-    QMessageBox::information(this,title,context.arg(playerNames.join(", ")));
-    gameState = ENDED;
-    close();
-    deleteLater();
-    if(mainWindow){
-        mainWindow->afterGameEnded();
+    QString message;// = context.arg(playerNames.join(", "));
+    if(wins){
+        message = tr("你获胜了");
+    }else{
+        message = tr("你失败了");
     }
+    ui->labelGameInfo->setText(message);
+    ui->labelGameInfo->show();
+    gameState = GameState::ENDING;
+//    close();
+//    deleteLater();
+//    if(mainWindow){
+//        mainWindow->afterGameEnded();
+//    }
 }
 
 void GameWindow::showPlayerQuit(int playerId)
@@ -173,6 +187,11 @@ shared_ptr<World> GameWindow::getWorld()
 shared_ptr<Client>& GameWindow::getClient()
 {
     return gui->client;
+}
+
+bool GameWindow::shouldDrawUI()
+{
+    return gameState == GameState::RUNNING || gameState == GameState::ENDING;
 }
 
 void GameWindow::dealWithStateEvent(const shared_ptr<StateEvent> &event)
@@ -308,6 +327,7 @@ void GameWindow::arrangeUi()
 {
     adjustPosMid(ui->frMenu,true,false);
     adjustPosMid(ui->frPlayerList,true,false);
+    adjustPosMid(ui->labelGameInfo,true,false);
     adjustPosToBorder( ui->btnEndTurn,10,false,10,false);
     adjustPosToBorder( ui->frTurnInfo,70,false,20,false);
     adjustPosToBorder( ui->btnMenu, 5,false,5,true);
@@ -437,7 +457,7 @@ void GameWindow::refreshEntityProps(shared_ptr<Entity> &en, World &w)
 
 void GameWindow::refreshSelection(bool playerClicked)
 {
-    if(gameState != GameWindow::RUNNING){
+    if(!shouldDrawUI()){
         return;
     }
     auto pos = getSelectedPos();
@@ -715,6 +735,9 @@ void GameWindow::showPlayerDefeated(const shared_ptr<PlayerEvent> &event)
 
 void GameWindow::keyPressEvent(QKeyEvent *event)
 {
+    if(!shouldDrawUI()){
+        return;
+    }
     int k = event->key();
     if(k == Qt::Key_C){
         //        cout << "Make CCB" << endl;
@@ -912,7 +935,7 @@ void GameWindow::on_btnMenuCancel_2_clicked()
 
 void GameWindow::on_btnDiplomacy_clicked()
 {
-    if(gameState != GameWindow::RUNNING){
+    if(!shouldDrawUI()){
         return;
     }
     showMenuPlayerList();

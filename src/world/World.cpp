@@ -864,16 +864,19 @@ void World::initDistanceMap() const {
         }
     }
 }
-
 PathRecord const *const *World::computeDistanceMap(const Point &start, const shared_ptr<GameUnit> &unit) const {
+    initDistanceMap();
+    if(!isInside(start)){
+        return distanceMap;
+    }
     stack<Point> s;
+    distanceMap[start.x][start.y].d = 0;
     s.push(start);
     auto &directions = Point::directions();
     while (!s.empty()) {
         Point p = s.top();
         s.pop();
         int nDistance = distanceMap[p.x][p.y].d + unit->getTileRMP(getTile(p));
-
         for (int i = 0; i < directions.size(); i++) {
             const Point &d = directions[i];
             Point next = p + d;
@@ -896,15 +899,12 @@ PathRecord const *const *World::computeDistanceMap(const Point &start, const sha
 }
 
 int World::pathLength(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
-    initDistanceMap();
-    distanceMap[start.x][start.y].d = 0;
     computeDistanceMap(start, unit);
-    return distanceMap[dest.x][dest.y].d;
+    int re = distanceMap[dest.x][dest.y].d;
+    return re;
 }
 
 vector<pair<Point, int>> World::findPath(const Point &start, const Point &dest, shared_ptr<GameUnit> &unit) const {
-    initDistanceMap();
-    distanceMap[start.x][start.y].d = 0;
     computeDistanceMap(start, unit);
     if (distanceMap[dest.x][dest.y].from == Direction::NONE) {
         return vector<pair<Point, int>>();

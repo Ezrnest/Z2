@@ -18,7 +18,7 @@
 #include <core/messages/SignalMessage.h>
 #include <config/GameConfiguration.h>
 #include "core/Server.h"
-#include "bot/BotClientPort.h"
+#include "bot/BotClientProxy.h"
 #include "LocalClient.h"
 
 namespace z2 {

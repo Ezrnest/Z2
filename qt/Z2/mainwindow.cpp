@@ -465,6 +465,8 @@ void MainWindow::initSettingPage()
     }else{
         ui->comboBoxLang->setCurrentIndex(0);
     }
+
+    ui->sliderBotOpInt->setValue(gc.getBotOperationInterval());
 }
 
 void MainWindow::saveGameSetting()
@@ -484,7 +486,7 @@ void MainWindow::saveGameSetting()
     }else{
         prop.set("language","cn");
     }
-
+    prop.setInt("botOperationInterval",ui->sliderBotOpInt->value());
     SoundRepository::instance().setVolumn(ui->sliderBGM->value(),ui->sliderSoundEffect->value());
     gc.saveProp();
     auto title = tr("信息");

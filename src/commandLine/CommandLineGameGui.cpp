@@ -234,10 +234,10 @@ void CommandLineGameGui::onGameStopped() {
 
 void CommandLineGameGui::onEvent(const shared_ptr<GameEvent> &event) {
     shared_ptr<GroupEvent> ge = static_pointer_cast<GroupEvent>(event);
-    if(ge && ge->getSType() == StateEventType::GroupWon){
-        cout << "GROUP " << ge->getGroupId() << " WON !!!" << endl;
-        return;
-    }
+//    if(ge && ge->getSType() == StateEventType::GroupWon){
+//        cout << "GROUP " << ge->getGroupId() << " WON !!!" << endl;
+//        return;
+//    }
     printWorld();
 }
 

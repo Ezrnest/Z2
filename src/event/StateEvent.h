@@ -17,7 +17,6 @@ enum class StateEventType{
     PlayerTurnStarted,
     PlayerTurnEnded,
     PlayerDefeated,
-    GroupWon,
     PlayersWon,
 };
 

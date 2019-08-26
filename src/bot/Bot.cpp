@@ -13,16 +13,18 @@
 #include <core/messages/UnitBuy.h>
 #include <plog/Log.h>
 #include "config/EntityRepository.h"
-
+#include "GameEndedException.h"
 namespace z2 {
 
 
 void Bot::init(const shared_ptr<Server> &s, const shared_ptr<World> &w, int pid) {
-    server = s.get();
-    world = w.get();
+    server = s;
+    world = w;
     playerId = pid;
     randomEngine(); // make it random
-    doInit();
+    if (world) {
+        doInit();
+    }
 }
 
 void Bot::doBotTurn() {
@@ -35,6 +37,10 @@ void Bot::doInit() {
 
 void Bot::makeOperation(const shared_ptr<GameMessage> &msg) {
     if (server) {
+        if (server->getGameState() == Server::GameState::PAUSED) {
+//            PLOG_WARNING << "[Bot] Throwing ";
+            throw GameEndedException("Game ended!");
+        }
         server->acceptMessage(msg);
     }
 }

@@ -2,6 +2,7 @@
  * Created by liyicheng on 2019/7/3.
  */
 
+#include <event/PlayersWon.h>
 #include "Server.h"
 #include "Message.h"
 #include "ClientProxy.h"
@@ -26,9 +27,9 @@ void Server::acceptMessage(const shared_ptr<Message> &command) {
             break;
         }
         case GeneralMessageType::GameMessage: {
+            broadcastMessage(command);
             world->dealWithMessage(static_pointer_cast<GameMessage>(command));
             //TODO
-            broadcastMessage(command);
             break;
         }
         case GeneralMessageType::ChatMessage:
@@ -72,6 +73,9 @@ void z2::Server::startGame() {
 }
 
 void Server::sendMessage(const shared_ptr<Message> &message, int clientId) {
+    if (clientId < 0 || clientId >= clients.size()) {
+        return;
+    }
     auto &c = clients[clientId];
     if (c) {
         c->sendMessage(message);
@@ -126,11 +130,11 @@ Server::GameState Server::getGameState() const {
 
 void Server::attachListeners(const shared_ptr<World> &world) {
     auto listener = [this](const GameEventPtr &event) {
-        shared_ptr<GroupEvent> gw = dynamic_pointer_cast<GroupEvent>(event);
-        if (!gw) {
+        shared_ptr<PlayersWon> pw = dynamic_pointer_cast<PlayersWon>(event);
+        if (!pw) {
             return;
         }
-        localEndGame(gw->getGroupId());
+        localEndGame(pw->getPlayerIds());
     };
     world->addEventListener(listener);
 }
@@ -195,16 +199,18 @@ void Server::dealWithControlMessage(const shared_ptr<z2::ControlMessage> &messag
 //    PLOG(plog::info) << "Game ended!";
 //}
 
-void Server::localEndGame(int winnerGroupId) {
-    PLOG(plog::info) << "[Server] The group " << winnerGroupId << " wins!";
+void Server::localEndGame(const vector<int>& winners) {
+    PLOG(plog::info) << "[Server] Players leading by {" << winners[0] << "} wins!";
     gameState = GameState::PAUSED;
 //    onEndGame();
+//    disconnectClients();
 }
 
 void Server::exceptionalEndGame(const string &cause) {
     gameState = GameState::PAUSED;
     PLOG(plog::info) << "Game ended, cause: " << cause;
     broadcastMessage(make_shared<ControlMessage>(ControlMessageType::EndGame));
+//    disconnectClients();
 }
 
 void Server::clientQuit(int clientId,const string &cause) {
@@ -219,6 +225,10 @@ void Server::clientQuit(int clientId,const string &cause) {
 
 const vector<shared_ptr<ClientProxy>> &Server::getClients() const {
     return clients;
+}
+
+void Server::disconnectClients() {
+    clients.clear();
 }
 
 

@@ -2,8 +2,8 @@
  * Created by liyicheng on 2019/7/7.
  */
 
-#ifndef Z2_BOTCLIENTPORT_H
-#define Z2_BOTCLIENTPORT_H
+#ifndef Z2_BOTCLIENTPROXY_H
+#define Z2_BOTCLIENTPROXY_H
 
 #include "core/ClientProxy.h"
 #include "Bot.h"
@@ -16,7 +16,7 @@ class Server;
 /**
  * The class of the bot.
  */
-class BotClientPort : public ClientProxy{
+class BotClientProxy : public ClientProxy, public enable_shared_from_this<BotClientProxy>{
 private:
     shared_ptr<Bot> bot;
 
@@ -29,9 +29,9 @@ protected:
 
 public:
 
-    explicit BotClientPort(shared_ptr<Bot> bot);
+    explicit BotClientProxy(shared_ptr<Bot> bot);
 
-    BotClientPort();
+    BotClientProxy();
 
     const weak_ptr<Server> &getServer() const;
 
@@ -43,4 +43,4 @@ public:
 };
 
 }
-#endif //Z2_BOTCLIENTPORT_H
+#endif //Z2_BOTCLIENTPROXY_H

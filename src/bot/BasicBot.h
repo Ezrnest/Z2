@@ -15,15 +15,19 @@ class BasicBot : public Bot {
 protected:
     string name;
 
-    int desiredFarmerCount = 2;
+    int minFarmerCount = 2;
     int minFarmerGuardianCount = 1;
     int maxFarmerGuardianCount = 2;
 
     int extraGuardianForGem = 2;
 
+    int maxNumOfTurnsToWaitForResearch = 6;
+
+
     int extraBattleUnitCountToLaunchAttack = 2;
 
 
+    bool saveMoneyThisTurn = false;
 
     double goldMultiplier = 2;
 
@@ -54,6 +58,7 @@ protected:
 
     void refreshInfo();
 
+    int computeIncomePerTurn();
 
     virtual void doFarm();
 
@@ -64,6 +69,10 @@ protected:
     bool launchAttackToBase();
 
     bool launchAttackToAll();
+
+    bool assignFarmer(const shared_ptr<Entity> &farmer);
+
+    bool assignStandBy(EntityId unit);
 
     /**
      * Returns `true` if a new resource is found and entities are prepared, which implies that `farming.size()` is
@@ -85,7 +94,7 @@ protected:
 
     virtual void doResearch();
 
-    Point findNextNearestResource();
+    Point findNextNearestResource(const Point& start);
 
     Point findRandomEmptyTile(int d=1);
 public:

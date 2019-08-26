@@ -221,7 +221,7 @@ public:
 
     bool isOccupied(int x, int y) const;
 private:
-
+    void computeDistanceMap0(const Point &start, const shared_ptr<GameUnit> &unit) const;
 public:
     /**
      * Computes the path length from `start` to `dest`.

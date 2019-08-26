@@ -29,8 +29,8 @@ MHW         g          M
 MHWW                   M
 M  WWF  H    F     m   M
 M   WF  H     F        M
-M   m      gg  F       M
-M       F  gg      m   M
+M   m       g  F       M
+M       F  g       m   M
 M        F     H  FW   M
 M   m     F    H  FWW  M
 M                   WWHM

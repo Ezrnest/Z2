@@ -312,7 +312,7 @@ void GameFrame::paintHighlightedTile(QPainter &painter, const shared_ptr<World> 
 
 void GameFrame::paintEvent(QPaintEvent *event)
 {
-    if(win->gameState != GameWindow::RUNNING){
+    if(!win->shouldDrawUI()){
         return;
     }
     QPainter painter(this);
@@ -337,7 +337,7 @@ void GameFrame::setWindow(GameWindow *w)
 void GameFrame::mousePressEvent(QMouseEvent *event)
 {
     //    cout << "Event" << endl;
-    if(win->gameState != GameWindow::RUNNING){
+    if(!win->shouldDrawUI()){
         return;
     }
     switch(event->button()){
@@ -361,7 +361,7 @@ void GameFrame::mousePressEvent(QMouseEvent *event)
 const int MinTimeGapMilliseconds = 100;
 void GameFrame::mouseMoveEvent(QMouseEvent *event)
 {
-    if(win->gameState != GameWindow::RUNNING){
+    if(!win->shouldDrawUI()){
         return;
     }
     if(dragState == 0){
@@ -385,7 +385,7 @@ void GameFrame::mouseMoveEvent(QMouseEvent *event)
 
 void GameFrame::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(win->gameState != GameWindow::RUNNING){
+    if(!win->shouldDrawUI()){
         return;
     }
     switch(event->button()){
@@ -449,7 +449,7 @@ const static double MAX_ZOOM = 8;
 const static double MIN_ZOOM = 1;
 void GameFrame::zoom(bool in, int mouseX, int mouseY)
 {
-    if(win->gameState != GameWindow::RUNNING){
+    if(!win->shouldDrawUI()){
         return;
     }
     double mul;

@@ -10,7 +10,7 @@
 #include "core/LocalClient.h"
 #include "commandLine/CommandLineGameGui.h"
 #include "entity/ConstructionBase.h"
-#include "bot/BotClientPort.h"
+#include "bot/BotClientProxy.h"
 #include "config/GameConfiguration.h"
 #include "config/SerializableRegistry.h"
 #include "config/MapRepository.h"
@@ -53,9 +53,9 @@ void m1() {
     local->setRealServer(server);
     server->registerClient(local);
 
-    shared_ptr<BotClientPort> bot(
-            new BotClientPort(shared_ptr<Bot>(
-                    new z2::bot::BasicBot(BotDifficulty::EASY, "bot"))));
+    shared_ptr<BotClientProxy> bot = make_shared<BotClientProxy>(
+            shared_ptr<Bot>(
+                    new z2::bot::BasicBot(BotDifficulty::EASY, "bot")));
     bot->setServer(server);
     server->registerClient(bot);
 

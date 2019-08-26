@@ -17,7 +17,7 @@ using namespace std;
 #include "core/LocalClient.h"
 #include "commandLine/CommandLineGameGui.h"
 #include "entity/ConstructionBase.h"
-#include "bot/BotClientPort.h"
+#include "bot/BotClientProxy.h"
 #include "config/GameConfiguration.h"
 #include "config/SerializableRegistry.h"
 #include "plog/Log.h"

@@ -144,6 +144,8 @@ private:
 
     shared_ptr<Client>& getClient();
 
+    bool shouldDrawUI();
+
     void dealWithStateEvent(const shared_ptr<StateEvent>& event);
 
     void dealWithInGamePlayerEvent(const shared_ptr<InGamePlayerEvent> &event);

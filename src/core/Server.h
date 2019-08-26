@@ -96,7 +96,9 @@ private:
 
     void attachListeners(const shared_ptr<World> &world);
 
+    void disconnectClients();
 public:
+
 
     virtual ~Server();
 
@@ -120,7 +122,7 @@ public:
      */
     void startGame();
 
-    void localEndGame(int winnerGroupId);
+    void localEndGame(const vector<int>& winners);
 
     void clientQuit(int clientId, const string &cause);
 

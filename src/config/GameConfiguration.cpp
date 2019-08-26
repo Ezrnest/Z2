@@ -135,6 +135,10 @@ const string &GameConfiguration::getLanguage() {
     return getProp().get("language",lang);
 }
 
+int GameConfiguration::getBotOperationInterval() {
+    return getProp().getInt("botOperationInterval", 100);
+}
+
 
 
 

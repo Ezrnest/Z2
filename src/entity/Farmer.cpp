@@ -79,7 +79,7 @@ void Farmer::initialize(const Properties &prop) {
 
 void Farmer::serializeDataPart(ostream &output) {
     GameUnit::serializeDataPart(output);
-    output << goldOfMine << ' ' << goldOfGem;
+    output << goldOfMine << ' ' << goldOfGem << ' ';
 }
 
 

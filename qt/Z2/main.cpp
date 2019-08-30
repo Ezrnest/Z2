@@ -54,9 +54,9 @@ void buildTestGame(shared_ptr<Server>& server, shared_ptr<LocalClient>& client){
     server->registerClient(local);
     client = local;
 
-    shared_ptr<BotClientPort> bot(new BotClientPort());
-    bot->setServer(server);
-    server->registerClient(bot);
+//    shared_ptr<BotClientPort> bot(new BotClientPort());
+//    bot->setServer(server);
+//    server->registerClient(bot);
 
     //    w->resetVisibility(0);
 }
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
     initAll();
 
-    return runGameWindow(a);
-//    return runMainMenu(a);
+//   return runGameWindow(a);
+    return runMainMenu(a);
 
 }

@@ -17,7 +17,7 @@ file(GLOB CommandLine src/commandLine/*.cpp src/commandLine/*.h)
 file(GLOB Util src/util/*.cpp src/util/*.h)
 file(GLOB_RECURSE Lib lib lib/*.hpp lib/*.cc lib/*.h lib/*.ipp)
 #aux_source_directory(lib Lib)
-set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLine} ${Util} ${Lib})
+set(Z2_Sources ${Core} ${World} ${Entity} ${Event} ${Config} ${Bot} ${CommandLine} ${Util} ${Lib} src/bot/AlphaBot.h src/bot/AlphaBot.cpp)
 #add_executable(z2
 #        src/main.cpp ${Z2_Sources}
 #        )

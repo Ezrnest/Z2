@@ -6,10 +6,10 @@
 #include <bot/Dummy.h>
 #include "BotRepository.h"
 #include <random>
+#include <bot/AlphaBot.h>
 #include "bot/BasicBot.h"
 
 namespace z2 {
-
 
 shared_ptr<Bot> BotRepository::getBot(BotDifficulty difficulty) {
     if (providers.find(difficulty) == providers.end()) {
@@ -43,8 +43,16 @@ void BotRepository::addProvider(const BotProvider &provider, BotDifficulty diff)
     }
 }
 
+void addAlphaBots(BotRepository &repository, BotDifficulty diff, const vector<string>& names) {
+    for(auto &n : names)
+    {
+        bot::AlphaBotProvider provider(n);
+        repository.addProvider(provider, diff);
+    }
+}
+
 void addBasicBots(BotRepository &repository, BotDifficulty diff, const vector<string>& names) {
-    double mul;
+    double mul = 1.0;
     switch (diff) {
         case BotDifficulty::NONE:
         case BotDifficulty::EASY:
@@ -63,12 +71,20 @@ void addBasicBots(BotRepository &repository, BotDifficulty diff, const vector<st
     }
 }
 
+void addDumbBots(BotRepository &repository) {
+    vector<string> names{
+            "Bot_Doggy", "Bot_Catty", "Bot_Mittens", "Bot_Leo",
+            "Bot_Dildo", "Bot_Lego", "Bot_Trivial", "Bot_May"
+    };
+    addAlphaBots(repository, BotDifficulty::DUMB, names);
+}
+
 void addEasyBots(BotRepository &repository) {
     vector<string> names{
             "Bot_Pinkie", "Bot_Alice", "Bot_Tommy", "Bot_Tomato",
             "Bot_Bob", "Bot_Ez", "Bot_000", "Bot_Faye"
     };
-    addBasicBots(repository, BotDifficulty::EASY, names);
+    addAlphaBots(repository, BotDifficulty::EASY, names);
 }
 
 void addNormalBots(BotRepository &repository) {
@@ -76,7 +92,7 @@ void addNormalBots(BotRepository &repository) {
             "Bot_Alory", "Bot_Joyce", "Bot_Jimmy", "Bot_Potato",
             "Bot_Richard", "Bot_Han", "Bot_Zhang", "Bot_Black"
     };
-    addBasicBots(repository, BotDifficulty::NORMAL, names);
+    addAlphaBots(repository, BotDifficulty::NORMAL, names);
 }
 
 void addHardBots(BotRepository &repository) {
@@ -84,9 +100,8 @@ void addHardBots(BotRepository &repository) {
             "Bot_Dezza", "Bot_TS", "Bot_Li", "Bot_Ez",
             "Bot_Void", "Bot_Kant", "Bot_Dash", "Bot_Crisp"
     };
-    addBasicBots(repository, BotDifficulty::HARD, names);
+    addAlphaBots(repository, BotDifficulty::HARD, names);
 }
-
 
 void BotRepository::initBots() {
     auto &repo = instance();
@@ -97,14 +112,12 @@ void BotRepository::initBots() {
 //    };
 //    repo.addProvider(provider, BotDifficulty::NONE);
 //    repo.addProvider(provider, BotDifficulty::EASY);
+    addDumbBots(repo);
     addEasyBots(repo);
     addNormalBots(repo);
     addHardBots(repo);
 }
 
-void BotRepository::initFromFolder(const ancono::File &dir) {
-
-}
-
+void BotRepository::initFromFolder(const ancono::File &dir) {}
 
 }

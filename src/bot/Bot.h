@@ -14,9 +14,10 @@ namespace z2 {
 
 enum class BotDifficulty {
     NONE,
+    DUMB,
     EASY,
     NORMAL,
-    HARD
+    HARD,
 };
 namespace bot{
 class EntityTask;

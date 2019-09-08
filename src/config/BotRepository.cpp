@@ -71,14 +71,6 @@ void addBasicBots(BotRepository &repository, BotDifficulty diff, const vector<st
     }
 }
 
-void addDumbBots(BotRepository &repository) {
-    vector<string> names{
-            "Bot_Doggy", "Bot_Catty", "Bot_Mittens", "Bot_Leo",
-            "Bot_Dildo", "Bot_Lego", "Bot_Trivial", "Bot_May"
-    };
-    addAlphaBots(repository, BotDifficulty::DUMB, names);
-}
-
 void addEasyBots(BotRepository &repository) {
     vector<string> names{
             "Bot_Pinkie", "Bot_Alice", "Bot_Tommy", "Bot_Tomato",
@@ -112,7 +104,6 @@ void BotRepository::initBots() {
 //    };
 //    repo.addProvider(provider, BotDifficulty::NONE);
 //    repo.addProvider(provider, BotDifficulty::EASY);
-    addDumbBots(repo);
     addEasyBots(repo);
     addNormalBots(repo);
     addHardBots(repo);

@@ -405,16 +405,6 @@ namespace z2 {
             {
                 case BotDifficulty::NONE:
                     break;
-                case BotDifficulty::DUMB:
-                    tmpBot->minFarmerCount = 2;
-                    tmpBot->minFarmerGuardianCount = 0;
-                    tmpBot->maxFarmerGuardianCount = 1;
-                    tmpBot->extraGuardianForGem = 0;
-                    tmpBot->maxNumOfTurnsToWaitForResearch = 8;
-                    tmpBot->extraBattleUnitCountToLaunchAttack = 5;
-                    tmpBot->goldMultiplier = 1;
-                    tmpBot->operationInterval = 1500;
-                    break;
                 case BotDifficulty::EASY:
                     tmpBot->minFarmerCount = 2;
                     tmpBot->minFarmerGuardianCount = 0;
